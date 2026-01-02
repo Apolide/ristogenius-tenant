@@ -1,0 +1,11 @@
+- coupon
+- customer
+- marketing
+- email , emailfunnel, funnel
+- fidelity
+- marketing
+- message (costi messaggi)
+- product
+- tenant
+- Aiuselog
+- Whatsapp ???

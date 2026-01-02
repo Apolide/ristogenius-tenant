@@ -1,0 +1,68 @@
+version: '3.7'
+services:
+  
+  #PHP
+  ristopilot-crm_php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_php
+    restart: always
+    environment:
+      - DB_HOST=${DATABASE_HOST}
+      - DB_PORT=${DATABASE_PORT_CONTAINER}
+      - DB_USERNAME=${DATABASE_USER}
+      - DB_PASSWORD=${DATABASE_PASSWORD}
+      - DB_DATABASE=${DATABASE_DATABASE}
+    volumes:
+      - ./code:/var/www/html
+      - ./certificates:/var/www/html/certificates
+      #- /home/application/.ssh/private.pem:/home/www-data/private.pem
+      # - ./code/.env:/var/www/html/.env
+      # - ./code/app:/var/www/html/app
+      # - ./code/resources:/var/www/html/resources
+      # - ./code/routes:/var/www/html/routes
+      # - ./code/public:/var/www/html/public
+      # - ./code/database:/var/www/html/database
+      # - ./code/config:/var/www/html/config
+      # - ./code/composer.json:/var/www/html/composer.json
+      # - ./code/composer.lock:/var/www/html/composer.lock
+    networks:
+      - app-network
+
+  #Nginx
+  ristopilot-crm_nginx:
+    image: nginx:alpine
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx
+    restart: always
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker-files/production/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker-files/production/nginx/general.conf:/etc/nginx/conf.d/default.conf
+      - ./docker-files/production/nginx/includes/:/etc/nginx/includes/
+      - ./code:/var/www/html
+      - ./certificates:/etc/nginx/ssl/live/ristopilot.com
+      - /var/log/containerslogs/ristopilot-crm_php/:/var/log/nginx/
+    networks:
+      - app-network
+
+
+ 
+  ristopilot-crm_redis:
+    image: redis:6.2.6
+    container_name: ${COMPOSE_PROJECT_NAME}_redis
+    restart: always
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./docker-files/production/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - app-network
+
+
+#Networks
+networks:
+  app-network:
+    driver: bridge

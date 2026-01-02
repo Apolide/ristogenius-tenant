@@ -1,0 +1,101 @@
+FROM php:8.2-fpm-alpine3.19
+
+ENV PHP_OPCACHE_ENABLE=1
+ENV PHP_OPCACHE_ENABLE_CLI=1
+ENV PHP_OPCACHE_VALIDATE_TIMESTAMP=1
+ENV PHP_OPCACHE_REVALIDATE_FREQ=1
+
+WORKDIR /var/www/html/
+
+# Essentials
+RUN echo "UTC+1" > /etc/timezone
+RUN apk add --no-cache git bash unzip curl 
+
+RUN sed -i 's/bin\/ash/bin\/bash/g' /etc/passwd
+
+
+# Installing PHP and dependencies
+
+RUN apk add --no-cache \
+    freetype-dev \
+    icu-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libxml2-dev \
+    unzip \
+    jpegoptim \
+    optipng \
+    pngquant \
+    gifsicle \
+    libavif \
+    && docker-php-ext-install intl \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-install exif 
+
+RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-install gd
+
+RUN apk add --no-cache ${PHPIZE_DEPS} imagemagick imagemagick-dev
+
+RUN pecl install -o -f imagick\
+    &&  docker-php-ext-enable imagick
+
+RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis.so
+
+RUN apk add --no-cache \
+    libzip-dev \
+    zip \
+    && docker-php-ext-install zip
+
+RUN apk add --no-cache linux-headers
+RUN docker-php-ext-install sockets
+
+RUN apk add --no-cache supervisor
+
+RUN docker-php-ext-install pcntl
+
+RUN apk add --no-cache autoconf build-base
+
+RUN pecl channel-update pecl.php.net
+
+RUN pecl install excimer
+
+RUN apk del --no-cache ${PHPIZE_DEPS}
+
+COPY docker-files/production/php/docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+COPY docker-files/production/php/php.ini /usr/local/etc/php/php.ini
+COPY docker-files/production/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+RUN mkdir -p /etc/supervisor.d/
+
+COPY docker-files/supervisord/supervisord_jobs.ini /etc/supervisord.d/supervisord.ini
+
+# Installing composer
+RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
+RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+RUN rm -rf composer-setup.php
+
+# Building process
+COPY --chown=www-data ./code .
+RUN composer install
+RUN composer clear-cache
+
+RUN php artisan storage:link
+RUN php artisan config:clear
+RUN chown -R www-data /var/www/html/storage
+RUN chown -R www-data /var/www/html/bootstrap
+
+
+# Remove Alpine apk cache
+RUN rm -rf /var/cache/apk/*
+
+# Expose port 9000 and start php-fpm server
+EXPOSE 9000
+
+#CMD ["php-fpm"]
+CMD ["supervisord", "-c", "/etc/supervisord.d/supervisord.ini"]
+
