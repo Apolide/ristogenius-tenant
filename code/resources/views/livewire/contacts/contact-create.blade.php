@@ -4,7 +4,7 @@
       <div class="box-header border-none">
           <div class="flex justify-between">
               <div>
-                  <div class="box-title pb-0">NUOVO TENANT</div>
+                  <div class="box-title pb-0">NUOVO CONTATTO</div>
                   {{-- <p class="text-xs text-gray-500 font-normal">Gestisci i tuoi prodotti qui.</p> --}}
               </div>
               
@@ -15,7 +15,7 @@
         <form id="createForm" wire:submit.prevent="save">
             <div class="w-full mb-5">
                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-                <input required wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="Scegli un nome per il tenant">
+                <input required wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="Scegli un nome per il contatto">
                 @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 

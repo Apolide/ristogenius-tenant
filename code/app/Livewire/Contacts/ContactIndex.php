@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Livewire\Tenants;
+namespace App\Livewire\Contacts;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
-use App\Services\Tenant\TenantService;
+use App\Services\Contact\ContactService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
-class TenantIndex extends Component
+class ContactIndex extends Component
 {
     use WithPagination;
 
@@ -23,24 +23,24 @@ class TenantIndex extends Component
     }
 
 
-    public function render(TenantService $tenantService)
+    public function render(ContactService $contactService)
     {
-        $tenants = $tenantService->getTenants();
+        $contacts = $contactService->getContacts();
        
-        return view('livewire.tenants.tenant-index', [
-            'tenants' => $tenants,
+        return view('livewire.contacts.contact-index', [
+            'contacts' => $contacts,
         ]);
     }
 
-    #[On('tenant-refresh')]
-    public function refreshView(TenantService $tenantService)
+    #[On('content-refresh')]
+    public function refreshView(ContactService $contactService)
     {
     
-        $tenants = $tenantService->getTenants();
+        $contacts = $contactService->getContacts();
     
 
-        return view('livewire.tenants.tenant-index', [
-            'tenants' => $tenants,
+        return view('livewire.contacts.contact-index', [
+            'contacts' => $contacts,
         ]);
     }
    

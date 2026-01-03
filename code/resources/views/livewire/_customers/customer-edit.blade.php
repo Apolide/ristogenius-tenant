@@ -1,6 +1,6 @@
 <div>
 
-    @if($tenantId && $isVisible)
+    @if($contactId && $isVisible)
 
         <div class="box">
             <div class="box-header border-none">
@@ -15,12 +15,12 @@
             </div>
 
             <div class="box-body">
-                <form id="editForm-{{$tenantId}}" wire:submit.prevent="update">
-                    <input hidden wire:model="tenantId" type="hidden" id="tenantId" name="tenantId" value="{{$tenantId}}">
+                <form id="editForm-{{$contactId}}" wire:submit.prevent="update">
+                    <input hidden wire:model="contactId" type="hidden" id="contactId" name="contactId" value="{{$contactId}}">
 
                     <div class="w-full mb-5">
                         <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-                        <input disabled wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="Scegli un nome per il tenant">
+                        <input disabled wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="Scegli un nome per il contatto">
                         @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
@@ -152,11 +152,11 @@
     {{-- @script
     <script>
     
-      document.getElementById('submitEditBtn-'+'{{$tenantId}}').addEventListener('click', function() {
-        const form = document.getElementById('editForm-'+'{{$tenantId}}');
+      document.getElementById('submitEditBtn-'+'{{$contactId}}').addEventListener('click', function() {
+        const form = document.getElementById('editForm-'+'{{$contactId}}');
         const formData = new FormData(form);
         console.log(formData.getAll());
-        $wire.dispatch('product-updated' , { id: '{{$tenantId}}', data : formData.getAll() });
+        $wire.dispatch('product-updated' , { id: '{{$contactId}}', data : formData.getAll() });
       });
     
     </script>

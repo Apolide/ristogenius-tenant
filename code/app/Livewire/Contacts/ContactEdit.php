@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Livewire\Tenants;
+namespace App\Livewire\Contacts;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
-use App\Services\Tenant\TenantService;
+use App\Services\Contact\ContactService;
 use App\Models\Region;
 use App\Models\Province;
 use App\Models\Comuni;
@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 
-class TenantEdit extends Component
+class ContactEdit extends Component
 {
-    public $tenantId;
+    public $contactId;
     public $name;
     public $system_name;
     public $email;
@@ -43,33 +43,33 @@ class TenantEdit extends Component
 
     public function render()
     {
-        return view('livewire.tenants.tenant-edit');
+        return view('livewire.contacts.contact-edit');
     }
 
      
-    #[On('click-edit-tenant')]
-    public function editProduct($id, TenantService $tenantService)
+    #[On('click-edit-contact')]
+    public function editProduct($id, ContactService $contactService)
     {
 
-        $tenant = $tenantService->getTenantById($id);
+        $contact = $contactService->getContactById($id);
 
-        $this->tenantId = $tenant->id;
-        $this->name = $tenant->name;
-        $this->system_name = $tenant->system_name;
-        $this->email = $tenant->email;
-        $this->phone = $tenant->phone;
-        $this->company_name = $tenant->company_name;
-        $this->piva = $tenant->piva;
-        $this->riferimento_mandato = $tenant->riferimento_mandato;
+        $this->contactId = $contact->id;
+        $this->name = $contact->name;
+        $this->system_name = $contact->system_name;
+        $this->email = $contact->email;
+        $this->phone = $contact->phone;
+        $this->company_name = $contact->company_name;
+        $this->piva = $contact->piva;
+        $this->riferimento_mandato = $contact->riferimento_mandato;
         
-        $this->region_id = $tenant->region_id;
-        $this->province_id = $tenant->province_id;
-        $this->comuni_id = $tenant->comuni_id;
-        $this->address = $tenant->address;
-        $this->legal_officer = $tenant->legal_officer;
-        $this->legal_address = $tenant->legal_address;
-        $this->legal_phone = $tenant->legal_phone;
-        $this->legal_email = $tenant->legal_email;
+        $this->region_id = $contact->region_id;
+        $this->province_id = $contact->province_id;
+        $this->comuni_id = $contact->comuni_id;
+        $this->address = $contact->address;
+        $this->legal_officer = $contact->legal_officer;
+        $this->legal_address = $contact->legal_address;
+        $this->legal_phone = $contact->legal_phone;
+        $this->legal_email = $contact->legal_email;
 
         $this->isVisible = true;
         $this->dispatch('hide-listing');
@@ -79,12 +79,12 @@ class TenantEdit extends Component
     
 
   
-    public function update(TenantService $tenantService)
+    public function update(ContactService $contactService)
     {
 
     
         $data = $this->validate([
-            'tenantId' => 'required|string|max:255',
+            'contactId' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'company_name' => 'required|string|max:255',
@@ -100,20 +100,20 @@ class TenantEdit extends Component
             'legal_email' => 'required|email|max:255',
         ]);
 
-        $tenant = $tenantService->getTenantById($data["tenantId"]);
+        $contact = $contactService->getContactById($data["contactId"]);
 
-        if ($tenant->riferimento_mandato){
-            $data["riferimento_mandato"] = $tenant->riferimento_mandato;
+        if ($contact->riferimento_mandato){
+            $data["riferimento_mandato"] = $contact->riferimento_mandato;
         }
 
-        $tenantService->updateTenant($data["tenantId"], $data);
+        $contactService->updateContact($data["contactId"], $data);
         
 
         
-        session()->flash('message', 'Tenant aggiornato con successo.');
+        session()->flash('message', 'Contact aggiornato con successo.');
         $this->isVisible = false;
         $this->dispatch('show-listing');
-        $this->dispatch('tenant-refresh');
+        $this->dispatch('content-refresh');
  
     }
 
@@ -149,8 +149,8 @@ class TenantEdit extends Component
 
     public function generateRandomString(){
 
-        $tenantService = new TenantService;
-        $this->riferimento_mandato = $tenantService->generateRandomString();
+        $contactService = new ContactService;
+        $this->riferimento_mandato = $contactService->generateRandomString();
     }
 
 

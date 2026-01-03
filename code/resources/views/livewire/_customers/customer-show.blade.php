@@ -61,7 +61,7 @@
                                         <span class="badge bg-danger/10 !text-danger">NO</span>
                                     @endif
                                 </td>
-                            <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">@if ($tenant) {{ $tenant->name }} @else - @endif</td>
+                            <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">@if ($contact) {{ $contact->name }} @else - @endif</td>
                             <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $customer->registration_source }}</td>
                             <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $customer->created_at?->format('d/m/Y H:i:s') ?? '—' }}</td>
                             <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $customer->last_action_at?->format('d/m/Y H:i:s') ?? '—' }}</td>
@@ -101,7 +101,7 @@
                                         class="col-span-12 md:col-span-6 block border border-gray-200 bg-white rounded-md p-5 hover:shadow-sm">
                                             <div class="flex items-center justify-between">
                                                 <div>
-                                                    <div class="font-semibold text-lg">{{ $acc->tenant?->name ?? 'Locale' }}</div>
+                                                    <div class="font-semibold text-lg">{{ $acc->contact?->name ?? 'Locale' }}</div>
                                                     <div class="text-sm text-gray-600">
                                                         Iscritto: {{ $acc->subscribed_at ? $acc->subscribed_at->format('d/m/Y') : '—' }}
                                                     </div>
@@ -147,8 +147,8 @@
                             $coupons = \App\Models\CustomerCoupon::query()
                                 ->where('customer_id', $this->customer->id)
                                 ->with([
-                                    'tenant:id,name,system_name',
-                                    'tenantCoupon:id,tenant_id,tenant_coupon_id,slug,title_it,title_en,expires_at,is_active',
+                                    'contact:id,name,system_name',
+                                    'contactCoupon:id,contact_id,content_coupon_id,slug,title_it,title_en,expires_at,is_active',
                                 ])
                                 ->orderByRaw("CASE WHEN validated_at IS NULL THEN 0 ELSE 1 END") // da usare prima
                                 ->orderByDesc('redeemed_at')
@@ -164,10 +164,10 @@
                                 <div class="grid grid-cols-12 gap-6">
                                     @foreach($coupons as $cc)
                                         @php
-                                            $title = $cc->tenantCoupon?->title_it ?? 'Coupon';
-                                            $tenantName = $cc->tenant?->name ?? 'Locale';
+                                            $title = $cc->contactNameCoupon?->title_it ?? 'Coupon';
+                                            $contactName = $cc->contact?->name ?? 'Locale';
                                             $isUsed = !is_null($cc->validated_at) || $cc->status === 'validated';
-                                            $expiresAt = $cc->tenantCoupon?->expires_at;
+                                            $expiresAt = $cc->contactCoupon?->expires_at;
                                             $isExpired = $expiresAt && $expiresAt->isPast();
                                         @endphp
 
@@ -177,7 +177,7 @@
                                             <div class="flex items-start justify-between gap-4">
                                                 <div>
                                                     <div class="font-semibold text-lg">{{ $title }}</div>
-                                                    <div class="text-sm text-gray-600">{{ $tenantName }}</div>
+                                                    <div class="text-sm text-gray-600">{{ $contactName }}</div>
 
                                                     <div class="text-xs text-gray-600 mt-2">
                                                         Riscattato: <span class="font-semibold">{{ $cc->redeemed_at ? $cc->redeemed_at->format('d/m/Y') : '—' }}</span>

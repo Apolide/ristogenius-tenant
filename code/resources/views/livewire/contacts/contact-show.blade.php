@@ -34,10 +34,10 @@
                   
                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
                         
-                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $tenant->id }}</td>
-                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $tenant->name }}</td>
-                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $tenant->system_name }}</td>
-                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $tenant->email }}</td>
+                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $contact->id }}</td>
+                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $contact->name }}</td>
+                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $contact->system_name }}</td>
+                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $contact->email }}</td>
                     </tr>
                         
                 </tbody>
@@ -59,7 +59,7 @@
             </div>
         </div> 
         <div class="box-body">
-            <livewire:tenants.tenant-layout-manager />
+            <livewire:contacts.contact-layout-manager />
         </div>
     </div> 
 

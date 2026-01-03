@@ -10,6 +10,7 @@ use App\Jobs\Notifications\SendWhatsappTemplateJob;
 use App\Jobs\Notifications\SendTelegramMessageJob;
 use Illuminate\Support\Facades\Log;
 
+// TODO remove
 class NotificationDispatcherService
 {
     protected MessageService $messageService;
@@ -32,7 +33,7 @@ class NotificationDispatcherService
     public function dispatchNotifications(array $data, string $reason = 'transactional', string $context = 'notification'): array
     {
         $channels = json_decode($data["channels"], true);
-        $tenantId = $data["tenant_id"];
+        $contactId = $data["contact_id"];
         
         $results = [
             'sent' => [],
@@ -43,7 +44,7 @@ class NotificationDispatcherService
 
         // EMAIL
         if ($channels["messages_channels"]["email"] ?? false) {
-            $result = $this->processChannel($tenantId, 'email', $reason, function() use ($data) {
+            $result = $this->processChannel($contactId, 'email', $reason, function() use ($data) {
                 SendMailJob::dispatch($data);
             });
             $this->categorizeResult($result, 'email', $results);
@@ -51,7 +52,7 @@ class NotificationDispatcherService
 
         // WHATSAPP
         if ($channels["messages_channels"]["whatsapp"] ?? false) {
-            $result = $this->processChannel($tenantId, 'whatsapp', $reason, function() use ($data) {
+            $result = $this->processChannel($contactId, 'whatsapp', $reason, function() use ($data) {
                 SendWhatsappTemplateJob::dispatch($data);
             });
             $this->categorizeResult($result, 'whatsapp', $results);
@@ -59,7 +60,7 @@ class NotificationDispatcherService
 
         // TELEGRAM
         if ($channels["messages_channels"]["telegram"] ?? false) {
-            $result = $this->processChannel($tenantId, 'telegram', $reason, function() use ($data) {
+            $result = $this->processChannel($contactId, 'telegram', $reason, function() use ($data) {
                 SendTelegramMessageJob::dispatch($data);
             });
             $this->categorizeResult($result, 'telegram', $results);
@@ -67,15 +68,15 @@ class NotificationDispatcherService
 
         // SMS (gestione speciale per blocchi multipli)
         if ($channels['messages_channels']['sms'] ?? false) {
-            $result = $this->processSmsChannel($tenantId, $data, $reason);
+            $result = $this->processSmsChannel($contactId, $data, $reason);
             $this->categorizeResult($result, 'sms', $results);
         }
 
         // Log dei risultati
-        $this->logResults($tenantId, $results, $context, $data);
+        $this->logResults($contactId, $results, $context, $data);
 
         // Gestisci casi speciali
-        $this->handleSpecialCases($tenantId, $results, $data);
+        $this->handleSpecialCases($contactId, $results, $data);
 
         return $results;
     }
@@ -83,11 +84,11 @@ class NotificationDispatcherService
     /**
      * Processa un singolo canale di notifica
      */
-    protected function processChannel(string $tenantId, string $channel, string $reason, callable $sendCallback): array
+    protected function processChannel(string $contactId, string $channel, string $reason, callable $sendCallback): array
     {
         try {
             // Verifica se può inviare
-            $canSend = $this->messageService->canSendMessage($tenantId, $channel, $reason);
+            $canSend = $this->messageService->canSendMessage($contactId, $channel, $reason);
             
             if (!$canSend['can_send']) {
                 return [
@@ -100,7 +101,7 @@ class NotificationDispatcherService
             }
 
             // Tenta l'invio con decurtazione fondi
-            $result = $this->messageService->sendMessage($tenantId, $channel, $reason);
+            $result = $this->messageService->sendMessage($contactId, $channel, $reason);
             
             if (!$result['success']) {
                 return [
@@ -122,7 +123,7 @@ class NotificationDispatcherService
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error processing {$channel} channel for tenant {$tenantId}: " . $e->getMessage());
+            Log::error("Error processing {$channel} channel for contact {$contactId}: " . $e->getMessage());
             
             return [
                 'status' => 'failed',
@@ -136,7 +137,7 @@ class NotificationDispatcherService
     /**
      * Processa il canale SMS con gestione dei blocchi multipli
      */
-    protected function processSmsChannel(string $tenantId, array $data, string $reason): array
+    protected function processSmsChannel(string $contactId, array $data, string $reason): array
     {
         try {
             if (!isset($data['sms_body'])) {
@@ -155,7 +156,7 @@ class NotificationDispatcherService
             // Verifica fondi per tutti i blocchi
             $totalCost = 0;
             for ($i = 0; $i < $chunks; $i++) {
-                $canSend = $this->messageService->canSendMessage($tenantId, 'sms', $reason);
+                $canSend = $this->messageService->canSendMessage($contactId, 'sms', $reason);
                 if (!$canSend['can_send']) {
                     return [
                         'status' => 'insufficient_funds',
@@ -172,10 +173,10 @@ class NotificationDispatcherService
             // Processa tutti i blocchi
             $processedChunks = 0;
             for ($i = 0; $i < $chunks; $i++) {
-                $result = $this->messageService->sendMessage($tenantId, 'sms', $reason);
+                $result = $this->messageService->sendMessage($contactId, 'sms', $reason);
                 if (!$result['success']) {
                     // Se un blocco fallisce, logga ma continua (i fondi sono già stati decurtati)
-                    Log::warning("SMS chunk {$i}/{$chunks} failed for tenant {$tenantId}: " . ($result['error'] ?? 'unknown'));
+                    Log::warning("SMS chunk {$i}/{$chunks} failed for contact {$contactId}: " . ($result['error'] ?? 'unknown'));
                     break;
                 }
                 $processedChunks++;
@@ -204,7 +205,7 @@ class NotificationDispatcherService
             }
 
         } catch (\Exception $e) {
-            Log::error("Error processing SMS channel for tenant {$tenantId}: " . $e->getMessage());
+            Log::error("Error processing SMS channel for contact {$contactId}: " . $e->getMessage());
             
             return [
                 'status' => 'failed',
@@ -239,7 +240,7 @@ class NotificationDispatcherService
     /**
      * Log dei risultati dell'invio
      */
-    protected function logResults(string $tenantId, array $results, string $context, array $data): void
+    protected function logResults(string $contactId, array $results, string $context, array $data): void
     {
         $summary = [
             'sent_count' => count($results['sent']),
@@ -250,7 +251,7 @@ class NotificationDispatcherService
 
         if ($summary['sent_count'] > 0) {
             Log::info("Notifications sent successfully", [
-                'tenant_id' => $tenantId,
+                'contact_id' => $contactId,
                 'context' => $context,
                 'summary' => $summary,
                 'sent_channels' => array_column($results['sent'], 'channel'),
@@ -260,7 +261,7 @@ class NotificationDispatcherService
 
         if ($summary['failed_count'] > 0) {
             Log::error("Some notifications failed to send", [
-                'tenant_id' => $tenantId,
+                'contact_id' => $contactId,
                 'context' => $context,
                 'summary' => $summary,
                 'failed_details' => $results['failed']
@@ -269,7 +270,7 @@ class NotificationDispatcherService
 
         if ($summary['insufficient_funds_count'] > 0) {
             Log::warning("Notifications blocked due to insufficient funds", [
-                'tenant_id' => $tenantId,
+                'contact_id' => $contactId,
                 'context' => $context,
                 'summary' => $summary,
                 'insufficient_funds_details' => $results['insufficient_funds']
@@ -280,26 +281,26 @@ class NotificationDispatcherService
     /**
      * Gestisce casi speciali come tutti i canali bloccati
      */
-    protected function handleSpecialCases(string $tenantId, array $results, array $data): void
+    protected function handleSpecialCases(string $contactId, array $results, array $data): void
     {
         // Se tutti i canali sono bloccati per fondi insufficienti
         if (empty($results['sent']) && !empty($results['insufficient_funds'])) {
-            $this->handleAllChannelsBlocked($tenantId, $results['insufficient_funds'], $data);
+            $this->handleAllChannelsBlocked($contactId, $results['insufficient_funds'], $data);
         }
 
         // Se ci sono fondi insufficienti su alcuni canali, notifica
         if (!empty($results['insufficient_funds'])) {
-            $this->notifyInsufficientFunds($tenantId, $results['insufficient_funds']);
+            $this->notifyInsufficientFunds($contactId, $results['insufficient_funds']);
         }
     }
 
     /**
      * Gestisce il caso in cui tutti i canali sono bloccati
      */
-    protected function handleAllChannelsBlocked(string $tenantId, array $insufficientFunds, array $data): void
+    protected function handleAllChannelsBlocked(string $contactId, array $insufficientFunds, array $data): void
     {
         Log::critical("All notification channels blocked due to insufficient funds", [
-            'tenant_id' => $tenantId,
+            'contact_id' => $contactId,
             'reference_data' => $this->extractReferenceData($data),
             'insufficient_funds' => $insufficientFunds
         ]);
@@ -311,13 +312,13 @@ class NotificationDispatcherService
     /**
      * Notifica quando ci sono fondi insufficienti
      */
-    protected function notifyInsufficientFunds(string $tenantId, array $insufficientFunds): void
+    protected function notifyInsufficientFunds(string $contactId, array $insufficientFunds): void
     {
         $totalRequired = collect($insufficientFunds)->sum('required');
         $currentBalance = collect($insufficientFunds)->first()['available'] ?? 0;
         
         Log::info("Insufficient funds notification triggered", [
-            'tenant_id' => $tenantId,
+            'contact_id' => $contactId,
             'total_required' => $totalRequired,
             'current_balance' => $currentBalance,
             'affected_channels' => array_column($insufficientFunds, 'channel')
@@ -335,7 +336,7 @@ class NotificationDispatcherService
             'email' => $data['email'] ?? null,
             'booking_date' => $data['booking_date'] ?? null,
             'booking_timeslot' => $data['booking_timeslot'] ?? null,
-            'tenant_name' => $data['tenant_name'] ?? null,
+            'content_name' => $data['content_name'] ?? null,
         ]);
     }
 
@@ -345,7 +346,7 @@ class NotificationDispatcherService
     public function checkFundsForAllChannels(array $data, string $reason = 'transactional'): array
     {
         $channels = json_decode($data["channels"], true);
-        $tenantId = $data["tenant_id"];
+        $contactId = $data["contact_id"];
         
         $fundsCheck = [
             'sufficient_funds' => true,
@@ -354,12 +355,12 @@ class NotificationDispatcherService
             'current_balance' => 0
         ];
 
-        $funds = $this->fundsService->getTenantFunds($tenantId);
+        $funds = $this->fundsService->getTenantFunds($contactId);
         $fundsCheck['current_balance'] = $funds->current_balance;
 
         foreach (['email', 'whatsapp', 'telegram', 'sms'] as $channel) {
             if ($channels["messages_channels"][$channel] ?? false) {
-                $canSend = $this->messageService->canSendMessage($tenantId, $channel, $reason);
+                $canSend = $this->messageService->canSendMessage($contactId, $channel, $reason);
                 
                 $channelCost = $canSend['cost'];
                 if ($channel === 'sms' && isset($data['sms_body'])) {

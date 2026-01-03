@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tenants', function (Blueprint $table) {
+        Schema::create('contacts', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('system_name');
@@ -30,15 +30,6 @@ return new class extends Migration
             $table->string('legal_email')->nullable();
 
 
-            // $table->boolean('trial')->default(false);
-            // $table->date('trial_ends')->nullable();
-            // $table->string('stripe_session_id')->nullable();
-            // $table->string('setup_intent')->nullable();
-            // $table->string('stripe_customer_id')->nullable();
-            // $table->string('payment_method')->nullable();
-            // $table->string('meta_phone_number_id')->nullable();
-            // $table->string('meta_waba_id')->nullable();
-            // $table->string('meta_business_id');
             $table->timestamps();
         });
     }
@@ -48,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        Schema::dropIfExists('contacts');
     }
 };

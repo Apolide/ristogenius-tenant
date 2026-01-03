@@ -30,31 +30,31 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('admin') ? true : null;
         });
 
-         RateLimiter::for('customer-login-email', function (Request $request) {
+        //  RateLimiter::for('customer-login-email', function (Request $request) {
 
-            // ✅ In non-production niente rate limit (evita 429 in locale)
-            if (! app()->environment('production')) {
-                return Limit::none();
-            }
+        //     // ✅ In non-production niente rate limit (evita 429 in locale)
+        //     if (! app()->environment('production')) {
+        //         return Limit::none();
+        //     }
 
-            $email = strtolower((string) $request->input('email'));
+        //     $email = strtolower((string) $request->input('email'));
 
-            if ($email === '') {
-                return Limit::perMinute(5)->by($request->ip());
-            }
+        //     if ($email === '') {
+        //         return Limit::perMinute(5)->by($request->ip());
+        //     }
 
-            return Limit::perMinutes(10, 3)->by('login-email:' . $email);
-        });
+        //     return Limit::perMinutes(10, 3)->by('login-email:' . $email);
+        // });
 
-        RateLimiter::for('customer-login-ip', function (Request $request) {
+        // RateLimiter::for('customer-login-ip', function (Request $request) {
 
-            // ✅ In non-production niente rate limit
-            if (! app()->environment('production')) {
-                return Limit::none();
-            }
+        //     // ✅ In non-production niente rate limit
+        //     if (! app()->environment('production')) {
+        //         return Limit::none();
+        //     }
 
-            return Limit::perMinutes(10, 20)->by('login-ip:' . $request->ip());
-        });
+        //     return Limit::perMinutes(10, 20)->by('login-ip:' . $request->ip());
+        // });
 
     }
 }

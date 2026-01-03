@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Livewire\Tenants;
+namespace App\Livewire\Contacts;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
-use App\Services\Tenant\TenantService;
+use App\Services\Contact\ContactService;
 use App\Models\Region;
 use App\Models\Province;
 use App\Models\Comuni;
 use Illuminate\Support\Facades\Auth;
 
 
-class TenantCreate extends Component
+class ContactCreate extends Component
 {
 
     public $name;
@@ -40,12 +40,12 @@ class TenantCreate extends Component
 
     public function render()
     {
-        return view('livewire.tenants.tenant-create');
+        return view('livewire.contacts.contact-create');
     }
 
 
-    #[On('click-create-tenant')]
-    public function createTenant()
+    #[On('click-create-contact')]
+    public function createContact()
     {
         $this->dispatch('hide-listing');
         $this->isVisible = true;
@@ -53,7 +53,7 @@ class TenantCreate extends Component
     }
 
 
-    public function save(TenantService $tenantService)
+    public function save(ContactService $contactService)
     {
         $data = $this->validate([
             'name' => 'required|string|max:255',
@@ -73,12 +73,12 @@ class TenantCreate extends Component
         ]);
 
       
-        $tenantService->createTenant($data);
+        $contactService->createContact($data);
 
         $this->resetFields();
-        session()->flash('message', 'Tenant creato con successo.');
+        session()->flash('message', 'Contact creato con successo.');
         $this->isVisible = false;
-        $this->dispatch('tenant-refresh');
+        $this->dispatch('content-refresh');
         $this->dispatch('show-listing');
         
         

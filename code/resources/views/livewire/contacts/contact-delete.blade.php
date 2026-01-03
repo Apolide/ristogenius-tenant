@@ -1,11 +1,11 @@
 <div>
-    @if ($tenantId && $isVisible)
+    @if ($contactId && $isVisible)
         <div class="box">
             <div class="box-header border-none">
                 <div class="flex justify-between">
                     <div>
-                        <div class="box-title pb-0">ELIMINA TENANT</div>
-                        <p class="text-xs text-gray-500 font-normal">Sei sicuro di voler eliminare questo tenant?</p>
+                        <div class="box-title pb-0">ELIMINA CONTATTO</div>
+                        <p class="text-xs text-gray-500 font-normal">Sei sicuro di voler eliminare questo contatto?</p>
                     </div>
                 </div>
             </div>
