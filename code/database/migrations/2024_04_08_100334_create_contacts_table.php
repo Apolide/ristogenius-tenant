@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('system_name');
             $table->string('email');
+            $table->string('telegram_handle')->nullable();
+            $table->string('lang', 5)->nullable();
             $table->string('phone');
             $table->string('company_name')->nullable();
             $table->string('piva')->nullable();
@@ -28,7 +30,6 @@ return new class extends Migration
             $table->string('legal_address')->nullable();
             $table->string('legal_phone')->nullable();
             $table->string('legal_email')->nullable();
-
 
             $table->timestamps();
         });

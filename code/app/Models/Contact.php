@@ -33,4 +33,19 @@ class Contact extends Model
 
     ];
 
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
+    }
+    
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+    
+    public function leads()
+    {
+        return $this->hasMany(Lead::class);
+    }    
 }

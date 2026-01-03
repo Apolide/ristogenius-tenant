@@ -70,6 +70,22 @@ class User extends Authenticatable
 
 
 
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function ownedLeads()
+    {
+        return $this->hasMany(Lead::class, 'owner_id');
+    }
+
+
     /**
      * Le notifiche ricevute dall'utente.
      */
