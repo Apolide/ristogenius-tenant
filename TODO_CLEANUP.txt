@@ -9,3 +9,22 @@
 - tenant
 - Aiuselog
 - Whatsapp ???
+
+
+
+
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan migrate
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed
+
+-- error: Failed to open stream: Permission denied
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php sh
+mkdir -p storage/framework/cache/data
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+mkdir -p bootstrap/cache
+
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear

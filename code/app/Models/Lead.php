@@ -29,16 +29,6 @@ class Lead extends Model
         //
     ];
 
-    // public function contact()
-    // {
-    //     return $this->belongsTo(Contact::class);
-    // }
-
-    // public function conversation()
-    // {
-    //     return $this->belongsTo(Conversation::class);
-    // }
-
     public function owner()
     {
         // CRM agent that owns the lead
@@ -50,23 +40,10 @@ class Lead extends Model
         return $this->belongsTo(Contact::class);
     }
 
-    // public function conversations(): HasMany
-    // {
-    //     return $this->hasMany(Conversation::class);
-    // }
-
     public function conversation(): BelongsTo
     {
         return $this->belongsTo(Conversation::class);
     }
-
-    // // Ultimo messaggio utile per la preview in lista
-    // public function latestMessage(): HasOne
-    // {
-    //     return $this->hasOne(Message::class, 'lead_id')->latestOfMany('sent_at');
-    //     // Se non hai lead_id in messages, vedi sotto: lo risolvi via conversation->lead_id
-    // }
-
 
     public function conversations(): HasMany
     {

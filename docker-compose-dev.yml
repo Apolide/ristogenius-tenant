@@ -1,6 +1,6 @@
 services:
   
-  ristopilot-crm_database:
+  ristopilot-tenant_database:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     container_name: ${COMPOSE_PROJECT_NAME}_database
@@ -12,25 +12,25 @@ services:
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE_DATABASE}
     networks:
-      - ristopilot-crm
+      - ristopilot-tenant
 
 
-  ristopilot-crm_database_web_ui:
+  ristopilot-tenant_database_web_ui:
     image: phpmyadmin/phpmyadmin:${DATABASE_WEB_UI_IMAGE_VERSION}
     container_name: ${COMPOSE_PROJECT_NAME}_database_web_ui
     ports:
       - "${DATABASE_WEB_UI_PORT_HOST}:${DATABASE_WEB_UI_PORT_CONTAINER}"
     environment:
-      PMA_HOST: ristopilot-crm_database
+      PMA_HOST: ristopilot-tenant_database
       UPLOAD_LIMIT: 300M
     depends_on:
-      - ristopilot-crm_database
+      - ristopilot-tenant_database
     networks:
-      - ristopilot-crm
+      - ristopilot-tenant
 
 
   #PHP
-  ristopilot-crm_php:
+  ristopilot-tenant_php:
     build:
       context: .
       dockerfile: php-dev-dockerfile
@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
     tty: true
     depends_on:
-      - ristopilot-crm_database
+      - ristopilot-tenant_database
     environment:
       - DB_HOST=${DATABASE_HOST}
       - DB_PORT=${DATABASE_PORT_CONTAINER}
@@ -49,10 +49,10 @@ services:
       - ./code:/var/www/html
       - ./certificates:/var/www/html/certificates
     networks:
-      - ristopilot-crm
+      - ristopilot-tenant
 
   #Nginx
-  ristopilot-crm_nginx:
+  ristopilot-tenant_nginx:
     image: nginx:alpine
     container_name: ${COMPOSE_PROJECT_NAME}_nginx
     restart: unless-stopped
@@ -66,9 +66,9 @@ services:
       - ./code:/var/www/html
       - ./certificates:/etc/nginx/ssl/live/ristopilot.com
     networks:
-      - ristopilot-crm
+      - ristopilot-tenant
 
-  ristopilot-crm_redis:
+  ristopilot-tenant_redis:
     image: redis:6.2.6
     container_name: ${COMPOSE_PROJECT_NAME}_redis
     restart: unless-stopped
@@ -76,9 +76,9 @@ services:
     volumes:
       - ./docker-files/development/redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
-      - ristopilot-crm
+      - ristopilot-tenant
 
-  ristopilot-crm_mailhog:
+  ristopilot-tenant_mailhog:
     platform: linux/x86_64
     image: mailhog/mailhog
     container_name: ${COMPOSE_PROJECT_NAME}_mailhog
@@ -88,15 +88,25 @@ services:
       - "8103:1025"
       - "8100:8025"
     networks:
-      - ristopilot-crm      
+      - ristopilot-tenant      
 
 #Networks
+# networks:
+#   ristopilot-tenant:
+#     driver: bridge
+#     name: ristopilot-tenant_network
+
 networks:
-  ristopilot-crm:
+  ristopilot-tenant:
+    name: ristopilot-tenant_network
     driver: bridge
-    name: ristopilot-crm_network
+    ipam:
+      config:
+        - subnet: 10.250.51.0/24
+          gateway: 10.250.51.1
+
 
 #Volumes
 volumes:
-  dbdatacrm:
+  dbristopilottenantsaas:
     driver: local

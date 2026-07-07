@@ -2,7 +2,7 @@ version: '3.7'
 services:
   
   #PHP
-  ristopilot-crm_php:
+  ristopilot-tenant_php:
     build:
       context: .
       dockerfile: Dockerfile
@@ -31,7 +31,7 @@ services:
       - app-network
 
   #Nginx
-  ristopilot-crm_nginx:
+  ristopilot-tenant_nginx:
     image: nginx:alpine
     container_name: ${COMPOSE_PROJECT_NAME}_nginx
     restart: always
@@ -45,13 +45,13 @@ services:
       - ./docker-files/production/nginx/includes/:/etc/nginx/includes/
       - ./code:/var/www/html
       - ./certificates:/etc/nginx/ssl/live/ristopilot.com
-      - /var/log/containerslogs/ristopilot-crm_php/:/var/log/nginx/
+      - /var/log/containerslogs/ristopilot-tenant_php/:/var/log/nginx/
     networks:
       - app-network
 
 
  
-  ristopilot-crm_redis:
+  ristopilot-tenant_redis:
     image: redis:6.2.6
     container_name: ${COMPOSE_PROJECT_NAME}_redis
     restart: always

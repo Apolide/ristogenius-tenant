@@ -112,6 +112,7 @@
 
               @foreach($leads as $lead)
                 @php
+                  $owner = $lead->owner;
                   $contact = $lead->contact;
                   $conv = $lead->conversations->first(); // già ordinata dal controller
                   $isActive = $activeLead && $activeLead->id == $lead->id;
@@ -133,31 +134,34 @@
                           'conversation' => $conv?->id
                         ]) }}">
                         <p class="mb-1 text-[0.75rem] {{ $isActive ? 'font-semibold' : '' }}">
-                          {{ $contact?->name ?? 'Unknown contact' }}
+                         Contatto: {{ $contact?->name ?? 'Unknown contact' }} <br>
+                         Lead Owner: {{ $owner?->name ?? 'Unknown owner' }} 
                           <span class="ltr:float-right rtl:float-left text-textmuted font-normal text-[.6875rem]">
                             {{ optional(optional($latest)->sent_at)->format('d M H:i') }}
                           </span>
                         </p>
+
+                        <p class="mail-msg mb-0">
+                          <span class="block mb-0 {{ $isActive ? 'font-semibold' : '' }}">
+                            {{ $lead->title ?? ($conv?->subject ?? 'Conversation') }}
+                          </span>
+                          <span class="text-[.6875rem] text-textmuted text-wrap">
+                            {{ $preview ?: ($contact?->email ?? '') }}
+                          </span>
+                        </p>
+
+                        <div class="mt-1">
+                          <span class="badge bg-success/10 text-success !rounded-full">{{ $lead->status ?? 'open' }}</span>
+                          @if($contact?->lang)
+                            <span class="badge bg-primary/10 text-primary !rounded-full">{{ $contact->lang }}</span>
+                          @endif
+                          @if($latest?->channel)
+                            <span class="badge bg-secondary/10 text-secondary !rounded-full">{{ $latest->channel }}</span>
+                          @endif
+                        </div>
                       </a>
 
-                      <p class="mail-msg mb-0">
-                        <span class="block mb-0 {{ $isActive ? 'font-semibold' : '' }}">
-                          {{ $lead->title ?? ($conv?->subject ?? 'Conversation') }}
-                        </span>
-                        <span class="text-[.6875rem] text-textmuted text-wrap">
-                          {{ $preview ?: ($contact?->email ?? '') }}
-                        </span>
-                      </p>
 
-                      <div class="mt-1">
-                        <span class="badge bg-success/10 text-success !rounded-full">{{ $lead->status ?? 'open' }}</span>
-                        @if($contact?->lang)
-                          <span class="badge bg-primary/10 text-primary !rounded-full">{{ $contact->lang }}</span>
-                        @endif
-                        @if($latest?->channel)
-                          <span class="badge bg-secondary/10 text-secondary !rounded-full">{{ $latest->channel }}</span>
-                        @endif
-                      </div>
                     </div>
                   </div>
                 </li>
@@ -204,14 +208,14 @@
               </div>
             </div>
 
-            <div class="mail-info-body dark:!border-defaultborder/10 p-6" id="mail-info-body">
+            <div class="mail-info-body dark:!border-defaultborder/10 p-6 overflow-auto" id="mail-info-body">
               <div class="sm:flex block items-center justify-between mb-6">
                 <div>
                   <p class="text-[1.1rem] font-semibold mb-0">
                     {{ $activeConversation->subject ?? ($activeLead->title ?? 'Conversation') }}
                   </p>
                   <p class="text-[.75rem] text-textmuted mb-0">
-                    Last update: {{ optional($activeConversation->last_update)->format('d M Y H:i') }}
+                    Last update: {{ optional($activeConversation->last_update_at)->format('d M Y H:i') }}
                   </p>
                 </div>
               </div>
@@ -232,14 +236,19 @@
                   <div class="p-4 rounded-md border dark:border-defaultborder/10 {{ $isInbound ? '' : 'bg-primary/5' }}">
                     <div class="flex items-center justify-between mb-2">
                       <span class="text-[.75rem] font-semibold">
-                        {{ $isInbound ? 'CLIENT' : 'AGENT' }}
+                        {{ $isInbound ? 'CLIENT (in)' : 'AGENT (out )' }}
                         <span class="text-textmuted font-normal">— {{ $m->channel ?? $m->source }}</span>
                       </span>
                       <span class="text-[.6875rem] text-textmuted">
                         {{ optional($m->sent_at)->format('d M H:i') }}
                       </span>
                     </div>
-
+                    {{-- <div class="mb-4">
+                        <label for="formGroupExampleInput" class="form-label">Example label</label>
+                        <textarea class="form-control">
+                            {{ $raw }}
+                        </textarea>
+                    </div> --}}
                     <pre class="whitespace-pre-wrap text-[.85rem] leading-relaxed text-defaulttextcolor dark:text-defaulttextcolor/70">{{ $raw }}</pre>
                   </div>
                 @endforeach
