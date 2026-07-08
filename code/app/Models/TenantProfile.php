@@ -17,6 +17,11 @@ class TenantProfile extends Model implements HasMedia
         'province',
         'postcode',
         'address',
+        'settings',
+    ];
+
+    protected $casts = [
+        'settings' => 'array',
     ];
 
     public function registerMediaCollections(): void

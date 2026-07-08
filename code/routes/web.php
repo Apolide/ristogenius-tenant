@@ -13,6 +13,12 @@ use App\Http\Controllers\LeadsController;
 // Livewire
 use App\Livewire\Contacts\ContactIndex;
 use App\Livewire\Profile\ProfileEdit;
+use App\Livewire\Settings\BookingRemindHoursEdit;
+use App\Livewire\Settings\MaxSittingTimeEdit;
+use App\Livewire\Settings\NotificationModesEdit;
+use App\Livewire\Settings\OpeningHoursEdit;
+use App\Livewire\Settings\PaxCapacityEdit;
+use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
 
 
@@ -43,6 +49,14 @@ Route::domain(env('DOMAIN'))->group(function () {
 
         // Tenant company profile
         Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
+
+        // Tenant settings
+        Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
+        Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');
+        Route::get('/manage/settings/booking-remind-hours', BookingRemindHoursEdit::class)->name('settings.booking-remind-hours');
+        Route::get('/manage/settings/max-sitting-time', MaxSittingTimeEdit::class)->name('settings.max-sitting-time');
+        Route::get('/manage/settings/opening-hours', OpeningHoursEdit::class)->name('settings.opening-hours');
+        Route::get('/manage/settings/pax-capacity', PaxCapacityEdit::class)->name('settings.pax-capacity');
 
         // Users (agents/employees)
         Route::get('/manage/users', Userlist::class)->name('users.index');

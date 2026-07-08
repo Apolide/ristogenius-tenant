@@ -343,7 +343,7 @@
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 816px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="/manage/settings" class="side-menu__item">Generali</a>
+                <a href="{{ route('settings.index') }}" class="side-menu__item {{ request()->routeIs('settings.*') ? 'active' : '' }}">Generali</a>
             </li>
 
             <li class="slide">
