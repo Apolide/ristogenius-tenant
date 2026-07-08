@@ -347,7 +347,7 @@
             </li>
 
             <li class="slide">
-                <a href="/manage/profile" class="side-menu__item">Profilo</a>
+                <a href="{{ route('profile.edit') }}" class="side-menu__item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profilo</a>
             </li>
             <li class="slide">
                 <a href="/manage/settings/message-channel-cases" class="side-menu__item">Invio messaggi</a>

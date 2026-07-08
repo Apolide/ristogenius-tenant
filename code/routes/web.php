@@ -12,6 +12,7 @@ use App\Http\Controllers\LeadsController;
 
 // Livewire
 use App\Livewire\Contacts\ContactIndex;
+use App\Livewire\Profile\ProfileEdit;
 use App\Livewire\Users\Userlist;
 
 
@@ -40,6 +41,9 @@ Route::domain(env('DOMAIN'))->group(function () {
         // Contacts (customers/clients/interested people)
         Route::get('/manage/contacts', ContactIndex::class);
 
+        // Tenant company profile
+        Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
+
         // Users (agents/employees)
         Route::get('/manage/users', Userlist::class)->name('users.index');
         Route::get('/manage/users/create', [UserController::class, 'usercreate'])->name('users.create');
@@ -56,4 +60,3 @@ Route::domain(env('DOMAIN'))->group(function () {
     });
 
 }); 
-

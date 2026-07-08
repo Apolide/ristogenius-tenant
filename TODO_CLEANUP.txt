@@ -11,8 +11,12 @@
 - Whatsapp ???
 
 
+CODEX ApiKey
+https://community.openai.com/t/vscode-extension-with-api-key/1355263/9
 
 
+
+SETUP LOCALHOST
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan migrate
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed
 

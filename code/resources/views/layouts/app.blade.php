@@ -785,16 +785,7 @@
         <!-- ========== END Search Modal ========== -->
         
         <!-- Footer Start -->
-        <footer class="footer mt-auto xl:ps-[15rem]  font-normal font-inter bg-white  leading-normal !text-[0.875rem] shadow-[0_0_0.4rem_rgba(0,0,0,0.1)] dark:bg-bodybg py-4 text-center">
-            <div class="container">
-              <span class="text-gray dark:text-defaulttextcolor/50"><a
-                href="javascript:void(0);" class="text-defaulttextcolor font-semibold dark:text-defaulttextcolor">Ristopilot</a> <span id="year">{{date('Y')}}</span>.
-                  Developed with <span class="bi bi-heart-fill text-danger"></span> by <a href="javascript:void(0);">
-                      <span class="font-semibold text-primary underline">Web Officine</span>
-                  </a>
-              </span>
-            </div>
-        </footer>
+        @include('layouts.footer.base')
         <!-- Footer End -->
 
     </div>
@@ -842,5 +833,4 @@
 </body>
 
 </html>
-
 
