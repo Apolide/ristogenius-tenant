@@ -350,7 +350,7 @@
                 <a href="{{ route('profile.edit') }}" class="side-menu__item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profilo</a>
             </li>
             <li class="slide">
-                <a href="/manage/settings/message-channel-cases" class="side-menu__item">Invio messaggi</a>
+                <a href="{{ route('settings.message-channel-cases') }}" class="side-menu__item {{ request()->routeIs('settings.message-channel-cases') ? 'active' : '' }}">Invio messaggi</a>
             </li>
             <li class="slide">
                 <a href="/manage/settings/messages" class="side-menu__item">Testo messaggi</a>
