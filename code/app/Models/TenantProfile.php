@@ -18,10 +18,12 @@ class TenantProfile extends Model implements HasMedia
         'postcode',
         'address',
         'settings',
+        'message_settings',
     ];
 
     protected $casts = [
         'settings' => 'array',
+        'message_settings' => 'array',
     ];
 
     public function registerMediaCollections(): void

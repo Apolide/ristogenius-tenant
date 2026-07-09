@@ -14,8 +14,10 @@ use App\Http\Controllers\LeadsController;
 use App\Livewire\Contacts\ContactIndex;
 use App\Livewire\Profile\ProfileEdit;
 use App\Livewire\Settings\BookingRemindHoursEdit;
+use App\Livewire\Settings\Departments\DepartmentIndex;
 use App\Livewire\Settings\MaxSittingTimeEdit;
 use App\Livewire\Settings\MessageChannelCasesIndex;
+use App\Livewire\Settings\MessageTemplatesIndex;
 use App\Livewire\Settings\NotificationModesEdit;
 use App\Livewire\Settings\OpeningHoursEdit;
 use App\Livewire\Settings\PaxCapacityEdit;
@@ -59,6 +61,8 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::get('/manage/settings/opening-hours', OpeningHoursEdit::class)->name('settings.opening-hours');
         Route::get('/manage/settings/pax-capacity', PaxCapacityEdit::class)->name('settings.pax-capacity');
         Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
+        Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
+        Route::get('/manage/settimgs/departments', DepartmentIndex::class)->name('settings.departments');
 
         // Users (agents/employees)
         Route::get('/manage/users', Userlist::class)->name('users.index');

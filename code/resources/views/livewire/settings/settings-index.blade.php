@@ -77,6 +77,37 @@
         <div class="box mb-4">
             <div class="box-header border-none">
                 <div>
+                    <div class="box-title pb-0">Operativita</div>
+                    <p class="text-xs text-gray-500 font-normal">Reparti usati per personale, produzione e invio comande.</p>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered whitespace-nowrap min-w-full">
+                        <thead>
+                            <tr class="!border-defaultborder dark:!border-defaultborder/10">
+                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr class="!border-defaultborder dark:!border-defaultborder/10">
+                                <td class="whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('settings.departments') }}" class="ti-btn ti-btn-icon bg-warning text-white hover:bg-warning">
+                                        <i class="las text-3xl la-pen"></i>
+                                    </a>
+                                </td>
+                                <td>Reparti</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="box mb-4">
+            <div class="box-header border-none">
+                <div>
                     <div class="box-title pb-0">Automazioni</div>
                     <p class="text-xs text-gray-500 font-normal">Regole automatiche collegate alle prenotazioni.</p>
                 </div>

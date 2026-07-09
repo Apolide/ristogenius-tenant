@@ -343,7 +343,7 @@
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 816px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="{{ route('settings.index') }}" class="side-menu__item {{ request()->routeIs('settings.*') ? 'active' : '' }}">Generali</a>
+                <a href="{{ route('settings.index') }}" class="side-menu__item {{ request()->routeIs('settings.index') ? 'active' : '' }}">Generali</a>
             </li>
 
             <li class="slide">
@@ -353,10 +353,10 @@
                 <a href="{{ route('settings.message-channel-cases') }}" class="side-menu__item {{ request()->routeIs('settings.message-channel-cases') ? 'active' : '' }}">Invio messaggi</a>
             </li>
             <li class="slide">
-                <a href="/manage/settings/messages" class="side-menu__item">Testo messaggi</a>
+                <a href="{{ route('settings.messages') }}" class="side-menu__item {{ request()->routeIs('settings.messages') ? 'active' : '' }}">Testo messaggi</a>
             </li>
             <li class="slide">
-                <a href="/manage/settings/departments" class="side-menu__item">Reparti</a>
+                <a href="{{ route('settings.departments') }}" class="side-menu__item {{ request()->routeIs('settings.departments') ? 'active' : '' }}">Reparti</a>
             </li>
 
 
