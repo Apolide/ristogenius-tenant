@@ -99,6 +99,14 @@
                                 </td>
                                 <td>Reparti</td>
                             </tr>
+                            <tr class="!border-defaultborder dark:!border-defaultborder/10">
+                                <td class="whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('settings.rooms') }}" class="ti-btn ti-btn-icon bg-warning text-white hover:bg-warning">
+                                        <i class="las text-3xl la-pen"></i>
+                                    </a>
+                                </td>
+                                <td>Sale</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

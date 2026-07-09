@@ -30,6 +30,12 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
         ]);
         $this->call([
+            RoomSeeder::class,
+        ]);
+        $this->call([
+            RoomTableSeeder::class,
+        ]);
+        $this->call([
             AdminSeeder::class,
         ]);
     }

@@ -365,10 +365,10 @@
                     <i class="fe fe-chevron-right side-menu__angle"></i></a>
                 <ul class="slide-menu child3">
                     <li class="slide">
-                        <a href="/settings/rooms" class="side-menu__item">Imposta sale</a>
+                        <a href="{{ route('settings.rooms') }}" class="side-menu__item {{ request()->routeIs('settings.rooms') ? 'active' : '' }}">Imposta sale</a>
                     </li>
                     <li class="slide">
-                        <a href="/settings/tables" class="side-menu__item">Imposta tavoli</a>
+                        <a href="{{ route('settings.room-tables') }}" class="side-menu__item {{ request()->routeIs('settings.room-tables') ? 'active' : '' }}">Imposta tavoli</a>
                     </li>
                 </ul>
             </li>

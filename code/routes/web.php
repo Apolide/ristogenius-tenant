@@ -21,6 +21,9 @@ use App\Livewire\Settings\MessageTemplatesIndex;
 use App\Livewire\Settings\NotificationModesEdit;
 use App\Livewire\Settings\OpeningHoursEdit;
 use App\Livewire\Settings\PaxCapacityEdit;
+use App\Livewire\Settings\RoomTables\RoomTableIndex;
+use App\Livewire\Settings\Rooms\RoomIndex;
+use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
 
@@ -62,6 +65,9 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::get('/manage/settings/pax-capacity', PaxCapacityEdit::class)->name('settings.pax-capacity');
         Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
         Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
+        Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
+        Route::get('/manage/settings/room-tables', RoomTableIndex::class)->name('settings.room-tables');
+        Route::get('/rooms/{room}', RoomTablePlanner::class)->name('rooms.planner');
         Route::get('/manage/settimgs/departments', DepartmentIndex::class)->name('settings.departments');
 
         // Users (agents/employees)
