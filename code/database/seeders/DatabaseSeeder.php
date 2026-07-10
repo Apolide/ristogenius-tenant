@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LocationSeeder::class,
         ]);
+        $this->call([
+            CustomerSeeder::class,
+        ]);
 
         $this->call([
             RoleSeeder::class,

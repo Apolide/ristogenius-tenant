@@ -12,6 +12,9 @@ use App\Http\Controllers\LeadsController;
 
 // Livewire
 use App\Livewire\Contacts\ContactIndex;
+use App\Livewire\Customers\CustomerEdit;
+use App\Livewire\Customers\CustomerIndex;
+use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Profile\ProfileEdit;
 use App\Livewire\Settings\BookingRemindHoursEdit;
 use App\Livewire\Settings\Departments\DepartmentIndex;
@@ -50,8 +53,13 @@ Route::domain(env('DOMAIN'))->group(function () {
 
 
     Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
-        // Contacts (customers/clients/interested people)
+        // CRM contacts (partners/prospects)
         Route::get('/manage/contacts', ContactIndex::class);
+
+        // Restaurant customers
+        Route::get('/manage/customers', CustomerIndex::class)->name('customers.index');
+        Route::get('/manage/customers/show/{id}', CustomerShow::class)->name('customers.show');
+        Route::get('/manage/customers/edit/{id}', CustomerEdit::class)->name('customers.edit');
 
         // Tenant company profile
         Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');

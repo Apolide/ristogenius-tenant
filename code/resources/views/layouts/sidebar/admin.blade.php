@@ -139,7 +139,7 @@
         </ul>
     </li>
 
-
+--}}
 
 
     <li class="slide__category"><span class="category-name">Gestione</span></li>
@@ -154,7 +154,7 @@
             <span class="side-menu__label">Clienti</span>
         </a>
     </li>
-
+{{--
     <li class="slide has-sub">
         <a href="javascript:void(0);" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">

@@ -11,8 +11,8 @@ class Region extends Model
 
     public $timestamps = false;
 
-    public function province()
+    public function provinces()
     {
-        return $this->belongsTo(Province::class);
+        return $this->hasMany(Province::class);
     }
 }

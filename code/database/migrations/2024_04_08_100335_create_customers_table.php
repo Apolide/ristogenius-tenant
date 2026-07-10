@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('contact_id');
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();
             $table->string('display_name')->nullable();
             $table->string('email')->nullable()->unique();
             $table->string('phone', 25)->nullable()->unique();
+            $table->unsignedBigInteger('region_id')->nullable();
             $table->unsignedBigInteger('province_id')->nullable();
             $table->unsignedBigInteger('comuni_id')->nullable();
+            $table->index('region_id');
             $table->index('province_id');
             $table->index('comuni_id');
             // $table->string('postcode')->nullable();
