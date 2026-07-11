@@ -3,25 +3,10 @@
 namespace App\Services\Settings;
 
 use App\Models\TenantProfile;
+use App\Services\CustomerLanguageService;
 
 class TenantSettingMessageTemplatesService
 {
-    public const LANGUAGE_LABELS = [
-        'it' => 'Italiano',
-        'en' => 'English',
-        'de' => 'Deutsch',
-        'fr' => 'Francais',
-        'es' => 'Espanol',
-    ];
-
-    public const LANGUAGE_FLAGS = [
-        'it' => '🇮🇹',
-        'en' => '🇬🇧',
-        'de' => '🇩🇪',
-        'fr' => '🇫🇷',
-        'es' => '🇪🇸',
-    ];
-
     public const MESSAGE_TEMPLATE_DEFAULTS = [
         'booking_proposal' => [
             'label' => 'Proposta modifica prenotazione',
@@ -141,7 +126,7 @@ class TenantSettingMessageTemplatesService
 
     public function tenantLanguages(): array
     {
-        $languages = explode(',', (string) config('tenant.languages', 'it,en'));
+        $languages = explode(',', (string) config('tenant.customer_languages', 'it,en'));
         $languages = array_values(array_unique(array_filter(array_map(
             fn (string $language) => strtolower(trim($language)),
             $languages
@@ -152,16 +137,11 @@ class TenantSettingMessageTemplatesService
 
     public function languageMeta(): array
     {
-        $meta = [];
+        $languages = app(CustomerLanguageService::class);
 
-        foreach ($this->tenantLanguages() as $language) {
-            $meta[$language] = [
-                'label' => self::LANGUAGE_LABELS[$language] ?? strtoupper($language),
-                'flag' => self::LANGUAGE_FLAGS[$language] ?? strtoupper($language),
-            ];
-        }
-
-        return $meta;
+        return collect($this->tenantLanguages())->mapWithKeys(
+            fn (string $language): array => [$language => $languages->meta($language)]
+        )->all();
     }
 
     public function messageTemplates(?string $search = null): array

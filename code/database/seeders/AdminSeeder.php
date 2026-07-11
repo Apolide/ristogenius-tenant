@@ -15,7 +15,7 @@ class AdminSeeder extends Seeder
     public function run()
     {
         $newUser = User::query()->updateOrCreate(
-            ['email' => 'pellecchia@gmail.com'],
+            ['email' => 'apolideroma@gmail.com'],
             [
                 'name' => 'Simone',
                 'region_id' => 13,

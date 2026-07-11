@@ -16,9 +16,16 @@ https://community.openai.com/t/vscode-extension-with-api-key/1355263/9
 
 
 
-SETUP LOCALHOST
+SETUP LOCALHOST DB
+
+MIGRATE DB CHANGES
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan migrate
-docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed
+
+SEED LOCALHOST DB
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed --class=DatabaseSeeder
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed --class=TestDatabaseSeeder
+php artisan db:seed --class=BookingSeeder
+
 
 -- error: Failed to open stream: Permission denied
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php sh

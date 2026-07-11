@@ -1,6 +1,6 @@
 <ul class="main-menu" style="margin-left: 0px; margin-right: 0px;">
 
-    {{-- <li class="slide__category"><span class="category-name">Prenotazioni</span></li>
+    <li class="slide__category"><span class="category-name">Prenotazioni</span></li>
     <li class="slide">
         <a href="/manage/bookings" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -12,6 +12,8 @@
             <span class="side-menu__label">Prenotazioni</span>
         </a>
     </li>
+
+    {{-- 
     <li class="slide">
         <a href="/manage/takeaway" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">

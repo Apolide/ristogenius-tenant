@@ -29,6 +29,11 @@ use App\Livewire\Settings\Rooms\RoomIndex;
 use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
+use App\Livewire\Bookings\BookingCreate;
+use App\Livewire\Bookings\BookingEdit;
+use App\Livewire\Bookings\BookingIndex;
+use App\Livewire\Bookings\BookingShow;
+use App\Livewire\Bookings\BookingWalkIn;
 
 
 /*
@@ -60,6 +65,12 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::get('/manage/customers', CustomerIndex::class)->name('customers.index');
         Route::get('/manage/customers/show/{id}', CustomerShow::class)->name('customers.show');
         Route::get('/manage/customers/edit/{id}', CustomerEdit::class)->name('customers.edit');
+
+        Route::get('/manage/bookings', BookingIndex::class)->name('bookings.index');
+        Route::get('/manage/bookings/create', BookingCreate::class)->name('bookings.create');
+        Route::get('/manage/bookings/walkin', BookingWalkIn::class)->name('bookings.walk-in');
+        Route::get('/manage/bookings/show/{booking}/{date?}', BookingShow::class)->name('bookings.show');
+        Route::get('/manage/bookings/edit/{booking}', BookingEdit::class)->name('bookings.edit');
 
         // Tenant company profile
         Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');

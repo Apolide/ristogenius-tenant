@@ -20,29 +20,18 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        // RUN ONLY ONCE ON PRODUCTION
+        // RUN ONLY ON TEST
+        // php artisan db:seed --class=CustomerSeeder
+        //
 
         $this->call([
-            AdminSeeder::class,
+            CustomerSeeder::class,
         ]);
 
-        // php artisan db:seed --class=LocationSeeder
+        // php artisan db:seed --class=BookingSeeder
         //
         $this->call([
-            LocationSeeder::class,
-        ]);
-
-        $this->call([
-            RoleSeeder::class,
-        ]);
-        $this->call([
-            DepartmentSeeder::class,
-        ]);
-        $this->call([
-            RoomSeeder::class,
-        ]);
-        $this->call([
-            RoomTableSeeder::class,
+            BookingSeeder::class,
         ]);
 
     }
