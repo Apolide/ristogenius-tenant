@@ -45,15 +45,10 @@ class BookingShow extends Component
 
     public function render(BookingService $bookingService, CustomerLanguageService $languages)
     {
-        $customerBookings = $this->booking->customer
-            ? Booking::withTrashed()->where('customer_id', $this->booking->customer_id)->where('id', '!=', $this->booking->id)->latest('booking_date')->latest('booking_time')->get()
-            : collect();
-
         return view('livewire.bookings.booking-show', [
             'tables' => $this->showPickTableModal
                 ? $bookingService->availableTables($this->booking->booking_date->toDateString(), substr((string) $this->booking->booking_time, 0, 5), $this->booking->id, $this->searchTable)
                 : collect(),
-            'customerBookings' => $customerBookings,
             'statusLabels' => config('bookings.statuses'),
             'bookingLanguage' => $languages->meta($this->booking->language ?: $this->booking->customer?->lang),
         ])->title('Dettaglio prenotazione');

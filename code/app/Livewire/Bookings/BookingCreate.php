@@ -12,5 +12,9 @@ class BookingCreate extends BookingForm
     {
         $this->booking = null;
         $this->booking_date = now()->toDateString();
+
+        if ($customerId = request()->query('customer')) {
+            $this->selectCustomer((string) $customerId);
+        }
     }
 }

@@ -33,6 +33,8 @@ class CustomerService
             ->when(! empty($filters['onlyConsentMarketing']), fn (Builder $query) => $query->where('consent_marketing', true))
             ->when(! empty($filters['onlyBlacklisted']) && Schema::hasColumn('customers', 'blacklisted'), fn (Builder $query) => $query->where('blacklisted', true))
             ->when(! empty($filters['onlyFidelity']) && Schema::hasColumn('customers', 'fidelity_subscribed_at'), fn (Builder $query) => $query->whereNotNull('fidelity_subscribed_at'))
+            ->when($this->filled($filters, 'bookingStatus'), fn (Builder $query) => $query->whereHas('bookings', fn (Builder $query) => $query->where('status', $filters['bookingStatus'])))
+            ->when($this->filled($filters, 'noShowCount'), fn (Builder $query) => $this->applyNoShowCount($query, (int) $filters['noShowCount']))
             ->when($this->filled($filters, 'lastVisitStart'), fn (Builder $query) => $query->whereDate('last_action_at', '>=', $filters['lastVisitStart']))
             ->when($this->filled($filters, 'lastVisitEnd'), fn (Builder $query) => $query->whereDate('last_action_at', '<=', $filters['lastVisitEnd']))
             ->when($this->filled($filters, 'lastVisitAgo'), fn (Builder $query) => $this->applyLastVisitAgo($query, (string) $filters['lastVisitAgo']))
@@ -100,6 +102,15 @@ class CustomerService
         return $query->where(function (Builder $query) use ($date) {
             $query->whereNull('last_action_at')->orWhere('last_action_at', '<=', $date);
         });
+    }
+
+    private function applyNoShowCount(Builder $query, int $minimum): Builder
+    {
+        if ($minimum <= 0) {
+            return $query;
+        }
+
+        return $query->whereHas('bookings', fn (Builder $query) => $query->where('status', 'no-show'), '>=', $minimum);
     }
 
     private function applyLastVisitWithin(Builder $query, string $months): Builder

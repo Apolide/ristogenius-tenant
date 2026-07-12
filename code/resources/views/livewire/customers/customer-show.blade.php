@@ -35,8 +35,14 @@
                 <div class="box-title pb-0">SCHEDA {{ $customer->display_name ?: trim($customer->firstname.' '.$customer->lastname) }}</div>
             </div>
             <div class="box-body">
-                <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light w-full h-12">Indietro</a>
-                <div class="my-5"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                    <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light w-full h-12">
+                        <i class="las la-arrow-left"></i> Indietro
+                    </a>
+                    <a href="{{ route('bookings.create', ['customer' => $customer->id]) }}" class="ti-btn ti-btn-primary-full w-full h-12">
+                        <i class="las la-calendar-plus"></i> Crea prenotazione
+                    </a>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered whitespace-nowrap min-w-full">
@@ -122,6 +128,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <livewire:customers.customer-booking-history :customer-id="$customer->id" :key="'customer-history-'.$customer->id" />
             </div>
         </div>
     </div>
