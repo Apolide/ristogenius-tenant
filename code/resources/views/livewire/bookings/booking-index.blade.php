@@ -50,7 +50,7 @@
         <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
             <input wire:model.live.debounce.300ms="search" class="form-control md:col-span-1 col-span-5 h-12" placeholder="Cerca prenotazione">
             <button disabled class="ti-btn ti-btn-primary col-span-1 h-12 opacity-60" title="Vista sala disponibile prossimamente">Sala</button>
-            <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">Tutte oggi</button>
+            <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">Tutte del giorno</button>
             <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal === 'pranzo' ? 'ti-btn-primary' : 'ti-btn-light' }}">Pranzo</button>
             <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal === 'cena' ? 'ti-btn-primary' : 'ti-btn-light' }}">Cena</button>
         </div>

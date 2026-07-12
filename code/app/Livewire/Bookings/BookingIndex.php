@@ -37,7 +37,6 @@ class BookingIndex extends Component
     public function selectMeal(string $meal): void { $this->meal = $meal; }
     public function toggleShowAllToday(): void
     {
-        $this->date = now()->toDateString();
         $this->meal = 'all';
         $this->showHistory = true;
     }
