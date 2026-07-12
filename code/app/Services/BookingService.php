@@ -65,6 +65,27 @@ class BookingService
             ])->all();
     }
 
+    public function searchCustomersByTerm(string $value, int $limit = 15): array
+    {
+        $value = trim($value);
+        if (mb_strlen($value) < self::CUSTOMER_SEARCH_MIN_LENGTH) return [];
+
+        return Customer::query()->select(['id', 'firstname', 'lastname', 'display_name', 'email', 'phone', 'lang'])
+            ->where(function (Builder $query) use ($value): void {
+                $query->where('firstname', 'like', '%'.$value.'%')
+                    ->orWhere('lastname', 'like', '%'.$value.'%')
+                    ->orWhere('email', 'like', '%'.$value.'%')
+                    ->orWhere('phone', 'like', '%'.$value.'%');
+            })
+            ->orderBy('lastname')->orderBy('firstname')->limit($limit)->get()
+            ->map(fn (Customer $customer): array => [
+                'id' => $customer->id,
+                'name' => $customer->display_name ?: trim($customer->firstname.' '.$customer->lastname),
+                'firstname' => $customer->firstname ?: '', 'lastname' => $customer->lastname ?: '',
+                'email' => $customer->email ?: '', 'phone' => $customer->phone ?: '', 'lang' => $customer->lang ?: 'it',
+            ])->all();
+    }
+
     public function timeslotStats(string $date): array
     {
         return Booking::query()->whereDate('booking_date', $date)

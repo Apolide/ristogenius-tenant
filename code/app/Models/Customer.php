@@ -66,4 +66,9 @@ class Customer extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function waitlistEntries(): HasMany
+    {
+        return $this->hasMany(BookingWaitlistEntry::class);
+    }
 }

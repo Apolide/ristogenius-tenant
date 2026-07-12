@@ -2,6 +2,7 @@
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">Prenotazioni</h5></div>
         <div class="flex gap-3">
+            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Lista d'attesa"><i class="las text-3xl la-hourglass-half"></i></a>
             <a href="{{ route('bookings.walk-in') }}" class="ti-btn ti-btn-success-full text-white ti-btn-icon" title="Nuovo Walk In"><i class="las text-3xl la-walking"></i></a>
             <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="Nuova prenotazione"><i class="las text-3xl la-plus"></i></a>
             <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Aggiorna prenotazioni"><i class="las text-3xl la-redo-alt"></i></button>

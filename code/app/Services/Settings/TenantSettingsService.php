@@ -14,6 +14,7 @@ class TenantSettingsService
     ];
 
     public const MESSAGE_CHANNEL_CASES = [
+        'waitlist_table_ready' => ['label' => 'Waitlist: table ready', 'required' => false, 'channels' => ['whatsapp', 'email', 'sms']],
         'booking_accepted' => ['label' => 'Booking accepted', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_canceled' => ['label' => 'Booking canceled', 'required' => false, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_denied' => ['label' => 'Booking denied', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],

@@ -34,6 +34,7 @@ use App\Livewire\Bookings\BookingEdit;
 use App\Livewire\Bookings\BookingIndex;
 use App\Livewire\Bookings\BookingShow;
 use App\Livewire\Bookings\BookingWalkIn;
+use App\Livewire\Bookings\BookingWaitlistIndex;
 
 
 /*
@@ -69,6 +70,7 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::get('/manage/bookings', BookingIndex::class)->name('bookings.index');
         Route::get('/manage/bookings/create', BookingCreate::class)->name('bookings.create');
         Route::get('/manage/bookings/walkin', BookingWalkIn::class)->name('bookings.walk-in');
+        Route::get('/manage/bookings/waitlist', BookingWaitlistIndex::class)->name('bookings.waitlist');
         Route::get('/manage/bookings/show/{booking}/{date?}', BookingShow::class)->name('bookings.show');
         Route::get('/manage/bookings/edit/{booking}', BookingEdit::class)->name('bookings.edit');
 
