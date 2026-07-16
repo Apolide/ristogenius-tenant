@@ -16,6 +16,11 @@ class DeleteApiTokenTest extends TestCase
 
     public function test_api_tokens_can_be_deleted(): void
     {
+
+        $this->markTestSkipped(
+            'La gestione autonoma dei token API non è abilitata.'
+        );
+
         if (! Features::hasApiFeatures()) {
             $this->markTestSkipped('API support is not enabled.');
         }

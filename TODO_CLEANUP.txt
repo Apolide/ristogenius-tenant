@@ -39,3 +39,69 @@ chmod -R ug+rwX storage bootstrap/cache
 php artisan cache:clear
 php artisan config:clear
 php artisan view:clear
+
+
+
+
+/////////////// TESTING
+
+usare il database di testing specifico altrimenti vengono eliminati dati dal db di sviluppo!!!!
+
+- db di test viene creato da docker-compose-dev.yml con script sql di provisioning
+
+puoi crearlo a mano se inesistente:
+ocker compose -f docker-compose-dev.yml exec ristopilot-tenant_database \
+  mysql -uroot -proot \
+  -e "CREATE DATABASE IF NOT EXISTS ristopilot_tenant_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON ristopilot_tenant_testing.* TO 'test'@'%'; FLUSH PRIVILEGES;"
+
+puoi verificare se db e utente di test funzionano:
+
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_database \
+  mysql -utest -ptest \
+  -e "SHOW DATABASES;"
+
+
+/// ESEGUI TESTING
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test tests/Feature/Personnel/PersonnelPermissionsTest.php
+
+
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test tests/Feature/Personnel/PersonnelManagementTest.php
+
+
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test \
+  tests/Feature/Personnel/PersonnelPermissionsTest.php \
+  tests/Feature/Personnel/PersonnelManagementTest.php
+
+
+
+Per eseguire tutta la suite:
+
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test 
+
+
+Se il nome del servizio fosse diverso, controllalo con:
+docker compose config --services
+
+
+Per entrare direttamente nel container:
+docker compose exec ristopilot-tenant_php bash
+php artisan test
+
+Per ripulire laravel config:
+docker compose exec ristopilot-tenant_php php artisan config:clear

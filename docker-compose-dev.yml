@@ -13,7 +13,10 @@ services:
       MYSQL_DATABASE: ${DATABASE_DATABASE}
     networks:
       - ristopilot-tenant
-
+    # CREA DB DI TEST  
+    volumes:
+      - ./docker-files/development/mysql/init:/docker-entrypoint-initdb.d:ro
+      - dbristopilottenantsaas:/var/lib/mysql
 
   ristopilot-tenant_database_web_ui:
     image: phpmyadmin/phpmyadmin:${DATABASE_WEB_UI_IMAGE_VERSION}
@@ -40,6 +43,7 @@ services:
     depends_on:
       - ristopilot-tenant_database
     environment:
+      - DB_CONNECTION=mysql
       - DB_HOST=${DATABASE_HOST}
       - DB_PORT=${DATABASE_PORT_CONTAINER}
       - DB_USERNAME=${DATABASE_USER}

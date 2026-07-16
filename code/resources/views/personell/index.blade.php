@@ -8,7 +8,7 @@
             </div>
             <div class="flex xl:my-auto right-content align-items-center gap-3">
                 <a href="{{ route('personnel.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon"><i class="las text-3xl la-plus"></i></a>
-                <a href="/manage/personnel/permissions" class="ti-btn ti-btn-primary-full text-white ti-btn-icon"><i class="las text-3xl la-shield-alt"></i></a>
+                <a href="{{ route('personnel.permissions') }}" class="ti-btn ti-btn-primary-full text-white ti-btn-icon"><i class="las text-3xl la-shield-alt"></i></a>
                 <a href="{{ route('personnel.index') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon"><i class="las text-3xl la-redo-alt"></i></a>
             </div>
         </div>

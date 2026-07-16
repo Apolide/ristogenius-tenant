@@ -37,5 +37,9 @@ class TestDatabaseSeeder extends Seeder
         $this->call([
             PersonnelSeeder::class,
         ]);
+
+        $this->call([
+            PersonnelPermissionsSeeder::class,
+        ]);
     }
 }
