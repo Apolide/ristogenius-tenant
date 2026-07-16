@@ -59,6 +59,10 @@ Route::domain(env('DOMAIN'))->group(function () {
 
 
     Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
+        // HOME
+        Route::get('/manage', BookingIndex::class)->name('bookings.index');
+
+
         // CRM contacts (partners/prospects)
         Route::get('/manage/contacts', ContactIndex::class);
 

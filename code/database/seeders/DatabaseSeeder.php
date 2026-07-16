@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
         // RUN ONLY ONCE ON PRODUCTION
 
         $this->call([
+            RoleSeeder::class,
+        ]);
+        
+        $this->call([
             AdminSeeder::class,
         ]);
 
@@ -32,9 +36,6 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
         ]);
 
-        $this->call([
-            RoleSeeder::class,
-        ]);
         $this->call([
             DepartmentSeeder::class,
         ]);

@@ -67,6 +67,8 @@ services:
       - ./certificates:/etc/nginx/ssl/live/ristopilot.com
     networks:
       - ristopilot-tenant
+    depends_on:
+      - ristopilot-tenant_php
 
   ristopilot-tenant_redis:
     image: redis:6.2.6
