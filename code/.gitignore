@@ -4,6 +4,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/data/*.sqlite3
+/storage/data/*.sqlite
 /vendor
 .env
 .env.backup
