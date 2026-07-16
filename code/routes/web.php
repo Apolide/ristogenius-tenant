@@ -16,6 +16,8 @@ use App\Livewire\Customers\CustomerEdit;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Profile\ProfileEdit;
+use App\Livewire\Personnel\PersonnelCreate;
+use App\Livewire\Personnel\PersonnelIndex;
 use App\Livewire\Settings\BookingRemindHoursEdit;
 use App\Livewire\Settings\Departments\DepartmentIndex;
 use App\Livewire\Settings\MaxSittingTimeEdit;
@@ -99,6 +101,10 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::get('/manage/users', Userlist::class)->name('users.index');
         Route::get('/manage/users/create', [UserController::class, 'usercreate'])->name('users.create');
         Route::get('/manage/users/edit/{id}', [UserController::class, 'useredit'])->name('users.edit');
+
+        // Personnel
+        Route::get('/manage/personnel', PersonnelIndex::class)->name('personnel.index');
+        Route::get('/manage/personnel/create', PersonnelCreate::class)->name('personnel.create');
 
         // Leads
         Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');

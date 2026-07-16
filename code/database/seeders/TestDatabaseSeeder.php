@@ -34,5 +34,8 @@ class TestDatabaseSeeder extends Seeder
             BookingSeeder::class,
         ]);
 
+        $this->call([
+            PersonnelSeeder::class,
+        ]);
     }
 }

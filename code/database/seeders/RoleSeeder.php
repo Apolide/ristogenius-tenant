@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Services\Personnel\PersonnelService;
 use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
@@ -15,6 +16,10 @@ class RoleSeeder extends Seeder
     public function run()
     {
         Role::findOrCreate('admin', 'web');
+
+        foreach (PersonnelService::ROLES as $role) {
+            Role::findOrCreate($role, 'web');
+        }
     
         //$roleSupplier = Role::create(['name' => 'supplier']);
 

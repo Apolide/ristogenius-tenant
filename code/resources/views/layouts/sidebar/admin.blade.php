@@ -110,6 +110,7 @@
 
     </li>
 
+--}}
 
     <li class="slide__category"><span class="category-name">Personale</span></li>
 
@@ -126,10 +127,10 @@
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 720px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="/manage/users" class="side-menu__item">Elenco</a>
+                <a href="/manage/personnel" class="side-menu__item">Elenco</a>
             </li>
             <li class="slide">
-                <a href="/manage/permissions" class="side-menu__item">Permessi</a>
+                <a href="/manage/personnel/permissions" class="side-menu__item">Permessi</a>
             </li>
             <li class="slide">
                 <a href="/manage/users/calendar" class="side-menu__item">Turnazione</a>
@@ -141,7 +142,6 @@
         </ul>
     </li>
 
---}}
 
 
     <li class="slide__category"><span class="category-name">Gestione</span></li>
