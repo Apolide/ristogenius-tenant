@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
+use App\Services\Personnel\PersonnelService;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 class RoleSeeder extends Seeder
 {
@@ -16,8 +15,11 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
+        Role::findOrCreate('admin', 'web');
 
-        $roleAdmin = Role::create(['name' => 'admin']);
+        foreach (PersonnelService::ROLES as $role) {
+            Role::findOrCreate($role, 'web');
+        }
     
         //$roleSupplier = Role::create(['name' => 'supplier']);
 

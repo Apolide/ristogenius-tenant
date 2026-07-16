@@ -30,8 +30,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password'
-
+        'phone',
+        'lang',
+        'receive_whatsapp_notifications',
+        'receive_telegram_notifications',
+        'password',
+        'enabled',
+        'invited_at',
+        'activated_at',
     ];
 
     /**
@@ -64,10 +70,31 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'invited_at' => 'datetime',
+            'activated_at' => 'datetime',
+            'enabled' => 'boolean',
+            'receive_whatsapp_notifications' => 'boolean',
+            'receive_telegram_notifications' => 'boolean',
             'password' => 'hashed',
         ];
     }
 
+
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function ownedLeads()
+    {
+        return $this->hasMany(Lead::class, 'owner_id');
+    }
 
 
     /**

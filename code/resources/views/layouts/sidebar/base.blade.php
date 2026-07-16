@@ -27,11 +27,15 @@
             @endrole
 
             @role('manager')
-                @include('layouts.sidebar.manager')
+                @include('layouts.sidebar.personnel-permissions')
             @endrole
 
             @role('operator')
-                @include('layouts.sidebar.operator')
+                @include('layouts.sidebar.personnel-permissions')
+            @endrole
+
+            @role('kiosk')
+                @include('layouts.sidebar.personnel-permissions')
             @endrole
 
             @role('supplier')

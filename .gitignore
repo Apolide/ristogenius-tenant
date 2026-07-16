@@ -2,3 +2,4 @@
 .env
 ./docker-files/production/.env
 certificates
+/code/vendor

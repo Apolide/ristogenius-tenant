@@ -1,1 +1,82 @@
-[{"id":1,"name":"Abruzzo"},{"id":2,"name":"Basilicata"},{"id":3,"name":"Calabria"},{"id":4,"name":"Campania"},{"id":5,"name":"Emilia-Romagna"},{"id":6,"name":"Friuli-Venezia-Giulia"},{"id":7,"name":"Lazio"},{"id":8,"name":"Liguria"},{"id":9,"name":"Lombardia"},{"id":10,"name":"Marche"},{"id":11,"name":"Molise"},{"id":12,"name":"Piemonte"},{"id":13,"name":"Puglia"},{"id":14,"name":"Sardegna"},{"id":15,"name":"Sicilia"},{"id":16,"name":"Toscana"},{"id":17,"name":"Trentino-Alto-Adige"},{"id":18,"name":"Umbria"},{"id":19,"name":"Valle-d'Aosta"},{"id":20,"name":"Veneto"}]
+[
+  {
+    "id": 1,
+    "name": "Piemonte"
+  },
+  {
+    "id": 2,
+    "name": "Valle d'Aosta/Vallée d'Aoste"
+  },
+  {
+    "id": 3,
+    "name": "Liguria"
+  },
+  {
+    "id": 4,
+    "name": "Lombardia"
+  },
+  {
+    "id": 5,
+    "name": "Trentino-Alto Adige/Südtirol"
+  },
+  {
+    "id": 6,
+    "name": "Veneto"
+  },
+  {
+    "id": 7,
+    "name": "Friuli-Venezia Giulia"
+  },
+  {
+    "id": 8,
+    "name": "Emilia-Romagna"
+  },
+  {
+    "id": 9,
+    "name": "Marche"
+  },
+  {
+    "id": 10,
+    "name": "Toscana"
+  },
+  {
+    "id": 11,
+    "name": "Umbria"
+  },
+  {
+    "id": 12,
+    "name": "Lazio"
+  },
+  {
+    "id": 13,
+    "name": "Campania"
+  },
+  {
+    "id": 14,
+    "name": "Abruzzo"
+  },
+  {
+    "id": 15,
+    "name": "Molise"
+  },
+  {
+    "id": 16,
+    "name": "Puglia"
+  },
+  {
+    "id": 17,
+    "name": "Basilicata"
+  },
+  {
+    "id": 18,
+    "name": "Calabria"
+  },
+  {
+    "id": 19,
+    "name": "Sicilia"
+  },
+  {
+    "id": 20,
+    "name": "Sardegna"
+  }
+]

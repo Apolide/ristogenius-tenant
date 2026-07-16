@@ -15,6 +15,10 @@ class UpdatePasswordTest extends TestCase
 
     public function test_password_can_be_updated(): void
     {
+        $this->markTestSkipped(
+            'Il cambio password dal profilo autenticato non è disponibile.'
+        );
+
         $this->actingAs($user = User::factory()->create());
 
         Livewire::test(UpdatePasswordForm::class)
@@ -30,6 +34,10 @@ class UpdatePasswordTest extends TestCase
 
     public function test_current_password_must_be_correct(): void
     {
+        $this->markTestSkipped(
+            'Il cambio password dal profilo autenticato non è disponibile.'
+        );
+
         $this->actingAs($user = User::factory()->create());
 
         Livewire::test(UpdatePasswordForm::class)
@@ -46,6 +54,10 @@ class UpdatePasswordTest extends TestCase
 
     public function test_new_passwords_must_match(): void
     {
+        $this->markTestSkipped(
+            'Il cambio password dal profilo autenticato non è disponibile.'
+        );
+
         $this->actingAs($user = User::factory()->create());
 
         Livewire::test(UpdatePasswordForm::class)

@@ -12,7 +12,7 @@ class CompanyController extends Controller
     public function getfromvat(Request $request)
     {
         $data = $request->validate([
-            'tenant_id' => 'required|string',
+            'contact_id' => 'required|string',
             'piva' => 'required|string'
         ]);
 

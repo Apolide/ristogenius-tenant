@@ -2,7 +2,8 @@
 
 namespace App\Services\MediaLibrary;
 
-use \Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Support\Str;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator as BasePathGenerator;
 
 class CustomPathGenerator implements BasePathGenerator
@@ -16,7 +17,7 @@ class CustomPathGenerator implements BasePathGenerator
      */
     public function getPath(Media $media): string
     {
-        return config('app.env').'/admin/'.md5(time().'-'.$media->id). '/';
+        return $this->basePath($media);
     }
 
     /**
@@ -28,7 +29,7 @@ class CustomPathGenerator implements BasePathGenerator
      */
     public function getPathForConversions(Media $media): string
     {
-        return config('app.env').'/admin/'.md5(time().'-'.$media->id). '/conversions/';
+        return $this->basePath($media).'conversions/';
     }
 
     /**
@@ -40,6 +41,14 @@ class CustomPathGenerator implements BasePathGenerator
      */
     public function getPathForResponsiveImages(Media $media): string
     {
-        return config('app.env').'/admin/'.md5(time().'-'.$media->id). '/responsive-images/';
+        return $this->basePath($media).'responsive-images/';
+    }
+
+    private function basePath(Media $media): string
+    {
+        $tenantSlug = Str::slug(config('tenant.slug', 'tenant'));
+        $collection = Str::slug($media->collection_name ?: 'default');
+
+        return "{$tenantSlug}/{$collection}/{$media->id}/";
     }
 }

@@ -22,8 +22,16 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $user->forceFill([
+        $attributes = [
             'password' => Hash::make($input['password']),
-        ])->save();
+        ];
+
+        if ($user->invited_at && ! $user->activated_at) {
+            $attributes['activated_at'] = now();
+            $attributes['email_verified_at'] = $user->email_verified_at ?? now();
+            $attributes['enabled'] = true;
+        }
+
+        $user->forceFill($attributes)->save();
     }
 }

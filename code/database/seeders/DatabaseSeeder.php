@@ -19,15 +19,32 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        // RUN ONLY ONCE ON PRODUCTION
+
+        $this->call([
+            RoleSeeder::class,
+        ]);
+        
+        $this->call([
+            AdminSeeder::class,
+        ]);
+
+        // php artisan db:seed --class=LocationSeeder
+        //
         $this->call([
             LocationSeeder::class,
         ]);
 
         $this->call([
-            RoleSeeder::class,
+            DepartmentSeeder::class,
         ]);
         $this->call([
-            AdminSeeder::class,
+            RoomSeeder::class,
         ]);
+        $this->call([
+            RoomTableSeeder::class,
+        ]);
+
     }
 }

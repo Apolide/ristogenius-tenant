@@ -14,24 +14,28 @@ class AdminSeeder extends Seeder
      */
     public function run()
     {
-        $newUser = User::create([
-            'name' => 'Simone',
-            'email' => 'pellecchia@gmail.com',
-            'region_id' => 13,
-            'province_id' => 16,
-            'comuni_id' => 6017,
-            'password' => Hash::make('!C0PP13TT3!'),
-        ]);
-        $newUser->assignRole('admin');
+        $newUser = User::query()->updateOrCreate(
+            ['email' => 'apolideroma@gmail.com'],
+            [
+                'name' => 'Simone',
+                'region_id' => 13,
+                'province_id' => 16,
+                'comuni_id' => 6017,
+                'password' => Hash::make('!C0PP13TT3!'),
+            ]
+        );
+        $newUser->syncRoles(['admin']);
 
-        $newUser = User::create([
-            'name' => 'Antonio',
-            'email' => 'iula.anto@gmail.com',
-            'region_id' => 13,
-            'province_id' => 16,
-            'comuni_id' => 6017,
-            'password' => Hash::make('!C0PP13TT3!'),
-        ]);
-        $newUser->assignRole('admin');
+        $newUser = User::query()->updateOrCreate(
+            ['email' => 'iula.anto@gmail.com'],
+            [
+                'name' => 'Antonio',
+                'region_id' => 13,
+                'province_id' => 16,
+                'comuni_id' => 6017,
+                'password' => Hash::make('!C0PP13TT3!'),
+            ]
+        );
+        $newUser->syncRoles(['admin']);
     }
 }

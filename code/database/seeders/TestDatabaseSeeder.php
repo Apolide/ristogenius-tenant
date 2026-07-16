@@ -1,0 +1,45 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class TestDatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // User::factory(10)->create();
+
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
+        // RUN ONLY ON TEST
+        // php artisan db:seed --class=CustomerSeeder
+        //
+
+        $this->call([
+            CustomerSeeder::class,
+        ]);
+
+        // php artisan db:seed --class=BookingSeeder
+        //
+        $this->call([
+            BookingSeeder::class,
+        ]);
+
+        $this->call([
+            PersonnelSeeder::class,
+        ]);
+
+        $this->call([
+            PersonnelPermissionsSeeder::class,
+        ]);
+    }
+}

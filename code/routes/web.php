@@ -1,40 +1,38 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Telegram\Bot\Laravel\Facades\Telegram;
-use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client;
-use Illuminate\Http\Request;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\OperationController;
-use App\Http\Controllers\Telegram\TelegramController;
-use App\Http\Controllers\StripeController;
-use App\Http\Controllers\TenantController;
-use App\Http\Controllers\WhatsappOnboardingController;
-
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\UserController;
+use App\Livewire\Bookings\BookingCreate;
 // Livewire
-use App\Livewire\Products\ProductIndex;
-use App\Livewire\Tenants\TenantIndex;
-use App\Livewire\Suppliers\SupplierIndex;
+use App\Livewire\Bookings\BookingEdit;
+use App\Livewire\Bookings\BookingIndex;
+use App\Livewire\Bookings\BookingShow;
+use App\Livewire\Bookings\BookingWaitlistIndex;
+use App\Livewire\Bookings\BookingWalkIn;
+use App\Livewire\Contacts\ContactIndex;
+use App\Livewire\Customers\CustomerEdit;
 use App\Livewire\Customers\CustomerIndex;
-
-use App\Livewire\Funnels\FunnelIndex;
-use App\Livewire\Funnels\ManageFunnelEmails;
-use App\Livewire\Emails\EmailIndex;
-use App\Livewire\Funnels\FunnelEmailTracking;
-
-use App\Livewire\Whatsapp\ConversationBoard;
-use App\Services\Customer\CustomerService;
-
-
-
-
-
-
-
+use App\Livewire\Customers\CustomerShow;
+use App\Livewire\Personnel\PersonnelCreate;
+use App\Livewire\Personnel\PersonnelIndex;
+use App\Livewire\Personnel\PersonnelPermissions;
+use App\Livewire\Profile\ProfileEdit;
+use App\Livewire\Settings\BookingRemindHoursEdit;
+use App\Livewire\Settings\Departments\DepartmentIndex;
+use App\Livewire\Settings\MaxSittingTimeEdit;
+use App\Livewire\Settings\MessageChannelCasesIndex;
+use App\Livewire\Settings\MessageTemplatesIndex;
+use App\Livewire\Settings\NotificationModesEdit;
+use App\Livewire\Settings\OpeningHoursEdit;
+use App\Livewire\Settings\PaxCapacityEdit;
+use App\Livewire\Settings\Rooms\RoomIndex;
+use App\Livewire\Settings\Rooms\RoomTablePlanner;
+use App\Livewire\Settings\RoomTables\RoomTableIndex;
+use App\Livewire\Settings\SettingsIndex;
+use App\Livewire\Users\Userlist;
+use App\Services\Personnel\PersonnelPermissionsService;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,193 +45,65 @@ use App\Services\Customer\CustomerService;
 |
 */
 
-
-Route::domain(env('DOMAIN'))
-    ->middleware('guest:customer')
-    ->get('/customer/_login_test', fn() => response('OK LOGIN TEST', 200));
-
 Route::domain(env('DOMAIN'))->group(function () {
     Route::get('/', function () {
         return view('welcome');
     });
 
-    // Route::get('/customer/login', [CustomerController::class, 'customerLogin'])->name('customer.login');
-    // Route::post('/customer/login', [CustomerController::class, 'customerLogin'])->middleware(['throttle:customer-login-email', 'throttle:customer-login-ip'])->name('customer.login.submit');
-    // Route::get('/customer/{base64_customer_id}/profile', [CustomerController::class, 'profile']);
-    // Route::get('/customer/{base64_customer_id}/fidelity', [CustomerController::class, 'fidelity']);
-    // Route::get('/customer/fidelity/{base64_customer_id}/account/{account_id}', [CustomerController::class, 'fidelityAccount']);
-
-
     Route::get('/', fn () => view('welcome'));
 
-    // Login customer: form + invio email
-    Route::middleware('guest:customer')->group(function () {
-        Route::get('/customer/login', [CustomerController::class, 'customerLogin'])
-            ->name('customer.login');
-
-        Route::post('/customer/login', [CustomerController::class, 'customerLogin'])
-            ->middleware(['throttle:customer-login-email', 'throttle:customer-login-ip'])
-            ->name('customer.login.submit');
-
-        // Magic link (firmato + one-time token)
-        Route::get('/customer/magic/{token}', [CustomerController::class, 'magicLogin'])
-            ->middleware('signed')
-            ->name('customer.magic');
-    });
-
-    // Area customer protetta
-    Route::prefix('customer')
-        ->middleware(['auth:customer', 'customer.last_action'])
-        ->group(function () {
-
-        Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile');
-        Route::get('/fidelity', [CustomerController::class, 'fidelity'])->name('customer.fidelity');
-        Route::get('/fidelity/account/{account_id}', [CustomerController::class, 'fidelityAccount'])
-            ->name('customer.fidelity.account');
-        
-        Route::get('/coupons', [CustomerController::class, 'coupons'])->name('customer.coupons');
-        Route::get('/coupons/{customerCoupon}', [CustomerController::class, 'couponShow'])->name('customer.coupons.show');
-        
-        Route::get('/settings', [CustomerController::class, 'settings'])->name('customer.settings');
-        Route::post('/settings/update/consent-marketing', [CustomerController::class, 'updateConsentMarketing'])->name('customer.settings.update.consent-marketing');
-        Route::get('/delete', [CustomerController::class, 'delete'])->name('customer.delete');
-        Route::delete('/profile', [CustomerController::class, 'destroy'])->name('customer.destroy');
-
-
-        Route::post('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
-    });
-
-    // Route::get('/dashboard', function () {
-    //     // return view('dashboard');
-    //     return redirect('/manage/tenants');
-    // })->name('dashboard');
-
-    // // Route::middleware([
-    // //     'auth:sanctum',
-    // //     config('jetstream.auth_session'),
-    // //     'verified',
-    // // ])->group(function () {
-    // //     Route::get('/dashboard', function () {
-    // //         // return view('dashboard');
-    // //         return redirect('/manage/tenants');
-    // //     })->name('dashboard');
-    // // });
-
-    // #Tenants
-    // Route::get('/manage/tenants', TenantIndex::class);
-
-
-    Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
-
-        
-        #Tenants
-        Route::get('/manage/tenants', TenantIndex::class);
-        // Route::get('/manage/customers', CustomerIndex::class);
-
-
-        // Dashboard con informazioni sui fondi
-        // Route::get('/dashboard/{tenant?}', function ($tenant = null) {
-        //     if ($tenant) {
-        //         $tenantModel = App\Models\Tenant::findOrFail($tenant);
-        //         $fundsService = app(App\Services\Funds\TenantFundsService::class);
-        //         $funds = $fundsService->getTenantFunds($tenant);
-        //         $stats = $fundsService->getFundStats($tenant);
-        //         echo "<pre>"; print_r($funds); echo "</pre>";
-        //         echo "<pre>"; print_r($stats); echo "</pre>";
-        //         die;
-                
-        //         return view('dashboard', compact('tenantModel', 'funds', 'stats'));
-        //     }
-            
-        //     return view('dashboard');
-        // })->name('dashboard');
-    
-        // Pagina dedicata alla gestione fondi (protetta da auth)
-        // Route::get('/my-funds/{tenant}', [App\Http\Controllers\FundsController::class, 'index'])
-        //     ->name('my-funds');
-
-
-        // Route::get('/manage/suppliers', SupplierIndex::class);
-        
-        #Customers
-        //Route::get('/manage/customers', [App\Http\Controllers\CustomerController::class, 'customerslist']);
-
-
-        // Route::get('/funnels/email/edit/{id}', [App\Http\Controllers\FunnelController::class, 'editEmail']);
-        // Route::get('/funnels/{funnel_id}/emails', \App\Livewire\Funnels\ManageFunnelEmails::class)->name('funnel.emails.manage');
-
-        // // Rotta principale per la gestione dei funnel (CRUD all’interno)
-        // Route::get('/funnels', FunnelIndex::class)
-        //     ->name('funnels.index');
-
-        // // Rotta per gestire l’associazione delle email a un determinato funnel
-        // // (visualizza la pagina con la tabella delle email associate,
-        // //  e un form per aggiungere nuove email al funnel, ecc.)
-        // // Route::get('/funnels/{funnel}/emails', ManageFunnelEmails::class)
-        // //     ->name('funnel.emails.manage');
-
-        // // Rotta principale per la gestione globale delle email (CRUD all’interno)
-        // Route::get('/emails', EmailIndex::class)
-        //     ->name('emails.index');
-        
-        // // Rotta principale per la gestione dei newsletter subscribers (CRUD Livewire)
-        // Route::get('/manage/subscribers', \App\Livewire\NewsletterSubscribers\NewsletterSubscriberCrud::class)
-        //     ->name('subscribers.index');
-
-        // Route::get('/funnels/{funnel_id}/tracking', FunnelEmailTracking::class)
-        //     ->name('funnels.tracking');
-
-        // Route::get('/whatsapp/conversations', ConversationBoard::class)
-        //     ->name('whatsapp.conversations');
-
-
-     });
-}); 
-
-
-
-Route::domain(env('SUBDOMAIN_ADMIN'))->group(function () {
-
-    Route::get('/health', function () {
-        return response()->json([
-            'status' => 'ok',
-            'timestamp' => now()->toISOString()
-        ]);
-    });
-
-    // Route::middleware([
-    //     'auth:sanctum',
-    //     config('jetstream.auth_session'),
-    //     'verified',
-    // ])->group(function () {
-    //     Route::get('/dashboard', function () {
-    //         // return view('dashboard');
-    //         return redirect('/manage/tenants');
-    //     })->name('dashboard');
-    // });
-
-    // https://admin.ristopilot.com/location/regions
-    // https://admin.ristopilot.com/location/provinces/13
-    // https://admin.ristopilot.com/location/comuni/13
-
-    Route::get('/location/regions', [LocationController::class, 'getRegions'])->name('location.regions');
-    Route::get('/location/provinces/{region}', [LocationController::class, 'getProvincesByRegion'])->name('location.provinces');
-    Route::get('/location/comuni/{province}', [LocationController::class, 'getComuniByProvince'])->name('location.comuni');
-
     Route::group(['middleware' => ['auth:sanctum']], function () {
-        // Notifications
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-        // Operations
-        Route::get('/operations', [OperationController::class, 'index'])->name('operations.index');
+        Route::get('/manage', BookingIndex::class)
+            ->middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)
+            ->name('manage');
+
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
+            Route::get('/manage/contacts', ContactIndex::class);
+            Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
+        });
+
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::CUSTOMERS)->group(function () {
+            Route::get('/manage/customers', CustomerIndex::class)->name('customers.index');
+            Route::get('/manage/customers/show/{id}', CustomerShow::class)->name('customers.show');
+            Route::get('/manage/customers/edit/{id}', CustomerEdit::class)->name('customers.edit');
+        });
+
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)->group(function () {
+            Route::get('/manage/bookings', BookingIndex::class)->name('bookings.index');
+            Route::get('/manage/bookings/create', BookingCreate::class)->name('bookings.create');
+            Route::get('/manage/bookings/walkin', BookingWalkIn::class)->name('bookings.walk-in');
+            Route::get('/manage/bookings/waitlist', BookingWaitlistIndex::class)->name('bookings.waitlist');
+            Route::get('/manage/bookings/show/{booking}/{date?}', BookingShow::class)->name('bookings.show');
+            Route::get('/manage/bookings/edit/{booking}', BookingEdit::class)->name('bookings.edit');
+        });
+
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
+            Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
+            Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');
+            Route::get('/manage/settings/booking-remind-hours', BookingRemindHoursEdit::class)->name('settings.booking-remind-hours');
+            Route::get('/manage/settings/max-sitting-time', MaxSittingTimeEdit::class)->name('settings.max-sitting-time');
+            Route::get('/manage/settings/opening-hours', OpeningHoursEdit::class)->name('settings.opening-hours');
+            Route::get('/manage/settings/pax-capacity', PaxCapacityEdit::class)->name('settings.pax-capacity');
+            Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
+            Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
+            Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
+            Route::get('/manage/settings/room-tables', RoomTableIndex::class)->name('settings.room-tables');
+            Route::get('/rooms/{room}', RoomTablePlanner::class)->name('rooms.planner');
+            Route::get('/manage/settimgs/departments', DepartmentIndex::class)->name('settings.departments');
+
+            Route::get('/manage/users', Userlist::class)->name('users.index');
+            Route::get('/manage/users/create', [UserController::class, 'usercreate'])->name('users.create');
+            Route::get('/manage/users/edit/{id}', [UserController::class, 'useredit'])->name('users.edit');
+
+            Route::get('/manage/personnel', PersonnelIndex::class)->name('personnel.index');
+            Route::get('/manage/personnel/create', PersonnelCreate::class)->name('personnel.create');
+            Route::get('/manage/personnel/permissions', PersonnelPermissions::class)->name('personnel.permissions');
+        });
     });
 
-    // Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
-
-    //     #Tenants
-    //     // Route::get('/manage/tenants', TenantIndex::class);
-    //     Route::get('/manage/customers', CustomerIndex::class);
-
-    //  });
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/leads', [LeadsController::class, 'index'])->name('leads.index');
+    });
 
 });
