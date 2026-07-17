@@ -40,6 +40,10 @@
                             <tr wire:key="user-{{ $user->id }}" class="!border-defaultborder dark:!border-defaultborder/10">
                                 <td class="whitespace-nowrap text-sm font-medium">
                                     <div class="flex gap-2">
+                                        <a href="{{ route('personnel.edit', $user) }}"
+                                            class="ti-btn ti-btn-icon bg-info text-white" title="Modifica">
+                                            <i class="las text-2xl la-pen"></i>
+                                        </a>
                                         @if ($user->id !== auth()->id())
                                             <button type="button" wire:click="deletePersonnel({{ $user->id }})"
                                                 wire:confirm="Confermi di volere eliminare questo utente?"

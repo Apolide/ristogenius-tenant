@@ -4,6 +4,7 @@ namespace Tests\Feature\Personnel;
 
 use App\Actions\Fortify\ResetUserPassword;
 use App\Livewire\Personnel\PersonnelCreate;
+use App\Livewire\Personnel\PersonnelEdit;
 use App\Models\User;
 use App\Notifications\Mail\User\EmployeeInvitation;
 use App\Services\Personnel\PersonnelService;
@@ -22,6 +23,7 @@ class PersonnelManagementTest extends TestCase
         parent::setUp();
 
         Role::findOrCreate('operator', 'web');
+        Role::findOrCreate('manager', 'web');
     }
 
     public function test_admin_can_create_an_employee_and_send_the_activation_invitation(): void
@@ -70,6 +72,44 @@ class PersonnelManagementTest extends TestCase
         $this->assertNotNull($employee->email_verified_at);
     }
 
+    public function test_admin_can_edit_personnel_data_role_and_notification_preferences(): void
+    {
+        $employee = User::factory()->create([
+            'name' => 'Mario Rossi',
+            'email' => 'mario@example.test',
+            'phone' => '+393401111111',
+            'lang' => 'it',
+            'receive_whatsapp_notifications' => false,
+            'receive_telegram_notifications' => false,
+        ]);
+        $employee->assignRole('operator');
+
+        Livewire::test(PersonnelEdit::class, ['user' => $employee])
+            ->assertSet('name', 'Mario Rossi')
+            ->assertSet('role', 'operator')
+            ->set('name', 'Mario Bianchi')
+            ->set('email', 'MARIO.BIANCHI@EXAMPLE.TEST')
+            ->set('phone', '+39 340 222 3333')
+            ->set('role', 'manager')
+            ->set('lang', 'en')
+            ->set('receive_whatsapp_notifications', true)
+            ->set('receive_telegram_notifications', true)
+            ->call('submit')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('personnel.index'));
+
+        $employee->refresh();
+
+        $this->assertSame('Mario Bianchi', $employee->name);
+        $this->assertSame('mario.bianchi@example.test', $employee->email);
+        $this->assertSame('+393402223333', $employee->phone);
+        $this->assertSame('en', $employee->lang);
+        $this->assertTrue($employee->receive_whatsapp_notifications);
+        $this->assertTrue($employee->receive_telegram_notifications);
+        $this->assertTrue($employee->hasRole('manager'));
+        $this->assertFalse($employee->hasRole('operator'));
+    }
+
     public function test_personnel_roles_include_admin_and_languages_come_from_tenant_configuration(): void
     {
         config()->set('tenant.languages', 'it,en,fr');
@@ -88,6 +128,7 @@ class PersonnelManagementTest extends TestCase
     {
         $this->assertSame('/manage/personnel', route('personnel.index', absolute: false));
         $this->assertSame('/manage/personnel/create', route('personnel.create', absolute: false));
+        $this->assertSame('/manage/personnel/123/edit', route('personnel.edit', 123, absolute: false));
         $this->assertSame('/manage/users', route('users.index', absolute: false));
         $this->assertSame('/manage/users/create', route('users.create', absolute: false));
     }
