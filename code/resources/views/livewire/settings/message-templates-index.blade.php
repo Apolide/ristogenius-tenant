@@ -112,11 +112,11 @@
                 <div class="box-body">
                     <form wire:submit.prevent="save">
                         <div class="-mx-4 mb-5 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                            <div role="tablist" aria-label="Lingue" class="flex min-w-max gap-2 rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+                            <div role="tablist" aria-label="Lingue" class="flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
                                 @foreach ($languages as $languageKey => $language)
                                     <button type="button" role="tab" :aria-selected="activeLanguage === '{{ $languageKey }}'" @click="activeLanguage = '{{ $languageKey }}'"
-                                            class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition"
-                                            :class="activeLanguage === '{{ $languageKey }}' ? 'bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'">
+                                            class="ti-btn !mb-0 inline-flex items-center justify-center gap-2 rounded-lg !px-4 !py-2 text-sm font-semibold transition"
+                                            :class="activeLanguage === '{{ $languageKey }}' ? 'ti-btn-primary-full shadow-sm' : 'ti-btn-light text-defaulttextcolor'">
                                         <span>{{ $language['flag'] }}</span>
                                         <span>{{ $language['label'] }}</span>
                                     </button>
@@ -141,15 +141,15 @@
                                 </div>
 
                                 <div class="flex flex-col mb-5">
-                                    <label for="message_{{ $languageKey }}" class="mb-1 font-semibold text-gray-700 dark:text-gray-200">
+                                    <label for="message_{{ $languageKey }}" class="mb-1 font-semibold text-defaulttextcolor">
                                         Messaggio {{ $language['label'] }}
                                     </label>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">@@customer_name@@ viene inserito automaticamente dal sistema.</p>
+                                    <p class="mb-2 text-sm text-textmuted">@@customer_name@@ viene inserito automaticamente dal sistema.</p>
                                     <textarea required
                                               id="message_{{ $languageKey }}"
                                               wire:model.lazy="form.translations.{{ $languageKey }}.message"
                                               rows="10"
-                                              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md"
+                                              class="form-control mt-1 block w-full sm:text-sm"
                                               placeholder="Testo del messaggio"></textarea>
                                     @error("form.translations.{$languageKey}.message")
                                         <p class="mt-1 text-sm text-danger">{{ $message }}</p>
@@ -157,13 +157,13 @@
                                 </div>
 
                                 <div class="flex flex-col mb-5">
-                                    <label for="additional_note_{{ $languageKey }}" class="mb-1 font-semibold text-gray-700 dark:text-gray-200">
+                                    <label for="additional_note_{{ $languageKey }}" class="mb-1 font-semibold text-defaulttextcolor">
                                         Note aggiuntive {{ $language['label'] }}
                                     </label>
                                     <textarea id="additional_note_{{ $languageKey }}"
                                               wire:model.lazy="form.translations.{{ $languageKey }}.additional_note"
                                               rows="6"
-                                              class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md"
+                                              class="form-control mt-1 block w-full sm:text-sm"
                                               placeholder="Note aggiuntive"></textarea>
                                     @error("form.translations.{$languageKey}.additional_note")
                                         <p class="mt-1 text-sm text-danger">{{ $message }}</p>

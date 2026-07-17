@@ -26,11 +26,11 @@
                 </section>
 
                 <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                    <div role="tablist" aria-label="Giorni della settimana" class="flex min-w-max gap-2 rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+                    <div role="tablist" aria-label="Giorni della settimana" class="flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
                         @foreach ($days as $dayKey => $day)
                             <button type="button" role="tab" :aria-selected="activeDay === '{{ $dayKey }}'" @click="activeDay = '{{ $dayKey }}'"
-                                class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition"
-                                :class="activeDay === '{{ $dayKey }}' ? 'bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'">
+                                class="ti-btn !mb-0 inline-flex items-center justify-center rounded-lg !px-4 !py-2 text-sm font-semibold transition"
+                                :class="activeDay === '{{ $dayKey }}' ? 'ti-btn-primary-full shadow-sm' : 'ti-btn-light text-defaulttextcolor'">
                                 {{-- <span class="sm:hidden">{{ $day['short'] }}</span>
                                 <span class="hidden sm:inline">{{ $day['label'] }}</span> --}}
                                 <span class="">{{ $day['label'] }}</span>

@@ -123,9 +123,18 @@
                     }
 
                     .select-room {
-                        padding: 5px;
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
+                        min-width: 10rem;
+                        max-width: min(18rem, 55vw);
+                        padding-inline-start: 0.85rem;
+                        padding-inline-end: 2.5rem;
+                        border-color: rgb(var(--default-border));
+                        border-radius: 0.375rem;
+                    }
+
+                    .table-type-select {
+                        width: 10.5rem;
+                        padding-inline-start: 0.85rem;
+                        padding-inline-end: 2.5rem;
                     }
 
                     .room-info {
@@ -148,7 +157,11 @@
                 <div class="top-bar">
                     <div class="room-selection">
                         <label for="room-select" class="font-bold">Seleziona sala:</label>
-                        <select id="room-select" class="select-room" x-on:change="changeRoom($event.target.value)">
+                        @php
+                            $longestRoomName = $rooms->max(fn ($room) => mb_strlen($room->name)) ?? 0;
+                            $roomSelectWidth = min(28, max(16, $longestRoomName + 6));
+                        @endphp
+                        <select id="room-select" class="form-control select-room" style="width: {{ $roomSelectWidth }}ch" x-on:change="changeRoom($event.target.value)">
                             @foreach ($rooms as $selectableRoom)
                                 <option value="{{ $selectableRoom->id }}" @selected($currentRoom && $selectableRoom->id === $currentRoom->id)>
                                     {{ $selectableRoom->name }}
@@ -184,7 +197,7 @@
                             <div class="flex flex-wrap gap-3">
                                 <div>
                                     <span class="block text-xs text-gray-500 mb-1">Forma</span>
-                                    <select x-model="newType" class="form-control">
+                                    <select x-model="newType" class="form-control table-type-select">
                                         <option value="circolare">Circolare</option>
                                         <option value="quadrato">Quadrato</option>
                                         <option value="rettangolare">Rettangolare</option>

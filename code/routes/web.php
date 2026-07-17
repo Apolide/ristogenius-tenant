@@ -89,7 +89,7 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
             Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
             Route::get('/manage/settings/room-tables', RoomTableIndex::class)->name('settings.room-tables');
-            Route::get('/rooms/{room}', RoomTablePlanner::class)->name('rooms.planner');
+            Route::get('/manage/rooms/{room}', RoomTablePlanner::class)->name('rooms.planner');
             Route::get('/manage/settimgs/departments', DepartmentIndex::class)->name('settings.departments');
 
             Route::get('/manage/users', Userlist::class)->name('users.index');

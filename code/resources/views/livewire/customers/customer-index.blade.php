@@ -65,7 +65,7 @@
                     </div>
 
                     @if ($showAdvancedFilters)
-                        <div class="border rounded p-4 mt-3 bg-gray-50 dark:bg-gray-800">
+                        <div class="border border-defaultborder rounded p-4 mt-3 bg-defaultbackground">
                             <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-2 mt-3">
                                 <div>
                                     <label class="mb-1 block font-semibold text-sm" for="provinceSelected">Provincia</label>
