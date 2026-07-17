@@ -38,7 +38,7 @@ class DepartmentDelete extends Component
 
         $departmentService->deleteDepartment($this->departmentId);
 
-        session()->flash('success', 'Reparto eliminato con successo.');
+        session()->flash('success', __('department_settings.deleted'));
         $this->resetFields();
         $this->dispatch('show-listing');
         $this->dispatch('department-refresh');

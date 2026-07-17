@@ -52,7 +52,7 @@ class DepartmentEdit extends Component
 
         $departmentService->updateDepartment($this->departmentId, $data);
 
-        session()->flash('success', 'Reparto aggiornato con successo.');
+        session()->flash('success', __('department_settings.updated'));
         $this->resetFields();
         $this->isVisible = false;
         $this->dispatch('show-listing');

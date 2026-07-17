@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Reparti</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('department_settings.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
@@ -12,7 +12,7 @@
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a href="{{ route('settings.departments') }}" class="flex items-center text-textmuted">Reparti</a>
+                            <a href="{{ route('settings.departments') }}" class="flex items-center text-textmuted">{{ __('department_settings.title') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -45,24 +45,24 @@
             <div class="box">
                 <div class="box-header border-none">
                     <div>
-                        <div class="box-title pb-0">ELENCO REPARTI</div>
+                        <div class="box-title pb-0">{{ __('department_settings.list_title') }}</div>
                     </div>
                 </div>
 
                 <div class="box-body">
                     <div class="pb-3">
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cerca reparto" class="form-control">
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('department_settings.search') }}" class="form-control">
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-bordered whitespace-nowrap min-w-full">
                             <thead>
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Nome reparto</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Reparto di produzione</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Usa stampante</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Numero stampante</th>
+                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('department_settings.actions') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('department_settings.name') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('department_settings.production') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('department_settings.use_printer') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('department_settings.printer_number') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -75,7 +75,7 @@
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                         <i class="las text-3xl la-pen"></i>
                                                         <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                            Modifica
+                                                            {{ __('department_settings.edit') }}
                                                         </span>
                                                     </button>
                                                 </div>
@@ -84,7 +84,7 @@
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-danger text-white hover:bg-danger">
                                                         <i class="las text-3xl la-trash"></i>
                                                         <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                            Elimina
+                                                            {{ __('department_settings.delete') }}
                                                         </span>
                                                     </button>
                                                 </div>
@@ -93,16 +93,16 @@
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $department->name }}</td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             @if ($department->production)
-                                                <span class="badge bg-success/10 !text-success">SI</span>
+                                                <span class="badge bg-success/10 !text-success">{{ __('department_settings.yes') }}</span>
                                             @else
-                                                <span class="badge bg-danger/10 !text-danger">NO</span>
+                                                <span class="badge bg-danger/10 !text-danger">{{ __('department_settings.no') }}</span>
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             @if ($department->use_printer)
-                                                <span class="badge bg-success/10 !text-success">SI</span>
+                                                <span class="badge bg-success/10 !text-success">{{ __('department_settings.yes') }}</span>
                                             @else
-                                                <span class="badge bg-danger/10 !text-danger">NO</span>
+                                                <span class="badge bg-danger/10 !text-danger">{{ __('department_settings.no') }}</span>
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
@@ -111,7 +111,7 @@
                                     </tr>
                                 @empty
                                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                        <td colspan="5" class="text-center text-sm text-gray-500">Nessun reparto trovato.</td>
+                                        <td colspan="5" class="text-center text-sm text-gray-500">{{ __('department_settings.empty') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

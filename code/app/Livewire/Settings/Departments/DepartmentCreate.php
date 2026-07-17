@@ -39,7 +39,7 @@ class DepartmentCreate extends Component
         $departmentService->createDepartment($data);
 
         $this->resetFields();
-        session()->flash('success', 'Reparto creato con successo.');
+        session()->flash('success', __('department_settings.created'));
         $this->isVisible = false;
         $this->dispatch('department-refresh');
         $this->dispatch('show-listing');
