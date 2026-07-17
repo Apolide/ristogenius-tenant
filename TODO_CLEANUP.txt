@@ -10,6 +10,9 @@
 - Aiuselog
 - Whatsapp ???
 
+LARAVEL APP_KEY
+docker compose exec ristopilot-tenant_php php artisan key:generate
+
 
 CODEX ApiKey
 https://community.openai.com/t/vscode-extension-with-api-key/1355263/9
