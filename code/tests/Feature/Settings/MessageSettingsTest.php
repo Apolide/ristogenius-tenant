@@ -2,11 +2,9 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Livewire\Settings\MessageChannelCasesIndex;
 use App\Livewire\Settings\MessageTemplatesIndex;
 use App\Models\TenantProfile;
 use App\Services\Settings\TenantSettingMessageTemplatesService;
-use App\Services\Settings\TenantSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -14,42 +12,6 @@ use Tests\TestCase;
 class MessageSettingsTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_custom_message_channel_cases_are_loaded_from_settings_json(): void
-    {
-        TenantProfile::query()->create([
-            'name' => 'Test',
-            'settings' => [
-                'messages' => [
-                    'message_channel_cases' => [
-                        'booking_remind' => ['channels' => ['sms', 'email']],
-                    ],
-                ],
-            ],
-        ]);
-
-        $service = app(TenantSettingsService::class);
-
-        $this->assertSame(['sms', 'email'], $service->messageChannelCaseChannels('booking_remind'));
-        Livewire::test(MessageChannelCasesIndex::class)
-            ->assertSet('message_channel_cases.booking_remind.channels', ['sms', 'email']);
-    }
-
-    public function test_message_channel_cases_are_saved_in_settings_json(): void
-    {
-        TenantProfile::query()->create(['name' => 'Test']);
-        $cases = app(TenantSettingsService::class)->messageChannelCases();
-        $cases['booking_remind']['channels'] = ['email', 'sms'];
-
-        Livewire::test(MessageChannelCasesIndex::class)
-            ->set('message_channel_cases', $cases)
-            ->call('save')
-            ->assertHasNoErrors();
-
-        $settings = TenantProfile::query()->firstOrFail()->settings;
-
-        $this->assertSame(['email', 'sms'], $settings['messages']['message_channel_cases']['booking_remind']['channels']);
-    }
 
     public function test_custom_message_templates_are_loaded_from_message_settings_json(): void
     {

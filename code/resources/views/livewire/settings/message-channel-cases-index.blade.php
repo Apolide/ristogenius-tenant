@@ -3,7 +3,7 @@
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
                 <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">
-                    Casi invio messaggi
+                    {{ __('message_channel_cases.title') }}
                 </h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
@@ -15,7 +15,7 @@
                         </li>
                         <li class="text-[12px]">
                             <a class="flex items-center text-textmuted" href="javascript:void(0);">
-                                Casi invio messaggi
+                                {{ __('message_channel_cases.title') }}
                             </a>
                         </li>
                     </ol>
@@ -27,7 +27,7 @@
                     <i class="las text-3xl la-redo-alt"></i>
                 </button>
                 <button type="button" wire:click="save" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full">
-                    Salva
+                    {{ __('message_channel_cases.save') }}
                 </button>
             </div>
         </div>
@@ -45,16 +45,16 @@
                 @endif
 
                 <div class="pb-3">
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cerca per label" class="form-control">
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('message_channel_cases.search') }}" class="form-control">
                 </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered whitespace-nowrap min-w-full">
                         <thead>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                <th class="border-b dark:border-defaultborder/10 text-start">Label</th>
-                                <th class="border-b dark:border-defaultborder/10 text-start">Required</th>
+                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('message_channel_cases.actions') }}</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">{{ __('message_channel_cases.label') }}</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">{{ __('message_channel_cases.required') }}</th>
                                 @foreach ($channels as $channelLabel)
                                     <th class="border-b dark:border-defaultborder/10 text-start">{{ $channelLabel }}</th>
                                 @endforeach
@@ -72,7 +72,7 @@
                                                         class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                     <i class="las text-3xl la-redo-alt"></i>
                                                     <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                        Ripristina
+                                                        {{ __('message_channel_cases.reset') }}
                                                     </span>
                                                 </button>
                                             </div>
@@ -85,9 +85,9 @@
 
                                     <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                         @if ($case['required'])
-                                            <span class="badge bg-success/10 text-success">Si</span>
+                                            <span class="badge bg-success/10 text-success">{{ __('message_channel_cases.yes') }}</span>
                                         @else
-                                            <span class="badge bg-danger/10 text-danger">No</span>
+                                            <span class="badge bg-danger/10 text-danger">{{ __('message_channel_cases.no') }}</span>
                                         @endif
                                     </td>
 
@@ -106,7 +106,7 @@
                             @empty
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
                                     <td colspan="{{ count($channels) + 3 }}" class="text-center text-sm text-gray-500">
-                                        Nessun caso trovato.
+                                        {{ __('message_channel_cases.empty') }}
                                     </td>
                                 </tr>
                             @endforelse
@@ -115,8 +115,8 @@
                 </div>
 
                 <div class="mt-5 flex gap-3">
-                    <button type="button" wire:click="save" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">Salva</button>
-                    <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light mr-3">Annulla</a>
+                    <button type="button" wire:click="save" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">{{ __('message_channel_cases.save') }}</button>
+                    <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light mr-3">{{ __('message_channel_cases.cancel') }}</a>
                 </div>
             </div>
         </div>

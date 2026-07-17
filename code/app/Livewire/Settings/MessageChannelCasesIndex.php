@@ -30,7 +30,7 @@ class MessageChannelCasesIndex extends Component
             if ($case['required'] && count($channels) === 0) {
                 $this->addError(
                     "message_channel_cases.{$key}.channels",
-                    'Per i messaggi obbligatori deve essere selezionato almeno un canale.'
+                    __('message_channel_cases.required_error')
                 );
 
                 return;
@@ -40,7 +40,7 @@ class MessageChannelCasesIndex extends Component
         $settingsService->updateMessageChannelCases($validated['message_channel_cases'] ?? []);
         $this->message_channel_cases = $settingsService->messageChannelCases();
 
-        session()->flash('success', 'Casi invio messaggi aggiornati correttamente.');
+        session()->flash('success', __('message_channel_cases.updated'));
     }
 
     public function resetToDefaults(TenantSettingsService $settingsService): void
@@ -48,7 +48,7 @@ class MessageChannelCasesIndex extends Component
         $this->message_channel_cases = TenantSettingsService::MESSAGE_CHANNEL_CASES;
         $settingsService->updateMessageChannelCases($this->message_channel_cases);
 
-        session()->flash('success', 'Casi invio messaggi ripristinati correttamente.');
+        session()->flash('success', __('message_channel_cases.defaults_restored'));
     }
 
     public function resetCase(string $key): void
@@ -65,6 +65,6 @@ class MessageChannelCasesIndex extends Component
         return view('livewire.settings.message-channel-cases-index', [
             'channels' => TenantSettingsService::MESSAGE_CHANNELS,
             'cases' => $settingsService->messageChannelCases($this->search),
-        ])->title('Casi invio messaggi');
+        ])->title(__('message_channel_cases.title'));
     }
 }

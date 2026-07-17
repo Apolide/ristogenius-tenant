@@ -112,7 +112,7 @@ class TenantSettingsService
             $savedChannels = $savedCases[$key]['channels'] ?? $case['channels'];
 
             $cases[$key] = [
-                'label' => $case['label'],
+                'label' => __("message_channel_cases.cases.{$key}"),
                 'required' => $case['required'],
                 'channels' => $this->normalizeMessageChannels($savedChannels),
             ];
