@@ -1,3 +1,83 @@
+<style>
+    input:is([type='date'], [type='time']) {
+        cursor: pointer;
+    }
+
+    .dark input:is([type='date'], [type='time']) {
+        color-scheme: dark;
+    }
+
+    .dark input:is([type='date'], [type='time'])::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        filter: brightness(0) invert(1) !important;
+        opacity: 0.9;
+    }
+
+    .dark input[type='checkbox']:not(:checked):not(:indeterminate) {
+        background-color: rgb(var(--light)) !important;
+        border-color: rgb(var(--default-text-color) / 0.45) !important;
+    }
+
+    .dark input.ti-switch[type='checkbox']:not(:checked)::before {
+        background-color: rgb(var(--default-text-color) / 0.85) !important;
+    }
+
+    /* Keep secondary text actions legible against the dark page background. */
+    .dark .ti-btn-secondary {
+        background-color: rgb(var(--secondary) / 0.35) !important;
+        border-color: rgb(var(--secondary) / 0.65) !important;
+        color: rgb(255 255 255 / 0.95) !important;
+    }
+
+    .dark .ti-btn-secondary:hover,
+    .dark .ti-btn-secondary:focus {
+        background-color: rgb(var(--secondary)) !important;
+        border-color: rgb(var(--secondary)) !important;
+        color: rgb(255 255 255) !important;
+    }
+
+    .dark .ti-btn-danger {
+        background-color: rgb(var(--danger) / 0.3) !important;
+        border-color: rgb(var(--danger) / 0.65) !important;
+        color: rgb(255 255 255 / 0.95) !important;
+    }
+
+    .dark .ti-btn-danger:hover,
+    .dark .ti-btn-danger:focus {
+        background-color: rgb(var(--danger)) !important;
+        border-color: rgb(var(--danger)) !important;
+        color: rgb(255 255 255) !important;
+    }
+
+    /* The template keeps --primary unchanged in dark mode; soften full primary actions. */
+    .dark .ti-btn-primary-full {
+        background-color: rgb(45 114 184) !important;
+        border-color: rgb(45 114 184) !important;
+        color: rgb(255 255 255) !important;
+    }
+
+    .dark .ti-btn-primary-full:hover,
+    .dark .ti-btn-primary-full:focus {
+        background-color: rgb(37 99 170) !important;
+        border-color: rgb(37 99 170) !important;
+        color: rgb(255 255 255) !important;
+    }
+
+    /* Light buttons are used for cancel, close and inactive-tab actions. */
+    .dark .ti-btn-light {
+        background-color: rgb(var(--default-text-color) / 0.12) !important;
+        border-color: rgb(var(--default-text-color) / 0.35) !important;
+        color: rgb(var(--default-text-color)) !important;
+    }
+
+    .dark .ti-btn-light:hover,
+    .dark .ti-btn-light:focus {
+        background-color: rgb(var(--default-text-color) / 0.22) !important;
+        border-color: rgb(var(--default-text-color) / 0.5) !important;
+        color: rgb(var(--default-text-color)) !important;
+    }
+</style>
+
 <div class="header-element header-theme-mode !flex !items-center !py-[1rem] !px-[0.65rem]">
     <button
         type="button"

@@ -12,6 +12,20 @@
 
   const html = document.documentElement;
 
+  document.addEventListener("click", (event) => {
+    const input = event.target.closest?.("input[type='date'], input[type='time']");
+
+    if (!input || input.disabled || input.readOnly || typeof input.showPicker !== "function") {
+      return;
+    }
+
+    try {
+      input.showPicker();
+    } catch (error) {
+      // Keep the browser's native fallback when showPicker is unavailable.
+    }
+  });
+
   function applyTheme(theme) {
     const dark = theme === "dark";
 
