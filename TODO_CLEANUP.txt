@@ -15,6 +15,13 @@ CODEX ApiKey
 https://community.openai.com/t/vscode-extension-with-api-key/1355263/9
 
 
+GITHUB
+- check config 
+ssh -T git@github.com-apolide
+
+- set remote
+git remote set-url origin git@github.com-apolide:Apolide/ristogenius-tenant.git
+
 
 SETUP LOCALHOST DB
 

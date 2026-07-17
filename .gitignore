@@ -2,4 +2,5 @@
 .env
 ./docker-files/production/.env
 certificates
-/code/vendor
+/code/vendorcode/storage/data/chroma.sqlite3
+code/storage/data/ops.sqlite
