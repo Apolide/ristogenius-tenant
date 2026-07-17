@@ -69,8 +69,8 @@ class BookingWaitlistIndex extends Component
             'pax' => ['required', 'integer', 'min:1'],
             'note' => ['nullable', 'string', 'max:5000'],
         ], [
-            'email.required_without' => 'Inserisci almeno un recapito email o telefono.',
-            'phone.required_without' => 'Inserisci almeno un recapito email o telefono.',
+            'email.required_without' => __('bookings.messages.contact_required'),
+            'phone.required_without' => __('bookings.messages.contact_required'),
         ]);
 
         DB::transaction(function () use ($data): void {
@@ -95,7 +95,7 @@ class BookingWaitlistIndex extends Component
 
         $this->reset(['search', 'firstname', 'lastname', 'email', 'phone', 'note', 'customer_id', 'customerSuggestions', 'activeSearchField']);
         $this->pax = 1;
-        session()->flash('success', 'Cliente aggiunto alla lista d’attesa.');
+        session()->flash('success', __('bookings.messages.waitlist_added'));
     }
 
     public function notify(string $id, WaitlistNotificationService $notifications): void
@@ -132,13 +132,13 @@ class BookingWaitlistIndex extends Component
             $entry->update(['status' => 'seated', 'seated_at' => now()]);
         });
 
-        session()->flash('success', 'Cliente accomodato e aggiunto alle prenotazioni di oggi.');
+        session()->flash('success', __('bookings.messages.waitlist_seated'));
     }
 
     public function cancel(string $id): void
     {
         $this->waitingEntry($id)->update(['status' => 'cancelled']);
-        session()->flash('success', 'Cliente rimosso dalla lista d’attesa.');
+        session()->flash('success', __('bookings.messages.waitlist_removed'));
     }
 
     public function render()
@@ -148,7 +148,7 @@ class BookingWaitlistIndex extends Component
             ->whereIn('status', ['waiting', 'notified'])
             ->oldest()->paginate(15);
 
-        return view('livewire.bookings.booking-waitlist-index', compact('entries'))->title('Lista d’attesa');
+        return view('livewire.bookings.booking-waitlist-index', compact('entries'))->title(__('bookings.waitlist'));
     }
 
     private function waitingEntry(string $id): BookingWaitlistEntry
