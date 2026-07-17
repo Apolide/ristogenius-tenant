@@ -17,6 +17,6 @@ class CustomerShow extends Component
 
     public function render()
     {
-        return view('livewire.customers.customer-show')->title('Scheda cliente');
+        return view('livewire.customers.customer-show')->title(__('customers.show.card', ['name' => $this->customer->display_name]));
     }
 }

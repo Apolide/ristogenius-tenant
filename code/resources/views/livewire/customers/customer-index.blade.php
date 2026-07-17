@@ -2,17 +2,17 @@
     <div class="main-content">
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Clienti</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('customers.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('customers.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">Clienti</a>
+                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">{{ __('customers.title') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -20,17 +20,17 @@
 
             <div class="flex xl:my-auto right-content align-items-center gap-3 md:gap-5">
                 <div class="pe-1 xl:mb-0">
-                    <button wire:click="$dispatch('click-create-customer')" type="button" class="ti-btn ti-btn-info-full text-white ti-btn-icon">
+                    <button wire:click="$dispatch('click-create-customer')" type="button" title="{{ __('customers.actions.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon">
                         <i class="las text-3xl la-plus"></i>
                     </button>
                 </div>
                 <div class="pe-1 xl:mb-0">
-                    <button wire:click="$dispatch('click-import-customer')" type="button" class="ti-btn ti-btn-danger-full text-white ti-btn-icon">
+                    <button wire:click="$dispatch('click-import-customer')" type="button" title="{{ __('customers.actions.import') }}" class="ti-btn ti-btn-danger-full text-white ti-btn-icon">
                         <i class="las text-3xl la-file-import"></i>
                     </button>
                 </div>
                 <div class="pe-1 xl:mb-0">
-                    <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon">
+                    <a href="{{ route('customers.index') }}" title="{{ __('customers.actions.refresh') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon">
                         <i class="las text-3xl la-redo-alt"></i>
                     </a>
                 </div>
@@ -54,13 +54,13 @@
                 <div class="box-body">
                     <div class="grid md:grid-cols-3 gap-3 mt-3 pb-3">
                         <div>
-                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cerca cliente" class="form-control">
+                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('customers.index.search') }}" class="form-control">
                         </div>
                         <button type="button" class="ti-btn ti-btn-secondary" wire:click="$toggle('showAdvancedFilters')">
-                            Filtri Avanzati
+                            {{ __('customers.index.advanced_filters') }}
                         </button>
                         <button type="button" wire:click="resetFilters" class="ti-btn ti-btn-danger">
-                            Reset Filtri
+                            {{ __('customers.index.reset_filters') }}
                         </button>
                     </div>
 
@@ -68,88 +68,71 @@
                         <div class="border border-defaultborder rounded p-4 mt-3 bg-defaultbackground">
                             <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-2 mt-3">
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="provinceSelected">Provincia</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="provinceSelected">{{ __('customers.filters.province') }}</label>
                                     <select wire:model.live.debounce.300ms="provinceSelected" id="provinceSelected" class="form-control">
-                                        <option value="">-- Tutte --</option>
+                                        <option value="">{{ __('customers.filters.all_f') }}</option>
                                         @foreach ($provinces as $province)
                                             <option value="{{ $province->id }}">{{ $province->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="comuneSelected">Comune</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="comuneSelected">{{ __('customers.filters.municipality') }}</label>
                                     <select wire:model.live.debounce.300ms="comuneSelected" id="comuneSelected" class="form-control">
-                                        <option value="">-- Tutti --</option>
+                                        <option value="">{{ __('customers.filters.all_m') }}</option>
                                         @foreach ($comuniList as $comune)
                                             <option value="{{ $comune->id }}">{{ $comune->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="bookingStatus">Status Prenotazione</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="bookingStatus">{{ __('customers.filters.booking_status') }}</label>
                                     <select wire:model.live.debounce.300ms="bookingStatus" id="bookingStatus" class="form-control">
-                                        <option value="">-- Tutti --</option>
-                                        <option value="pending">Inserita</option>
-                                        <option value="accepted">Accettata</option>
-                                        <option value="denied">Rifiutata</option>
-                                        <option value="canceled">Cancellata</option>
-                                        <option value="no-show">No show</option>
-                                        <option value="seated">Seduti</option>
-                                        <option value="waiting">In attesa</option>
-                                        <option value="finalized">Completata</option>
+                                        <option value="">{{ __('customers.filters.all_m') }}</option>
+                                        @foreach (['pending','accepted','denied','canceled','no-show','seated','waiting','finalized'] as $status)<option value="{{ $status }}">{{ __('customers.statuses.'.$status) }}</option>@endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="noShowCount">No Show &gt;=</label>
-                                    <input type="number" wire:model.live.debounce.300ms="noShowCount" id="noShowCount" class="form-control" placeholder="Es. 1, 2, 3...">
+                                    <label class="mb-1 block font-semibold text-sm" for="noShowCount">{{ __('customers.filters.no_show') }}</label>
+                                    <input type="number" wire:model.live.debounce.300ms="noShowCount" id="noShowCount" class="form-control" placeholder="{{ __('customers.filters.example') }}">
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitStart">Ultima Visita (da)</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitStart">{{ __('customers.filters.visit_from') }}</label>
                                     <input type="date" wire:model.live.debounce.300ms="lastVisitStart" id="lastVisitStart" class="form-control">
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitEnd">Ultima Visita (a)</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitEnd">{{ __('customers.filters.visit_to') }}</label>
                                     <input type="date" wire:model.live.debounce.300ms="lastVisitEnd" id="lastVisitEnd" class="form-control">
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitAgo">Non vengono da</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitAgo">{{ __('customers.filters.not_visited_since') }}</label>
                                     <select wire:model.live="lastVisitAgo" id="lastVisitAgo" class="form-control">
-                                        <option value="">-- Nessun filtro --</option>
-                                        <option value="1">1 mese</option>
-                                        <option value="2">2 mesi</option>
-                                        <option value="3">3 mesi</option>
-                                        <option value="6">6 mesi</option>
-                                        <option value="9">9 mesi</option>
-                                        <option value="12">12 mesi</option>
-                                        <option value="12+">Oltre 1 anno</option>
+                                        <option value="">{{ __('customers.filters.none') }}</option>
+                                        @foreach ([1,2,3,6,9,12] as $months)<option value="{{ $months }}">{{ trans_choice('customers.filters.month', $months, ['count'=>$months]) }}</option>@endforeach
+                                        <option value="12+">{{ __('customers.filters.over_year') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitWithin">Sono venuti entro</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="lastVisitWithin">{{ __('customers.filters.visited_within') }}</label>
                                     <select wire:model.live="lastVisitWithin" id="lastVisitWithin" class="form-control">
-                                        <option value="">-- Nessun filtro --</option>
-                                        <option value="1">1 mese</option>
-                                        <option value="2">2 mesi</option>
-                                        <option value="3">3 mesi</option>
-                                        <option value="6">6 mesi</option>
-                                        <option value="9">9 mesi</option>
-                                        <option value="12">12 mesi</option>
-                                        <option value="12+">Oltre 1 anno</option>
+                                        <option value="">{{ __('customers.filters.none') }}</option>
+                                        @foreach ([1,2,3,6,9,12] as $months)<option value="{{ $months }}">{{ trans_choice('customers.filters.month', $months, ['count'=>$months]) }}</option>@endforeach
+                                        <option value="12+">{{ __('customers.filters.over_year') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="birthMonth">Mese Compleanno</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="birthMonth">{{ __('customers.filters.birth_month') }}</label>
                                     <select wire:model.live.debounce.300ms="birthMonth" id="birthMonth" class="form-control">
-                                        <option value="">-- Tutti --</option>
-                                        @foreach ([1 => 'Gennaio', 2 => 'Febbraio', 3 => 'Marzo', 4 => 'Aprile', 5 => 'Maggio', 6 => 'Giugno', 7 => 'Luglio', 8 => 'Agosto', 9 => 'Settembre', 10 => 'Ottobre', 11 => 'Novembre', 12 => 'Dicembre'] as $month => $label)
-                                            <option value="{{ $month }}">{{ $label }}</option>
+                                        <option value="">{{ __('customers.filters.all_m') }}</option>
+                                        @foreach (__('customers.months') as $month => $label)
+                                            <option value="{{ $month + 1 }}">{{ $label }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block font-semibold text-sm" for="birthDay">Giorno Compleanno</label>
+                                    <label class="mb-1 block font-semibold text-sm" for="birthDay">{{ __('customers.filters.birth_day') }}</label>
                                     <select wire:model.live.debounce.300ms="birthDay" id="birthDay" class="form-control">
-                                        <option value="">-- Tutti --</option>
+                                        <option value="">{{ __('customers.filters.all_m') }}</option>
                                         @for ($day = 1; $day <= 31; $day++)
                                             <option value="{{ $day }}">{{ $day }}</option>
                                         @endfor
@@ -185,8 +168,8 @@
                             </div>
 
                             <div class="mt-3">
-                                <button type="button" wire:click="resetFilters" class="ti-btn ti-btn-danger">Reset Filtri</button>
-                                <button type="button" wire:click="sendToMarketing" class="ti-btn ti-btn-primary">Invia a Marketing</button>
+                                <button type="button" wire:click="resetFilters" class="ti-btn ti-btn-danger">{{ __('customers.index.reset_filters') }}</button>
+                                <button type="button" wire:click="sendToMarketing" class="ti-btn ti-btn-primary">{{ __('customers.index.send_marketing') }}</button>
                             </div>
                         </div>
                     @endif
@@ -195,8 +178,8 @@
                         <table class="table table-bordered whitespace-nowrap min-w-full">
                             <thead>
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Cliente</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Info</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('customers.index.customer') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('customers.info') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -214,46 +197,46 @@
                                                 <div class="hs-tooltip ti-main-tooltip">
                                                     <a href="{{ route('customers.show', $customer->id) }}" class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-info text-white hover:bg-info">
                                                         <i class="las text-3xl la-eye"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Vedi</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('customers.actions.view') }}</span>
                                                     </a>
                                                 </div>
                                                 <div class="hs-tooltip ti-main-tooltip">
                                                     <a href="{{ route('customers.edit', $customer->id) }}" class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                         <i class="las text-3xl la-pen"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Modifica</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('customers.actions.edit') }}</span>
                                                     </a>
                                                 </div>
                                                 <div class="hs-tooltip ti-main-tooltip">
                                                     <button wire:click="$dispatch('click-delete-customer', { id: '{{ $customer->id }}' })" class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-danger text-white hover:bg-danger">
                                                         <i class="las text-3xl la-trash"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Elimina</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('customers.actions.delete') }}</span>
                                                     </button>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                            <div class="mb-1">Ultima visita: {{ $customer->last_action_at?->format('d-m-Y') ?? '-' }}</div>
+                                            <div class="mb-1">{{ __('customers.index.last_visit') }}: {{ $customer->last_action_at?->format('d-m-Y') ?? '-' }}</div>
                                             <div class="mb-1">Telegram:
                                                 @if ($customer->telegramid)
-                                                    <span class="badge bg-success/10 !text-success">SI</span>
+                                                    <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                                 @else
-                                                    <span class="badge bg-danger/10 !text-danger">NO</span>
+                                                    <span class="badge bg-danger/10 !text-danger">{{ __('customers.no') }}</span>
                                                 @endif
                                             </div>
                                             <div class="mb-1">Marketing:
                                                 @if ($customer->consent_marketing)
-                                                    <span class="badge bg-success/10 !text-success">SI</span>
+                                                    <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                                 @else
-                                                    <span class="badge bg-danger/10 !text-danger">NO</span>
+                                                    <span class="badge bg-danger/10 !text-danger">{{ __('customers.no') }}</span>
                                                 @endif
                                             </div>
                                             @if ($customer->blacklisted)
-                                                <div class="mb-1">Blacklist: <span class="badge bg-danger/10 !text-danger">SI</span></div>
+                                                <div class="mb-1">Blacklist: <span class="badge bg-danger/10 !text-danger">{{ __('customers.yes') }}</span></div>
                                             @endif
-                                            <div class="mb-1">Lingua: {{ strtoupper($customer->lang ?? 'it') }}</div>
+                                            <div class="mb-1">{{ __('customers.language') }}: {{ strtoupper($customer->lang ?? 'it') }}</div>
                                             @if ($customer->region || $customer->province || $customer->comune)
                                                 <div class="mb-1">
-                                                    Zona:
+                                                    {{ __('customers.index.area') }}:
                                                     {{ collect([$customer->region?->name, $customer->province?->name, $customer->comune?->name])->filter()->join(' / ') }}
                                                 </div>
                                             @endif
@@ -261,7 +244,7 @@
                                     </tr>
                                 @empty
                                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                        <td colspan="2" class="text-center text-sm text-gray-500">Nessun cliente trovato.</td>
+                                        <td colspan="2" class="text-center text-sm text-gray-500">{{ __('customers.index.empty') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

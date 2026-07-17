@@ -28,6 +28,7 @@ class CustomerManagementTest extends TestCase
     {
         parent::setUp();
 
+        app()->setLocale('it');
         config()->set('tenant.customer_languages', 'it,en');
 
         $service = Mockery::mock(BookingService::class);

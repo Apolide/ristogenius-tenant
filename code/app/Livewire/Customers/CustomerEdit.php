@@ -59,7 +59,7 @@ class CustomerEdit extends Component
     {
         $customerService->updateCustomer($this->customerId, $this->validate($this->rules()));
 
-        session()->flash('success', 'Cliente aggiornato con successo.');
+        session()->flash('success', __('customers.messages.updated'));
 
         return redirect()->route('customers.show', $this->customerId);
     }
@@ -74,7 +74,7 @@ class CustomerEdit extends Component
             'comuniList' => $this->province_id
                 ? Comuni::query()->where('province_id', $this->province_id)->orderBy('name')->get()
                 : collect(),
-        ])->title('Modifica cliente');
+        ])->title(__('customers.form.edit'));
     }
 
     private function rules(): array

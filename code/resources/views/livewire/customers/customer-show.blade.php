@@ -2,17 +2,17 @@
     <div class="main-content">
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Clienti</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('customers.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('customers.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">Clienti</a>
+                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">{{ __('customers.title') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -32,15 +32,15 @@
 
         <div class="box">
             <div class="box-header border-none">
-                <div class="box-title pb-0">SCHEDA {{ $customer->display_name ?: trim($customer->firstname.' '.$customer->lastname) }}</div>
+                <div class="box-title pb-0">{{ __('customers.show.card', ['name' => $customer->display_name ?: trim($customer->firstname.' '.$customer->lastname)]) }}</div>
             </div>
             <div class="box-body">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                     <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light w-full h-12">
-                        <i class="las la-arrow-left"></i> Indietro
+                        <i class="las la-arrow-left"></i> {{ __('customers.back') }}
                     </a>
                     <a href="{{ route('bookings.create', ['customer' => $customer->id]) }}" class="ti-btn ti-btn-primary-full w-full h-12">
-                        <i class="las la-calendar-plus"></i> Crea prenotazione
+                        <i class="las la-calendar-plus"></i> {{ __('customers.show.create_booking') }}
                     </a>
                 </div>
 
@@ -52,15 +52,15 @@
                                 <td>{{ $customer->id }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Nome</th>
+                                <th class="text-start">{{ __('customers.form.firstname') }}</th>
                                 <td>{{ $customer->firstname ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Cognome</th>
+                                <th class="text-start">{{ __('customers.form.lastname') }}</th>
                                 <td>{{ $customer->lastname ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Telefono</th>
+                                <th class="text-start">{{ __('customers.form.phone') }}</th>
                                 <td>{{ $customer->phone ?: '-' }}</td>
                             </tr>
                             <tr>
@@ -68,28 +68,28 @@
                                 <td>{{ $customer->email ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Regione</th>
+                                <th class="text-start">{{ __('customers.form.region') }}</th>
                                 <td>{{ $customer->region?->name ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Provincia</th>
+                                <th class="text-start">{{ __('customers.form.province') }}</th>
                                 <td>{{ $customer->province?->name ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Comune</th>
+                                <th class="text-start">{{ __('customers.form.municipality') }}</th>
                                 <td>{{ $customer->comune?->name ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Data di nascita</th>
+                                <th class="text-start">{{ __('customers.form.birthdate') }}</th>
                                 <td>{{ $customer->birthdate?->format('d/m/Y') ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th class="text-start">Marketing</th>
                                 <td>
                                     @if ($customer->consent_marketing)
-                                        <span class="badge bg-success/10 !text-success">SI</span>
+                                        <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                     @else
-                                        <span class="badge bg-danger/10 !text-danger">NO</span>
+                                        <span class="badge bg-danger/10 !text-danger">{{ __('customers.no') }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -97,9 +97,9 @@
                                 <th class="text-start">Telegram</th>
                                 <td>
                                     @if ($customer->telegramid)
-                                        <span class="badge bg-success/10 !text-success">SI</span>
+                                        <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                     @else
-                                        <span class="badge bg-danger/10 !text-danger">NO</span>
+                                        <span class="badge bg-danger/10 !text-danger">{{ __('customers.no') }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -107,22 +107,22 @@
                                 <th class="text-start">Blacklist</th>
                                 <td>
                                     @if ($customer->blacklisted)
-                                        <span class="badge bg-danger/10 !text-danger">SI</span>
+                                        <span class="badge bg-danger/10 !text-danger">{{ __('customers.yes') }}</span>
                                     @else
-                                        <span class="badge bg-success/10 !text-success">NO</span>
+                                        <span class="badge bg-success/10 !text-success">{{ __('customers.no') }}</span>
                                     @endif
                                 </td>
                             </tr>
                             <tr>
-                                <th class="text-start">Ultima visita</th>
+                                <th class="text-start">{{ __('customers.index.last_visit') }}</th>
                                 <td>{{ $customer->last_action_at?->format('d/m/Y H:i') ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Sorgente</th>
+                                <th class="text-start">{{ __('customers.show.source') }}</th>
                                 <td>{{ $customer->registration_source ?: '-' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-start">Note</th>
+                                <th class="text-start">{{ __('customers.history.notes') }}</th>
                                 <td class="whitespace-normal">{{ $customer->note ?: '-' }}</td>
                             </tr>
                         </tbody>

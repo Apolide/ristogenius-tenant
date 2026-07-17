@@ -110,7 +110,7 @@ class CustomerIndex extends Component
 
     public function sendToMarketing(): void
     {
-        session()->flash('success', 'La funzionalita marketing sara implementata successivamente.');
+        session()->flash('success', __('customers.messages.marketing_pending'));
     }
 
     #[On('customer-refresh')]
@@ -139,7 +139,7 @@ class CustomerIndex extends Component
             'comuniList' => $this->provinceSelected !== ''
                 ? Comuni::query()->where('province_id', $this->provinceSelected)->orderBy('name')->get()
                 : collect(),
-        ])->title('Clienti');
+        ])->title(__('customers.title'));
     }
 
     private function filters(): array
