@@ -58,7 +58,7 @@ class ProfileEdit extends Component
         $this->reset('image');
         $this->fillFromProfile($profile->refresh());
 
-        session()->flash('success', 'Profilo aggiornato correttamente.');
+        session()->flash('success', __('tenant_profile.updated'));
     }
 
     public function abort()
@@ -69,7 +69,7 @@ class ProfileEdit extends Component
     public function render()
     {
         return view('livewire.profile.profile-edit')
-            ->title('Profilo Aziendale');
+            ->title(__('tenant_profile.title'));
     }
 
     private function profile(): TenantProfile

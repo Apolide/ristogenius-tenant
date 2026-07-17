@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Profilo Aziendale</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('tenant_profile.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
@@ -12,7 +12,7 @@
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-textmuted" href="javascript:void(0);">Profilo</a>
+                            <a class="flex items-center text-textmuted" href="javascript:void(0);">{{ __('tenant_profile.breadcrumb') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -32,7 +32,7 @@
                     <input hidden wire:model="profileId" type="hidden" id="profileId" name="profileId">
 
                     <div class="w-full mb-5">
-                        <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Logo</label>
+                        <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.logo') }}</label>
                         <input
                             type="file"
                             wire:model="image"
@@ -43,7 +43,7 @@
                             data-max-files="1"
                             accept="image/png, image/jpeg"
                         >
-                        <div wire:loading wire:target="image" class="mt-2 text-sm text-textmuted">Caricamento logo...</div>
+                        <div wire:loading wire:target="image" class="mt-2 text-sm text-textmuted">{{ __('tenant_profile.logo_loading') }}</div>
                         @error('image')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
@@ -51,63 +51,63 @@
 
                     @if ($image)
                         <div class="w-full mb-5">
-                            <img src="{{ $image->temporaryUrl() }}" alt="Anteprima logo" class="max-h-40 border border-defaultborder dark:border-defaultborder/10 rounded-sm">
+                            <img src="{{ $image->temporaryUrl() }}" alt="{{ __('tenant_profile.logo_preview_alt') }}" class="max-h-40 border border-defaultborder dark:border-defaultborder/10 rounded-sm">
                         </div>
                     @elseif ($profileImage)
                         <div class="w-full mb-5">
-                            <img src="{{ $profileImage }}" alt="Logo attività" class="max-h-40 border border-defaultborder dark:border-defaultborder/10 rounded-sm">
+                            <img src="{{ $profileImage }}" alt="{{ __('tenant_profile.business_logo_alt') }}" class="max-h-40 border border-defaultborder dark:border-defaultborder/10 rounded-sm">
                         </div>
                     @endif
 
                     <div class="w-full mb-5">
-                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome Attività</label>
-                        <input disabled wire:model="name" type="text" id="name" class="form-control" placeholder="Nome attività">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.business_name') }}</label>
+                        <input disabled wire:model="name" type="text" id="name" class="form-control" placeholder="{{ __('tenant_profile.business_name_placeholder') }}">
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="company_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome Azienda</label>
-                        <textarea wire:model="company_name" id="company_name" class="form-control" placeholder="Nome Azienda"></textarea>
+                        <label for="company_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.company_name') }}</label>
+                        <textarea wire:model="company_name" id="company_name" class="form-control" placeholder="{{ __('tenant_profile.company_name') }}"></textarea>
                         @error('company_name')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Città</label>
-                        <textarea wire:model="city" id="city" class="form-control" placeholder="Città"></textarea>
+                        <label for="city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.city') }}</label>
+                        <textarea wire:model="city" id="city" class="form-control" placeholder="{{ __('tenant_profile.city') }}"></textarea>
                         @error('city')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Provincia</label>
-                        <textarea wire:model="province" id="province" class="form-control" placeholder="Provincia"></textarea>
+                        <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.province') }}</label>
+                        <textarea wire:model="province" id="province" class="form-control" placeholder="{{ __('tenant_profile.province') }}"></textarea>
                         @error('province')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="postcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">CAP</label>
-                        <textarea wire:model="postcode" id="postcode" class="form-control" placeholder="CAP"></textarea>
+                        <label for="postcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.postcode') }}</label>
+                        <textarea wire:model="postcode" id="postcode" class="form-control" placeholder="{{ __('tenant_profile.postcode') }}"></textarea>
                         @error('postcode')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Indirizzo</label>
-                        <textarea wire:model="address" id="address" class="form-control" placeholder="Indirizzo"></textarea>
+                        <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('tenant_profile.address') }}</label>
+                        <textarea wire:model="address" id="address" class="form-control" placeholder="{{ __('tenant_profile.address') }}"></textarea>
                         @error('address')
                             <p class="mt-2 text-sm text-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">Salva</button>
+                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">{{ __('tenant_profile.save') }}</button>
 
                     <button wire:click="abort()" type="button" class="ti-btn ti-btn-light mr-3">
-                        Annulla
+                        {{ __('tenant_profile.cancel') }}
                     </button>
                 </form>
             </div>
