@@ -13,6 +13,9 @@
     <link rel="shortcut icon" href="/assets/images/brand-logos/favicon.ico">
 
     <!-- Main JS -->
+    @if (request()->is('manage') || request()->is('manage/*'))
+    <script src="/assets/js/manage-theme.js"></script>
+    @endif
     <script src="/assets/js/main.js"></script>
 
     @vite([
@@ -833,4 +836,3 @@
 </body>
 
 </html>
-

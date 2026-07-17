@@ -37,8 +37,8 @@
                 </form>
             @endif
 
-            <div wire:poll.15s class="table-responsive">
-                <table class="table table-bordered min-w-full bg-white"><thead><tr><th>Azioni</th><th>Cliente</th><th>Persone</th><th>Inserita alle</th><th>Attesa</th><th>Stato</th></tr></thead><tbody>
+            <div wire:poll.15s class="table-responsive rounded-md bg-defaultbackground">
+                <table class="table table-bordered min-w-full bg-defaultbackground"><thead><tr><th>Azioni</th><th>Cliente</th><th>Persone</th><th>Inserita alle</th><th>Attesa</th><th>Stato</th></tr></thead><tbody>
                     @forelse($entries as $entry)
                         <tr>
                             <td><div class="flex gap-2">
@@ -52,7 +52,7 @@
                             <td>{{ $entry->created_at->diffForHumans(null, true) }}</td>
                             <td>@if($entry->status === 'notified')<span class="badge bg-info/10 text-info">Avvisato {{ $entry->notified_at?->format('H:i') }}</span>@else<span class="badge bg-warning/10 text-warning">In attesa</span>@endif</td>
                         </tr>
-                    @empty<tr><td colspan="6" class="text-center text-gray-500 py-5">Nessuno in lista d'attesa per oggi.</td></tr>@endforelse
+                    @empty<tr><td colspan="6" class="text-center text-textmuted py-5">Nessuno in lista d'attesa per oggi.</td></tr>@endforelse
                 </tbody></table>
             </div>
             <div class="mt-3">{{ $entries->links() }}</div>

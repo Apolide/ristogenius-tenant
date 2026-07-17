@@ -14,28 +14,28 @@
 
                 <form wire:submit.prevent="save" class="space-y-5">
                     <div>
-                        <span class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalita di invio notifiche</span>
+                        <span class="block mb-2 text-sm font-medium text-defaulttextcolor">Modalita di invio notifiche</span>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                            <label class="flex cursor-not-allowed items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+                            <label class="flex cursor-not-allowed items-center gap-3 rounded-lg border border-defaultborder bg-light px-4 py-3 opacity-75">
                                 <input type="checkbox" checked disabled class="h-4 w-4">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Email</span>
+                                <span class="text-sm font-medium text-defaulttextcolor">Email</span>
                             </label>
 
-                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
+                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-defaultborder px-4 py-3">
                                 <input type="checkbox" wire:model="notification_channels" value="sms" class="h-4 w-4">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">SMS</span>
+                                <span class="text-sm font-medium text-defaulttextcolor">SMS</span>
                             </label>
 
-                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
+                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-defaultborder px-4 py-3">
                                 <input type="checkbox" wire:model="notification_channels" value="whatsapp" class="h-4 w-4">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp</span>
+                                <span class="text-sm font-medium text-defaulttextcolor">WhatsApp</span>
                             </label>
 
 
-                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
+                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-defaultborder px-4 py-3">
                                 <input type="checkbox" wire:model="notification_channels" value="telegram" class="h-4 w-4">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Telegram</span>
+                                <span class="text-sm font-medium text-defaulttextcolor">Telegram</span>
                             </label>
 
                         </div>

@@ -76,8 +76,8 @@
 </div>
 
 <div class="flex flex-col mb-5">
-    <label for="note" class="mb-1 font-semibold text-gray-700">Note interne (non leggibili dal cliente)</label>
-    <textarea id="note" wire:model.lazy="note" rows="5" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Inserisci qui le tue annotazioni su questo cliente."></textarea>
+    <label for="note" class="mb-1 font-semibold text-defaulttextcolor">Note interne (non leggibili dal cliente)</label>
+    <textarea id="note" wire:model.lazy="note" rows="5" class="form-control mt-1 block w-full sm:text-sm" placeholder="Inserisci qui le tue annotazioni su questo cliente."></textarea>
     @error('note') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
 </div>
 

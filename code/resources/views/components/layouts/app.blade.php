@@ -13,10 +13,13 @@
     <link rel="shortcut icon" href="/assets/images/brand-logos/favicon.ico">
 
     <!-- Main JS -->
+    @if (request()->is('manage') || request()->is('manage/*'))
+    <script src="/assets/js/manage-theme.js"></script>
+    @endif
     <script src="/assets/js/main.js"></script>
 
     <!-- Style Css -->
-    <link rel="stylesheet" href="/assets/css/style.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 
     <!-- Simplebar Css -->
     <link rel="stylesheet" href="/assets/libs/simplebar/simplebar.min.css">
@@ -831,4 +834,3 @@
 </body>
 
 </html>
-

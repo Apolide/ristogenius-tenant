@@ -60,7 +60,7 @@ usare il database di testing specifico altrimenti vengono eliminati dati dal db 
 - db di test viene creato da docker-compose-dev.yml con script sql di provisioning
 
 puoi crearlo a mano se inesistente:
-ocker compose -f docker-compose-dev.yml exec ristopilot-tenant_database \
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_database \
   mysql -uroot -proot \
   -e "CREATE DATABASE IF NOT EXISTS ristopilot_tenant_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON ristopilot_tenant_testing.* TO 'test'@'%'; FLUSH PRIVILEGES;"
 
@@ -72,6 +72,14 @@ docker compose -f docker-compose-dev.yml exec ristopilot-tenant_database \
 
 
 /// ESEGUI TESTING
+TUTTI I TEST:
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test
+
+
 docker compose exec \
   -e APP_ENV=testing \
   -e DB_DATABASE=ristopilot_tenant_testing \

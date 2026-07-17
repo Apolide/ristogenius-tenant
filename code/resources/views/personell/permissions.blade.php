@@ -28,7 +28,7 @@
                     <table class="table table-bordered whitespace-nowrap min-w-full">
                         <thead>
                             <tr>
-                                <th class="text-start sticky left-0 bg-white z-10">Dipendente</th>
+                                <th class="text-start sticky left-0 z-10">Dipendente</th>
                                 @foreach ($features as $label)
                                     <th class="text-xs text-center">{{ $label }}</th>
                                 @endforeach
@@ -37,7 +37,7 @@
                         <tbody>
                             @forelse ($users as $user)
                                 <tr wire:key="permissions-user-{{ $user->id }}">
-                                    <td class="sticky left-0 bg-white z-10">
+                                    <td class="sticky left-0 z-10">
                                         <strong>{{ $user->name }}</strong><br>
                                         <span class="text-xs text-gray-500">{{ $user->email }}</span>
                                     </td>

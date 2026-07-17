@@ -306,6 +306,10 @@
           <!--End Header Massage item  -->
           */ ?>
 
+          @if (request()->is('manage') || request()->is('manage/*'))
+            @include('layouts.header.theme-mode')
+          @endif
+
           @auth
           <!--Header Notifictaion -->
             @include('layouts.header.notification.base')
