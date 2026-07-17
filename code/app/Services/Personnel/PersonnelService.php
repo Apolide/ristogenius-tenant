@@ -26,18 +26,10 @@ class PersonnelService
      */
     public function languages(): array
     {
-        $configured = explode(',', (string) config('tenant.languages', self::DEFAULT_LANGUAGE));
-        $languages = array_values(array_unique(array_filter(array_map(
-            fn (string $language): string => strtolower(trim($language)),
-            $configured
-        ))));
-
-        if ($languages === []) {
-            $languages = [self::DEFAULT_LANGUAGE];
-        }
-
-        return collect($languages)
-            ->mapWithKeys(fn (string $language): array => [$language => strtoupper($language)])
+        return collect((array) config('tenant.backend_languages', []))
+            ->mapWithKeys(fn (array $meta, string $code): array => [
+                $code => trim(($meta['flag'] ?? '').' '.($meta['label'] ?? strtoupper($code))),
+            ])
             ->all();
     }
 }

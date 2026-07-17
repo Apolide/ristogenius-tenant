@@ -11,6 +11,7 @@ use App\Services\Personnel\PersonnelService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -24,6 +25,7 @@ class PersonnelManagementTest extends TestCase
 
         Role::findOrCreate('operator', 'web');
         Role::findOrCreate('manager', 'web');
+        Role::findOrCreate('admin', 'web');
     }
 
     public function test_admin_can_create_an_employee_and_send_the_activation_invitation(): void
@@ -110,18 +112,80 @@ class PersonnelManagementTest extends TestCase
         $this->assertFalse($employee->hasRole('operator'));
     }
 
-    public function test_personnel_roles_include_admin_and_languages_come_from_tenant_configuration(): void
+    public function test_personnel_roles_include_admin_and_supported_backend_languages(): void
     {
-        config()->set('tenant.languages', 'it,en,fr');
-
         $service = app(PersonnelService::class);
 
         $this->assertContains('admin', $service->roles());
         $this->assertSame([
-            'it' => 'IT',
-            'en' => 'EN',
-            'fr' => 'FR',
+            'it' => '🇮🇹 Italiano',
+            'en' => '🇬🇧 English',
+            'de' => '🇩🇪 Deutsch',
         ], $service->languages());
+    }
+
+    #[DataProvider('translatedPersonnelViewsProvider')]
+    public function test_personnel_views_use_the_authenticated_admin_language_files(
+        string $locale,
+        array $expectedIndexTexts,
+        array $expectedPermissionTexts,
+    ): void {
+        $admin = User::factory()->create([
+            'name' => 'Test Administrator',
+            'lang' => $locale,
+            'enabled' => true,
+            'activated_at' => now(),
+        ]);
+        $admin->assignRole('admin');
+
+        $employee = User::factory()->create([
+            'name' => 'Test Employee',
+            'lang' => 'it',
+            'enabled' => true,
+            'activated_at' => now(),
+        ]);
+        $employee->assignRole('operator');
+
+        $indexResponse = $this->actingAs($admin)->get(route('personnel.index'));
+
+        $indexResponse->assertOk();
+        $this->assertSame($locale, app()->getLocale());
+
+        foreach ($expectedIndexTexts as $text) {
+            // Search labels are rendered inside input attributes (placeholder/aria-label),
+            // so assert against the complete rendered HTML rather than stripped text only.
+            $indexResponse->assertSee($text);
+        }
+
+        $permissionsResponse = $this->get(route('personnel.permissions'));
+
+        $permissionsResponse->assertOk();
+        $this->assertSame($locale, app()->getLocale());
+
+        foreach ($expectedPermissionTexts as $text) {
+            $permissionsResponse->assertSee($text);
+        }
+    }
+
+    public static function translatedPersonnelViewsProvider(): array
+    {
+        return [
+            'Italian language file' => [
+                'it',
+                ['Personale', 'Cerca utente', 'Azioni', 'Notifiche WhatsApp', 'Attivo', 'Amministratore'],
+                ['Permessi personale', 'Cerca dipendente', 'Dipendente', 'Gestione Prenotazioni', 'Gestione Sale/Tavoli'],
+            ],
+            'English language file' => [
+                'en',
+                ['Personnel', 'Search users', 'Actions', 'WhatsApp notifications', 'Active', 'Administrator'],
+                ['Personnel permissions', 'Search employees', 'Employee', 'Booking management', 'Room/Table management'],
+            ],
+            'German language file' => [
+                'de',
+                ['Personal', 'Benutzer suchen', 'Aktionen', 'WhatsApp-Benachrichtigungen', 'Aktiv', 'Administrator'],
+                ['Personalberechtigungen', 'Mitarbeiter suchen', 'Mitarbeiter', 'Reservierungsverwaltung', 'Raum-/Tischverwaltung'],
+            ],
+        ];
     }
 
     public function test_personnel_routes_are_separate_from_legacy_user_routes(): void

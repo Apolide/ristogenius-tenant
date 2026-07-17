@@ -56,7 +56,7 @@ class PersonnelEdit extends Component
             'receive_whatsapp_notifications' => ['boolean'],
             'receive_telegram_notifications' => ['boolean'],
         ], [
-            'phone.regex' => 'Inserisci il telefono in formato internazionale, ad esempio +393401234567.',
+            'phone.regex' => __('personnel.validation.phone'),
         ]);
 
         DB::transaction(function () use ($data): void {
@@ -69,7 +69,7 @@ class PersonnelEdit extends Component
             $user->syncRoles([$role]);
         });
 
-        session()->flash('success', 'Dipendente aggiornato.');
+        session()->flash('success', __('personnel.messages.updated'));
         $this->redirectRoute('personnel.index');
     }
 

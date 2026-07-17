@@ -52,7 +52,7 @@ class PersonnelCreate extends Component
             'receive_whatsapp_notifications' => ['boolean'],
             'receive_telegram_notifications' => ['boolean'],
         ], [
-            'phone.regex' => 'Inserisci il telefono in formato internazionale, ad esempio +393401234567.',
+            'phone.regex' => __('personnel.validation.phone'),
         ]);
 
         $data['name'] = trim($data['name']);
@@ -72,7 +72,7 @@ class PersonnelCreate extends Component
 
         $user->notify(new EmployeeInvitation(Password::broker()->createToken($user)));
 
-        session()->flash('success', 'Dipendente creato. L’email di attivazione è stata inviata.');
+        session()->flash('success', __('personnel.messages.created'));
         $this->redirectRoute('personnel.index');
     }
 

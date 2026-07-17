@@ -32,23 +32,25 @@ class PersonnelPermissionsService
 
     /** @var array<string, string> */
     public const FEATURES = [
-        self::AI => 'Gestione AI',
-        self::CALENDAR => 'Gestione Calendario',
-        self::CASH_REGISTER => 'Gestione Cassa',
-        self::CUSTOMERS => 'Gestione Clienti',
-        self::ORDERS => 'Gestione Comande',
-        self::MARKETING => 'Gestione Marketing',
-        self::MARKETPLACE => 'Gestione Marketplace',
-        self::BOOKINGS => 'Gestione Prenotazioni',
-        self::PRODUCTS => 'Gestione Prodotti',
-        self::ROOMS => 'Gestione Sale/Tavoli',
-        self::SHIFTS => 'Gestione Turni/Timesheet',
+        self::AI => 'ai',
+        self::CALENDAR => 'calendar',
+        self::CASH_REGISTER => 'cash_register',
+        self::CUSTOMERS => 'customers',
+        self::ORDERS => 'orders',
+        self::MARKETING => 'marketing',
+        self::MARKETPLACE => 'marketplace',
+        self::BOOKINGS => 'bookings',
+        self::PRODUCTS => 'products',
+        self::ROOMS => 'rooms',
+        self::SHIFTS => 'shifts',
     ];
 
     /** @return array<string, string> */
     public function features(): array
     {
-        return self::FEATURES;
+        return collect(self::FEATURES)
+            ->map(fn (string $key): string => __("personnel.features.{$key}"))
+            ->all();
     }
 
     /** @return Collection<int, Permission> */

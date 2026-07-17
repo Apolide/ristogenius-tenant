@@ -19,10 +19,10 @@ class PersonnelIndex extends Component
 
     public function deletePersonnel(int $userId): void
     {
-        abort_if($userId === auth()->id(), 422, 'Non puoi eliminare il tuo account.');
+        abort_if($userId === auth()->id(), 422, __('personnel.messages.cannot_delete_self'));
 
         User::query()->findOrFail($userId)->delete();
-        session()->flash('success', 'Utente eliminato.');
+        session()->flash('success', __('personnel.messages.deleted'));
         $this->resetPage();
     }
 
