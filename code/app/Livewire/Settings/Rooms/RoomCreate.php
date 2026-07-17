@@ -45,7 +45,7 @@ class RoomCreate extends Component
         $roomService->createRoom($data);
 
         $this->resetFields();
-        session()->flash('success', 'Sala creata con successo.');
+        session()->flash('success', __('room_settings.messages.room_created'));
         $this->isVisible = false;
         $this->dispatch('room-refresh');
         $this->dispatch('show-listing');

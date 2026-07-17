@@ -61,7 +61,7 @@ class RoomEdit extends Component
 
         $roomService->updateRoom($this->roomId, $data);
 
-        session()->flash('success', 'Sala aggiornata con successo.');
+        session()->flash('success', __('room_settings.messages.room_updated'));
         $this->resetFields();
         $this->isVisible = false;
         $this->dispatch('show-listing');

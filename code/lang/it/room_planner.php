@@ -1,0 +1,2 @@
+<?php
+return ['settings'=>'Impostazioni','room'=>'Sala','title'=>'Mappatura sala','select_room'=>'Seleziona sala:','view'=>'Visualizzazione','edit'=>'Modifica','capacity'=>'Capacità','smoking'=>'Fumatori','tool'=>'Strumento','mobile'=>'Da mobile','select'=>'Seleziona','pan'=>'Sposta','add_tables'=>'Aggiungi tavoli','shape'=>'Forma','circular'=>'Circolare','square'=>'Quadrato','rectangular'=>'Rettangolare','number'=>'Numero','columns'=>'Colonne','prefix'=>'Prefisso','action'=>'Azione','add_grid'=>'Aggiungi in griglia','empty'=>'Nessuna sala disponibile.'];

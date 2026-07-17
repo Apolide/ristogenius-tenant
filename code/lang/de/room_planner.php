@@ -1,0 +1,2 @@
+<?php
+return ['settings'=>'Einstellungen','room'=>'Raum','title'=>'Raumplan','select_room'=>'Raum auswählen:','view'=>'Ansicht','edit'=>'Bearbeiten','capacity'=>'Kapazität','smoking'=>'Raucher','tool'=>'Werkzeug','mobile'=>'Auf Mobilgeräten','select'=>'Auswählen','pan'=>'Verschieben','add_tables'=>'Tische hinzufügen','shape'=>'Form','circular'=>'Rund','square'=>'Quadratisch','rectangular'=>'Rechteckig','number'=>'Anzahl','columns'=>'Spalten','prefix'=>'Präfix','action'=>'Aktion','add_grid'=>'Im Raster hinzufügen','empty'=>'Keine Räume verfügbar.'];

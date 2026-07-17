@@ -2,23 +2,23 @@
     <div class="main-content">
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Impostazioni</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('room_planner.settings') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('room_settings.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="{{ route('settings.rooms') }}">
-                                Sala
+                                {{ __('room_planner.room') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-textmuted" href="javascript:void(0);">Mappatura sala</a>
+                            <a class="flex items-center text-textmuted" href="javascript:void(0);">{{ __('room_planner.title') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -156,7 +156,7 @@
 
                 <div class="top-bar">
                     <div class="room-selection">
-                        <label for="room-select" class="font-bold">Seleziona sala:</label>
+                        <label for="room-select" class="font-bold">{{ __('room_planner.select_room') }}</label>
                         @php
                             $longestRoomName = $rooms->max(fn ($room) => mb_strlen($room->name)) ?? 0;
                             $roomSelectWidth = min(28, max(16, $longestRoomName + 6));
@@ -171,54 +171,54 @@
                     </div>
 
                     <div class="mode-buttons">
-                        <button class="ti-btn ti-btn-success" :class="{'ti-btn-success-full': mode === 'view'}" x-on:click="setMode('view')">Visualizzazione</button>
-                        <button class="ti-btn ti-btn-primary" :class="{'ti-btn-primary-full': mode === 'edit'}" x-on:click="setMode('edit')">Modifica</button>
+                        <button class="ti-btn ti-btn-success" :class="{'ti-btn-success-full': mode === 'view'}" x-on:click="setMode('view')">{{ __('room_planner.view') }}</button>
+                        <button class="ti-btn ti-btn-primary" :class="{'ti-btn-primary-full': mode === 'edit'}" x-on:click="setMode('edit')">{{ __('room_planner.edit') }}</button>
                     </div>
                 </div>
 
                 @if ($currentRoom)
                     <div class="room-info">
                         <h2 class="room-name">{{ $currentRoom->name }}</h2>
-                        <p class="room-details">Capacita: {{ $currentRoom->capacity }} | Fumatori: {{ $currentRoom->smoking_allowed ? 'Si' : 'No' }}</p>
+                        <p class="room-details">{{ __('room_planner.capacity') }}: {{ $currentRoom->capacity }} | {{ __('room_planner.smoking') }}: {{ $currentRoom->smoking_allowed ? __('room_settings.yes') : __('room_settings.no') }}</p>
                     </div>
 
                     <div class="toolbar flex flex-wrap items-center gap-5" x-show="mode === 'edit'">
                         <div class="mb-4">
-                            <h5>Strumento</h5>
-                            <span class="block text-xs text-gray-500 mb-1">Da mobile</span>
+                            <h5>{{ __('room_planner.tool') }}</h5>
+                            <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.mobile') }}</span>
                             <p>
-                                <button @click="tool='select'" :class="['ti-btn', tool==='select' ? 'ti-btn-primary-full' : 'ti-btn-primary']">Seleziona</button>
-                                <button @click="tool='pan'" :class="['ti-btn', tool==='pan' ? 'ti-btn-primary-full' : 'ti-btn-primary']">Pan</button>
+                                <button @click="tool='select'" :class="['ti-btn', tool==='select' ? 'ti-btn-primary-full' : 'ti-btn-primary']">{{ __('room_planner.select') }}</button>
+                                <button @click="tool='pan'" :class="['ti-btn', tool==='pan' ? 'ti-btn-primary-full' : 'ti-btn-primary']">{{ __('room_planner.pan') }}</button>
                             </p>
                         </div>
 
                         <div class="mb-4">
-                            <h5>Aggiungi Tavoli</h5>
+                            <h5>{{ __('room_planner.add_tables') }}</h5>
                             <div class="flex flex-wrap gap-3">
                                 <div>
-                                    <span class="block text-xs text-gray-500 mb-1">Forma</span>
+                                    <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.shape') }}</span>
                                     <select x-model="newType" class="form-control table-type-select">
-                                        <option value="circolare">Circolare</option>
-                                        <option value="quadrato">Quadrato</option>
-                                        <option value="rettangolare">Rettangolare</option>
+                                        <option value="circolare">{{ __('room_planner.circular') }}</option>
+                                        <option value="quadrato">{{ __('room_planner.square') }}</option>
+                                        <option value="rettangolare">{{ __('room_planner.rectangular') }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <span class="block text-xs text-gray-500 mb-1">Numero</span>
+                                    <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.number') }}</span>
                                     <input type="number" x-model.number="newCount" min="1" class="w-16 form-control">
                                 </div>
                                 <div>
-                                    <span class="block text-xs text-gray-500 mb-1">Colonne</span>
+                                    <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.columns') }}</span>
                                     <input type="number" x-model.number="newCols" min="1" class="w-16 form-control">
                                 </div>
                                 <div>
-                                    <span class="block text-xs text-gray-500 mb-1">Prefisso</span>
+                                    <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.prefix') }}</span>
                                     <input type="text" x-model="newPrefix" class="w-24 form-control">
                                 </div>
                                 <div>
-                                    <span class="block text-xs text-gray-500 mb-1">Azione</span>
+                                    <span class="block text-xs text-gray-500 mb-1">{{ __('room_planner.action') }}</span>
                                     <button type="button" class="ti-btn ti-btn-primary" @click="$wire.dispatch('planner.add-many', { type:newType, count:newCount, cols:newCols, prefix:newPrefix })">
-                                        Aggiungi in griglia
+                                        {{ __('room_planner.add_grid') }}
                                     </button>
                                 </div>
                             </div>
@@ -241,7 +241,7 @@
                         </div>
                     </div>
                 @else
-                    <p>Nessuna sala disponibile.</p>
+                    <p>{{ __('room_planner.empty') }}</p>
                 @endif
             </div>
         </div>

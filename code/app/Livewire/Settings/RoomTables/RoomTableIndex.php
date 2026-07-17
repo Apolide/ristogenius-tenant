@@ -42,6 +42,6 @@ class RoomTableIndex extends Component
     {
         return view('livewire.settings.room-tables.room-table-index', [
             'roomTables' => $roomTableService->getRoomTables($this->search),
-        ])->title('Tavoli');
+        ])->title(__('room_settings.tables.title'));
     }
 }
