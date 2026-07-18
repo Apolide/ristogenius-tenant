@@ -1,6 +1,6 @@
 <ul class="main-menu" style="margin-left: 0px; margin-right: 0px;">
 
-    <li class="slide__category"><span class="category-name">Prenotazioni</span></li>
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.bookings') }}</span></li>
     <li class="slide">
         <a href="/manage/bookings" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -9,7 +9,7 @@
                       d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2">
                 </path>
             </svg>
-            <span class="side-menu__label">Prenotazioni</span>
+            <span class="side-menu__label">{{ __('sidebar.bookings') }}</span>
         </a>
     </li>
 
@@ -112,7 +112,7 @@
 
 --}}
 
-    <li class="slide__category"><span class="category-name">Personale</span></li>
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.personnel') }}</span></li>
 
     <li class="slide has-sub mb-10">
         <a href="javascript:void(0);" class="side-menu__item">
@@ -121,22 +121,22 @@
                 <path d="M8 9c-2.761 0-5 1.567-5 3.5V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1.5C13 10.567 10.761 9 8 9"></path>
                 <path d="M1.5 14v-1c0-1.115.91-2.062 2.188-2.43A3.9 3.9 0 0 0 2.5 13v1zm13 0v-1a3.9 3.9 0 0 0-1.188-2.43C14.59 10.938 15.5 11.885 15.5 13v1z"></path>
             </svg>
-            <span class="side-menu__label">Personale</span>
+            <span class="side-menu__label">{{ __('sidebar.personnel') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 720px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="/manage/personnel" class="side-menu__item">Elenco</a>
+                <a href="/manage/personnel" class="side-menu__item">{{ __('sidebar.list') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/personnel/permissions" class="side-menu__item">Permessi</a>
+                <a href="/manage/personnel/permissions" class="side-menu__item">{{ __('sidebar.permissions') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/users/calendar" class="side-menu__item">Turnazione</a>
+                <a href="/manage/users/calendar" class="side-menu__item">{{ __('sidebar.shifts') }}</a>
             </li>
             <li class="slide">
-                <a href="/admin/calendar" class="side-menu__item">Timesheet</a>
+                <a href="/admin/calendar" class="side-menu__item">{{ __('sidebar.timesheet') }}</a>
             </li>
 
         </ul>
@@ -144,7 +144,7 @@
 
 
 
-    <li class="slide__category"><span class="category-name">Gestione</span></li>
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.management') }}</span></li>
 
     <li class="slide">
         <a href="/manage/customers" class="side-menu__item">
@@ -153,7 +153,7 @@
                       d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4">
                 </path>
             </svg>
-            <span class="side-menu__label">Clienti</span>
+            <span class="side-menu__label">{{ __('sidebar.customers') }}</span>
         </a>
     </li>
 {{--
@@ -303,26 +303,26 @@
                 <path d="M2 13.5C2 11.567 3.79 10 6 10c.62 0 1.208.124 1.74.347A3.5 3.5 0 0 1 11.5 7H12A3 3 0 0 0 9 4h-.53A3.5 3.5 0 0 1 9 5.5c0 1.43-.857 2.66-2.085 3.206C4.151 8.988 2 10.86 2 13.5"></path>
                 <path d="M10.5 8A2.5 2.5 0 0 0 8 10.5v.5A2.5 2.5 0 0 0 10.5 13H11v1.5a.5.5 0 0 0 .8.4l1.867-1.4h.833A2.5 2.5 0 0 0 17 11v-.5A2.5 2.5 0 0 0 14.5 8z" transform="translate(-1 0)"></path>
             </svg>
-            <span class="side-menu__label">CRM</span>
+            <span class="side-menu__label">{{ __('sidebar.crm') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 528px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide side-menu__label1">
-                <a href="javascript:void(0);">CRM</a>
+                <a href="javascript:void(0);">{{ __('sidebar.crm') }}</a>
             </li>
 
             <li class="slide">
-                <a href="/manage/contacts" class="side-menu__item">Contatti</a>
+                <a href="/manage/contacts" class="side-menu__item">{{ __('sidebar.contacts') }}</a>
             </li>
             <li class="slide">
-                <a href="/leads" class="side-menu__item">Leads</a>
+                <a href="/leads" class="side-menu__item">{{ __('sidebar.leads') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/leads" class="side-menu__item">Leads Static</a>
+                <a href="/manage/leads" class="side-menu__item">{{ __('sidebar.static_leads') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/users" class="side-menu__item">Usert</a>
+                <a href="/manage/users" class="side-menu__item">{{ __('sidebar.users') }}</a>
             </li>
 
         </ul>
@@ -330,7 +330,7 @@
 
 
 
-    <li class="slide__category"><span class="category-name">Impostazioni</span></li>
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.settings') }}</span></li>
 
     <li class="slide has-sub mb-10">
         <a href="javascript:void(0);" class="side-menu__item">
@@ -339,43 +339,43 @@
                       d="M6.5 1h3l.35 1.4c.27.09.53.2.77.32l1.23-.74 2.12 2.12-.74 1.23c.12.24.23.5.32.77L15 6.5v3l-1.4.35c-.09.27-.2.53-.32.77l.74 1.23-2.12 2.12-1.23-.74c-.24.12-.5.23-.77.32L9.5 15h-3l-.35-1.4a4.7 4.7 0 0 1-.77-.32l-1.23.74-2.12-2.12.74-1.23a4.7 4.7 0 0 1-.32-.77L1 9.5v-3l1.4-.35c.09-.27.2-.53.32-.77l-.74-1.23 2.12-2.12 1.23.74c.24-.12.5-.23.77-.32zM8 5.25A2.75 2.75 0 1 0 8 10.75 2.75 2.75 0 0 0 8 5.25"
                       clip-rule="evenodd"></path>
             </svg>
-            <span class="side-menu__label">Impostazioni</span>
+            <span class="side-menu__label">{{ __('sidebar.settings') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 816px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="{{ route('settings.index') }}" class="side-menu__item {{ request()->routeIs('settings.index') ? 'active' : '' }}">Generali</a>
+                <a href="{{ route('settings.index') }}" class="side-menu__item {{ request()->routeIs('settings.index') ? 'active' : '' }}">{{ __('sidebar.general') }}</a>
             </li>
 
             <li class="slide">
-                <a href="{{ route('profile.edit') }}" class="side-menu__item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profilo</a>
+                <a href="{{ route('profile.edit') }}" class="side-menu__item {{ request()->routeIs('profile.edit') ? 'active' : '' }}">{{ __('sidebar.profile') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('settings.message-channel-cases') }}" class="side-menu__item {{ request()->routeIs('settings.message-channel-cases') ? 'active' : '' }}">Invio messaggi</a>
+                <a href="{{ route('settings.message-channel-cases') }}" class="side-menu__item {{ request()->routeIs('settings.message-channel-cases') ? 'active' : '' }}">{{ __('sidebar.message_channels') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('settings.messages') }}" class="side-menu__item {{ request()->routeIs('settings.messages') ? 'active' : '' }}">Testo messaggi</a>
+                <a href="{{ route('settings.messages') }}" class="side-menu__item {{ request()->routeIs('settings.messages') ? 'active' : '' }}">{{ __('sidebar.message_texts') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('settings.departments') }}" class="side-menu__item {{ request()->routeIs('settings.departments') ? 'active' : '' }}">Reparti</a>
+                <a href="{{ route('settings.departments') }}" class="side-menu__item {{ request()->routeIs('settings.departments') ? 'active' : '' }}">{{ __('sidebar.departments') }}</a>
             </li>
 
 
             <li class="slide has-sub">
-                <a href="javascript:void(0);" class="side-menu__item">Sala
+                <a href="javascript:void(0);" class="side-menu__item">{{ __('sidebar.room') }}
                     <i class="fe fe-chevron-right side-menu__angle"></i></a>
                 <ul class="slide-menu child3">
                     <li class="slide">
-                        <a href="{{ route('settings.rooms') }}" class="side-menu__item {{ request()->routeIs('settings.rooms') ? 'active' : '' }}">Imposta sale</a>
+                        <a href="{{ route('settings.rooms') }}" class="side-menu__item {{ request()->routeIs('settings.rooms') ? 'active' : '' }}">{{ __('sidebar.rooms') }}</a>
                     </li>
                     <li class="slide">
-                        <a href="{{ route('settings.room-tables') }}" class="side-menu__item {{ request()->routeIs('settings.room-tables') ? 'active' : '' }}">Imposta tavoli</a>
+                        <a href="{{ route('settings.room-tables') }}" class="side-menu__item {{ request()->routeIs('settings.room-tables') ? 'active' : '' }}">{{ __('sidebar.room_tables') }}</a>
                     </li>
                 </ul>
             </li>
             <li class="slide">
-                <a href="/settings/tracking" class="side-menu__item">Tracking</a>
+                <a href="/settings/tracking" class="side-menu__item">{{ __('sidebar.tracking') }}</a>
             </li>
 
 
