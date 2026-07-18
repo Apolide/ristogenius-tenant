@@ -124,3 +124,11 @@ php artisan test
 
 Per ripulire laravel config:
 docker compose exec ristopilot-tenant_php php artisan config:clear
+
+
+
+HORIZO JOBS-WORKER MESSAGISTICA
+
+Dopo il deploy:
+docker compose exec ristopilot-tenant_php \
+  php artisan horizon:terminate

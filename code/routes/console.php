@@ -8,6 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
+Schedule::command('messages:publish-outbox')
+    ->everyMinute()
+    ->withoutOverlapping();
 
 // Schedule::job(new \App\Jobs\Payments\GenerateTenantsMonthlyCostJob)->monthlyOn(1, '05:00');
 // Schedule::job(new \App\Jobs\Payments\GetTenantsMonthlyToChargeJob)->monthlyOn(1, '05:15');
@@ -24,7 +27,3 @@ Artisan::command('inspire', function () {
 //     ->everyTwoHours()
 //     ->name('auto-purchase-funds')
 //     ->withoutOverlapping();
-
-
-
-  
