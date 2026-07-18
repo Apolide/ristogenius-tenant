@@ -125,6 +125,12 @@ class BookingForm extends Component
 
     public function save(BookingService $service, BookingMessageService $messages)
     {
+        // A booking created by authenticated backoffice personnel is already
+        // accepted. Ignore any client-side attempt to submit another status.
+        if ($this->booking === null) {
+            $this->status = 'accepted';
+        }
+
         $languages = array_keys(app(CustomerLanguageService::class)->enabled());
         $data = $this->validate([
             'firstname' => ['required', 'string', 'max:100'], 'lastname' => ['nullable', 'string', 'max:100'],

@@ -13,7 +13,7 @@ class BookingMessageContentRenderer
         private TenantSettingMessageTemplatesService $templates,
     ) {}
 
-    public function render(Booking $booking, string $messageCase): array
+    public function render(Booking $booking, string $messageCase, ?string $language = null): array
     {
         $template = $this->templates->messageTemplate($messageCase);
 
@@ -21,7 +21,7 @@ class BookingMessageContentRenderer
             throw new \InvalidArgumentException("Missing message template [{$messageCase}].");
         }
 
-        $language = $booking->language ?: 'it';
+        $language ??= $booking->language ?: 'it';
         $translation = $template['translations'][$language]
             ?? $template['translations']['en']
             ?? reset($template['translations']);

@@ -19,6 +19,8 @@ use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
 use App\Livewire\Personnel\PersonnelPermissions;
 use App\Livewire\Profile\ProfileEdit;
+use App\Livewire\PublicBookings\PublicBookingEdit;
+use App\Livewire\PublicBookings\PublicBookingShow;
 use App\Livewire\Settings\BookingRemindHoursEdit;
 use App\Livewire\Settings\Departments\DepartmentIndex;
 use App\Livewire\Settings\MaxSittingTimeEdit;
@@ -52,6 +54,24 @@ Route::domain(env('DOMAIN'))->group(function () {
     });
 
     Route::get('/', fn () => view('welcome'));
+
+    /*
+    |--------------------------------------------------------------------------
+    | Signed public customer booking routes
+    |--------------------------------------------------------------------------
+    |
+    | These routes are intentionally isolated from authenticated management
+    | routes. Customer/booking UUIDs must match and the URL signature prevents
+    | parameters (including the customer-facing language) from being altered.
+    |
+    */
+    Route::prefix('/customer/bookings')
+        ->middleware(['signed:relative', \App\Http\Middleware\SetCustomerBookingLocale::class])
+        ->name('public.bookings.')
+        ->group(function (): void {
+            Route::get('/{customer}/{booking}/{language}', PublicBookingShow::class)->name('show');
+            Route::get('/{customer}/{booking}/{language}/edit', PublicBookingEdit::class)->name('edit');
+        });
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/manage', BookingIndex::class)

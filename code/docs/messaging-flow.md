@@ -6,40 +6,82 @@ Questo documento descrive l'impianto di messaggistica asincrona del tenant e il 
 
 ```mermaid
 flowchart TD
-    A[Creazione o transizione booking] --> B[BookingMessageService]
-    B --> C{Mappatura stato/evento}
-    C -->|accepted| D[booking_accepted]
-    C -->|denied| E[booking_denied]
-    C -->|canceled| F[booking_canceled]
+    A[Booking creata o modificata] --> B{Origine evento}
+    B -->|backoffice: sempre accepted| C[booking_accepted solo al cliente]
+    B -.->|futuro form cliente: pending| D[booking_received allo staff]
+    B -->|cliente da URL firmata| E[Booking torna pending]
+    E --> F[Storico: booking_edited_from_customer]
+    F --> G[booking_edited_from_customer allo staff]
+    B -->|staff accetta o rifiuta| H[booking_accepted o booking_denied al cliente]
 
-    D --> G[(message_outboxes)]
-    E --> G
-    F --> G
-    G -. stessa transazione DB .- H[(Booking + Customer)]
+    C --> I[BookingMessageService]
+    D --> I
+    G --> I
+    H --> I
+    I --> J[Snapshot autosufficiente + deliveries + URL APP_URL]
+    J --> K[(message_outboxes)]
+    K -. stesso commit .- L[(Booking / Customer / History)]
 
-    I[Laravel Scheduler ogni minuto] --> J[messages:publish-outbox]
-    J --> K[MessageOutboxPublisher]
-    K --> L[MessageTransport]
-    L -->|oggi| M[RedisQueueMessageTransport]
-    L -. futuro .-> N[RabbitMqMessageTransport]
-
-    M --> O[[Redis queue: messages-dispatch]]
-    O --> P[DispatchMessageJob]
-    P --> Q[MessageDispatcher]
-    Q --> R[Legge MESSAGE_CHANNEL_CASES]
-
-    R --> S[[messages-email]]
-    R --> T[[messages-whatsapp]]
-    R --> U[[messages-telegram]]
-    R --> V[[messages-sms]]
-
-    S --> W[EmailMessageChannel]
-    T --> X[PlaceholderMessageChannel]
-    U --> X
-    V --> X
-    W --> Y[Template nella booking.language]
-    Y --> Z[Email al cliente]
+    M[Scheduler] --> N[messages:publish-outbox]
+    N --> O[MessageTransport]
+    O -->|oggi| P[[Redis: messages-dispatch]]
+    O -. futuro .-> Q[RabbitMQ / host messaggi]
+    P --> R[DispatchMessageJob]
+    R --> S[MessageDispatcher]
+    S --> T{Caso + provider globalmente abilitato}
+    T --> U[[messages-email]]
+    T --> V[[messages-telegram]]
+    T --> W[[messages-whatsapp / messages-sms]]
+    U --> X[EmailMessageChannel]
+    V --> Y[Adapter Telegram da collegare]
+    W --> Z[Placeholder / provider futuro]
+    X --> AA[MailerSend prod / MailHog locale]
 ```
+
+## Flusso leggibile: dalla booking alla consegna
+
+1. Il gestore crea una booking. Il cliente può avere email, telefono oppure entrambi; almeno uno dei due recapiti è obbligatorio e il cognome è facoltativo.
+2. Una booking creata dal backoffice viene forzata lato server allo stato `accepted` e genera esclusivamente `booking_accepted` per il cliente. Non viene inviata alcuna notifica interna allo staff.
+3. `BookingMessageService` determina caso e audience, prepara lo snapshot di tenant, booking e customer, rende le consegne nella lingua del destinatario e aggiunge le azioni appropriate.
+4. Le URL contenute nei pulsanti, nel testo e nel payload usano sempre protocollo e host di `APP_URL`. Le URL cliente sono firmate e includono UUID customer, UUID booking e lingua; la URL staff punta alla vista autenticata di gestione.
+5. Il record viene scritto in `message_outboxes`. La richiesta web termina senza contattare Redis, MailerSend, MailHog o altri provider.
+6. Lo scheduler pubblica l'envelope su `messages-dispatch`; il dispatcher interseca i canali del caso configurati in `/manage/settings/message-channel-cases` con i provider globalmente abilitati in `/manage/settings/notification-modes`.
+7. Viene creato un job distinto per ciascun canale. Un errore email non blocca Telegram, WhatsApp o SMS.
+8. Il job email usa MailerSend in produzione e MailHog in locale. Logo, nome tenant, contenuto, riepilogo e azioni provengono interamente dal payload outbox.
+9. Il cliente può aprire “Vedi prenotazione” oppure “Modifica prenotazione”. La modifica consente solo data, ora, numero persone e note, registra lo storico e riporta lo stato a `pending`.
+10. Admin e operatori abilitati ricevono “Prenotazione modificata da cliente” con “Gestisci prenotazione”. In stato `pending` la pagina admin mostra Accetta/Rifiuta; dopo l'accettazione torna disponibile Assegna tavoli.
+
+Il futuro form pubblico di prenotazione seguirà un ramo distinto: creerà la booking in `pending` e solo in quel caso produrrà `booking_received` per admin e personale autorizzato, che potranno aprire l'applicativo e accettarla o rifiutarla.
+
+-- test booking pipeline
+docker compose exec \
+  -e APP_ENV=testing \
+  -e DB_DATABASE=ristopilot_tenant_testing \
+  ristopilot-tenant_php \
+  php artisan test \
+  tests/Feature/Bookings/PublicBookingTest.php \
+  tests/Feature/Messaging/BookingMessagePipelineTest.php \
+  tests/Feature/Bookings/BookingCreateTest.php
+
+OPPURE
+
+docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php \
+  vendor/bin/phpunit \
+  tests/Feature/Bookings/PublicBookingTest.php \
+  tests/Feature/Messaging/BookingMessagePipelineTest.php \
+  tests/Feature/Bookings/BookingCreateTest.php
+
+
+## Route pubbliche e sicurezza
+
+Le route cliente sono raccolte in un gruppo isolato e commentato in `routes/web.php`, protetto da `signed:relative` e dal middleware che imposta la lingua:
+
+```text
+GET /customer/bookings/{customer}/{booking}/{language}
+GET /customer/bookings/{customer}/{booking}/{language}/edit
+```
+
+La firma relativa permette di verificare l'integrità del path e della query indipendentemente dal proxy, mentre `BookingPublicUrlService` applica sempre l'origine configurata in `APP_URL`. I componenti verificano inoltre che la booking appartenga al customer indicato. Gli UUID non sostituiscono la firma: entrambi i controlli sono necessari.
 
 ## Responsabilità
 
@@ -47,15 +89,18 @@ flowchart TD
 - `message_outboxes`: conserva l'intento nello stesso commit della booking. La chiave di deduplicazione evita la registrazione ripetuta dello stesso evento logico.
 - `MessageOutboxPublisher`: reclama gli eventi pendenti, li pubblica sul trasporto e gestisce retry e claim scaduti.
 - `MessageTransport`: confine infrastrutturale. Riceve un `MessageEnvelope` serializzabile, non model Eloquent. Oggi usa Redis; in futuro potrà pubblicare lo stesso envelope verso RabbitMQ.
-- `MessageDispatcher`: legge i canali abilitati nel tenant e crea un job indipendente sulla coda dedicata a ogni canale.
+- `MessageDispatcher`: interseca i canali abilitati per il caso con i provider globalmente abilitati nel tenant e crea un job indipendente sulla coda dedicata a ogni canale.
 - `MessageChannel`: contratto del provider finale. Email è collegato; le code di Telegram, WhatsApp e SMS sono già isolate e i rispettivi adapter vengono collegati indipendentemente (quelli non ancora integrati restano placeholder espliciti).
 - `BookingMessageContentRenderer`: risolve template e wildcard usando `booking.language`, con fallback inglese.
+- `BookingPublicUrlService`: genera URL firmate cliente e URL gestionali usando sempre l'origine di `APP_URL`.
+- `BookingStaffRecipientService`: seleziona admin e operatori abilitati alla gestione booking dotati di email.
+- `TenantBrandingService`: congela nel payload nome e URL del logo tenant, se presente in `public/tenant-assets`.
 
 ## Flusso passo per passo
 
 1. Il gestore compila `/manage/bookings/create`. Il backend valida i dati della prenotazione e richiede almeno uno tra email e telefono.
-2. Booking e customer vengono creati o aggiornati dentro una transazione database.
-3. `BookingMessageService` traduce lo stato iniziale della booking nel relativo caso, per esempio `accepted` in `booking_accepted`.
+2. Booking e customer vengono creati o aggiornati dentro una transazione database; per una creazione backoffice lo stato viene imposto a `accepted` anche se la richiesta è stata manipolata lato client.
+3. `BookingMessageService` registra soltanto `booking_accepted` verso il cliente. Il caso staff `booking_received` è riservato al futuro form pubblico.
 4. Nella stessa transazione viene inserito un record `message_outboxes`. In questa fase non vengono contattati Redis né servizi esterni di consegna.
 5. Il commit rende persistenti insieme booking e intento di messaggistica. Se la transazione fallisce, non rimane nessun messaggio orfano.
 6. Ogni minuto lo scheduler esegue `messages:publish-outbox`.
@@ -63,7 +108,7 @@ flowchart TD
 8. Oggi `RedisQueueMessageTransport` inserisce `DispatchMessageJob` nella coda `messages-dispatch`. In futuro lo stesso envelope potrà essere pubblicato su RabbitMQ.
 9. Il supervisor dispatch esegue il job. `MessageDispatcher` legge i canali abilitati per il caso e crea un `SendMessageChannelJob` per ogni canale.
 10. Ogni job viene inserito nella coda specifica: `messages-email`, `messages-telegram`, `messages-whatsapp` oppure `messages-sms`.
-11. Il relativo `MessageChannel` verifica che il cliente abbia il recapito necessario, risolve il template usando `booking.language` e invia tramite il provider. Per le email viene usato il mailer Laravel configurato: MailerSend in produzione e MailHog in locale.
+11. Il relativo `MessageChannel` usa i destinatari e i contenuti congelati nel payload. Per il cliente viene usata `booking.language`; per lo staff la lingua del singolo operatore. Le email passano dal mailer Laravel configurato: MailerSend in produzione e MailHog in locale.
 12. Retry, backoff e fallimenti restano isolati per job: un errore email non impedisce l'elaborazione dei job Telegram, WhatsApp o SMS.
 
 ## Garanzie e comportamento operativo
@@ -100,10 +145,10 @@ php artisan messages:publish-outbox --limit=100
 ## Migrazione futura a RabbitMQ
 
 1. Implementare `RabbitMqMessageTransport` rispettando `MessageTransport`.
-2. Pubblicare `MessageEnvelope`, che contiene metadati dell'evento e uno snapshot di booking, lingua e recapiti del cliente; il consumer esterno non deve dipendere dal database tenant.
+2. Pubblicare `MessageEnvelope`, che contiene metadati, `template.key/version`, tenant e branding, snapshot di booking/customer, variabili, destinatari, contenuti resi e azioni con URL assolute basate su `APP_URL`; il consumer esterno non deve dipendere dal database tenant.
 3. Impostare `MESSAGE_TRANSPORT=rabbitmq` nel tenant.
 4. Sul servizio esterno rendere il consumer idempotente usando `outbox_id`.
-5. Spostare gradualmente `MessageDispatcher`, renderer e channel provider sul servizio esterno senza modificare `BookingMessageService` né la transazione applicativa.
+5. Spostare gradualmente template, `MessageDispatcher`, renderer e channel provider sul servizio esterno senza modificare la transazione applicativa. Durante la transizione il consumer può usare le `deliveries` già rese; in seguito può renderizzare da `template.key/version` e `variables`.
 
 
 ## CONF SUPERVISOR OGGI!!!

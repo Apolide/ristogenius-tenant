@@ -11,7 +11,13 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
                 <a href="{{ route('bookings.index', ['date' => $booking->booking_date->toDateString()]) }}" class="ti-btn ti-btn-light w-full h-12"><i class="las la-arrow-left"></i> {{ __('bookings.back') }}</a>
                 @unless($booking->isWalkIn())<a href="{{ route('bookings.edit', $booking) }}" class="ti-btn ti-btn-warning-full text-white w-full h-12"><i class="las la-edit text-xl"></i> {{ __('bookings.edit') }}</a>@endunless
-                <button wire:click="showPickTable" type="button" class="ti-btn ti-btn-info-full w-full h-12"><i class="las la-chair text-xl"></i> {{ __('bookings.form.assign_tables') }}</button>
+                @if($booking->status === 'pending')
+                    <div class="grid grid-cols-2 gap-2"><button wire:click="accept" wire:confirm="{{ __('bookings.actions.accept_confirm') }}" type="button" class="ti-btn ti-btn-success-full w-full h-12">{{ __('bookings.actions.accept') }}</button><button wire:click="deny" wire:confirm="{{ __('bookings.actions.deny_confirm') }}" type="button" class="ti-btn ti-btn-danger-full w-full h-12">{{ __('bookings.actions.deny') }}</button></div>
+                @elseif($booking->status === 'accepted')
+                    <button wire:click="showPickTable" type="button" class="ti-btn ti-btn-info-full w-full h-12"><i class="las la-chair text-xl"></i> {{ __('bookings.form.assign_tables') }}</button>
+                @else
+                    <span></span>
+                @endif
             </div>
 
             @php($status = $statusLabels[$booking->status] ?? ['label' => $booking->status, 'color' => 'secondary'])
@@ -36,7 +42,7 @@
             <div class="mt-8">
                 <h4 class="text-base font-semibold mb-3">{{ __('bookings.show.history') }}</h4>
                 <div class="table-responsive"><table class="table table-bordered min-w-full"><thead><tr><th>{{ __('bookings.show.date') }}</th><th>{{ __('bookings.show.event') }}</th><th>{{ __('bookings.show.author') }}</th><th>{{ __('bookings.show.details') }}</th></tr></thead><tbody>
-                    @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i:s') }}</td><td>{{ __("bookings.show.events.{$history->event}") }}</td><td>{{ $history->actor ?: '-' }}</td><td>{{ $history->description ?: '-' }}
+                    @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i:s') }}</td><td>{{ $history->event === 'booking_edited_from_customer' ? __('public_bookings.history.customer_edited') : __("bookings.show.events.{$history->event}") }}</td><td>{{ $history->actor ?: '-' }}</td><td>{{ $history->description ?: '-' }}
                         @if($history->changes)<div class="text-xs text-textmuted mt-1">@foreach($history->changes as $field => $change)<div><b>{{ $field }}</b>: {{ is_array($change['from'] ?? null) ? implode(', ', $change['from']) : ($change['from'] ?? '-') }} → {{ is_array($change['to'] ?? null) ? implode(', ', $change['to']) : ($change['to'] ?? '-') }}</div>@endforeach</div>@endif
                     </td></tr>@empty<tr><td colspan="4" class="text-center">{{ __('bookings.show.no_history') }}</td></tr>@endforelse
                 </tbody></table></div>

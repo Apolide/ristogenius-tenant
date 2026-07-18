@@ -4,26 +4,30 @@ namespace App\Services\Messaging\Channels;
 
 use App\Contracts\Messaging\MessageChannel;
 use App\Mail\BookingMessageMail;
-use App\Models\Booking;
-use App\Services\Messaging\BookingMessageContentRenderer;
+use App\Models\MessageOutbox;
 use Illuminate\Support\Facades\Mail;
 
 class EmailMessageChannel implements MessageChannel
 {
-    public function __construct(private BookingMessageContentRenderer $renderer) {}
-
-    public function send(Booking $booking, string $messageCase): bool
+    public function send(MessageOutbox $outbox): bool
     {
-        $booking->loadMissing('customer');
+        $sent = false;
 
-        if (! $booking->customer?->email) {
-            return false;
+        foreach ($outbox->payload['deliveries'] ?? [] as $delivery) {
+            $email = $delivery['recipient']['email'] ?? null;
+            if (! $email) {
+                continue;
+            }
+            $mail = new BookingMessageMail(
+                delivery: $delivery,
+                tenant: $outbox->payload['tenant'] ?? [],
+                booking: $outbox->payload['booking'] ?? [],
+            );
+            $mail->locale($delivery['language'] ?? 'it');
+            Mail::to($email)->send($mail);
+            $sent = true;
         }
 
-        Mail::to($booking->customer->email)->send(
-            new BookingMessageMail($booking, $this->renderer->render($booking, $messageCase))
-        );
-
-        return true;
+        return $sent;
     }
 }

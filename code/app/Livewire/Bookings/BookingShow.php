@@ -5,13 +5,18 @@ namespace App\Livewire\Bookings;
 use App\Models\Booking;
 use App\Services\BookingService;
 use App\Services\CustomerLanguageService;
+use App\Services\Messaging\BookingMessageService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class BookingShow extends Component
 {
     public Booking $booking;
+
     public bool $showPickTableModal = false;
+
     public array $tablePickerSelection = [];
+
     public string $searchTable = '';
 
     public function mount(Booking $booking): void
@@ -43,6 +48,16 @@ class BookingShow extends Component
         session()->flash('success', __('bookings.messages.tables_saved'));
     }
 
+    public function accept(BookingMessageService $messages): void
+    {
+        $this->changePendingStatus('accepted', $messages);
+    }
+
+    public function deny(BookingMessageService $messages): void
+    {
+        $this->changePendingStatus('denied', $messages);
+    }
+
     public function render(BookingService $bookingService, CustomerLanguageService $languages)
     {
         return view('livewire.bookings.booking-show', [
@@ -52,5 +67,16 @@ class BookingShow extends Component
             'statusLabels' => config('bookings.statuses'),
             'bookingLanguage' => $languages->meta($this->booking->language ?: $this->booking->customer?->lang),
         ])->title(__('bookings.detail'));
+    }
+
+    private function changePendingStatus(string $status, BookingMessageService $messages): void
+    {
+        abort_unless($this->booking->status === 'pending' && in_array($status, ['accepted', 'denied'], true), 422);
+        DB::transaction(function () use ($status, $messages): void {
+            $this->booking->update(['status' => $status]);
+            $messages->bookingStatusChanged($this->booking->refresh());
+        });
+        $this->booking->load('histories');
+        session()->flash('success', __('bookings.messages.saved'));
     }
 }

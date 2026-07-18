@@ -38,6 +38,14 @@ class TenantPublicAssetService
         return asset($relativePath);
     }
 
+    public function firstUrlForBaseName(string $directory, string $filename): ?string
+    {
+        $relativeDirectory = $this->relativeDirectory(trim($directory, '/'));
+        $matches = File::glob(public_path($relativeDirectory).'/'.pathinfo($filename, PATHINFO_FILENAME).'.*');
+
+        return $matches ? asset($relativeDirectory.'/'.basename($matches[0])) : null;
+    }
+
     public function mirrorMediaIfLocal(Media $media, string $directory): ?string
     {
         $relativeDirectory = $this->relativeDirectory(trim($directory, '/'));

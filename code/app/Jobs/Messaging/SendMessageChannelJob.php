@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Messaging;
 
-use App\Models\Booking;
 use App\Models\MessageOutbox;
 use App\Services\Messaging\MessageChannelRegistry;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,11 +26,10 @@ class SendMessageChannelJob implements ShouldQueue
             return;
         }
 
-        $booking = Booking::query()->with('customer')->find($outbox->aggregate_id);
         $messageCase = (string) ($outbox->payload['message_case'] ?? '');
 
-        if ($booking && str_starts_with($messageCase, 'booking_')) {
-            $channels->get($this->channel)->send($booking, $messageCase);
+        if (str_starts_with($messageCase, 'booking_')) {
+            $channels->get($this->channel)->send($outbox);
         }
     }
 

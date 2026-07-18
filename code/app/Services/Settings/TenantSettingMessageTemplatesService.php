@@ -8,6 +8,24 @@ use App\Services\CustomerLanguageService;
 class TenantSettingMessageTemplatesService
 {
     public const MESSAGE_TEMPLATE_DEFAULTS = [
+        'booking_received' => [
+            'label' => 'Nuova Prenotazione',
+            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
+            'translations' => [
+                'it' => ['subject' => '@@location_name@@ - Nuova prenotazione', 'message' => 'È stata inserita una nuova prenotazione di @@customer_name@@ per @@pax@@ persone il @@booking_date@@ alle @@booking_time@@.', 'additional_note' => '', 'sms' => 'Nuova prenotazione: @@customer_name@@, @@pax@@ persone, @@booking_date@@ @@booking_time@@.'],
+                'en' => ['subject' => '@@location_name@@ - New booking', 'message' => 'A new booking has been created by @@customer_name@@ for @@pax@@ people on @@booking_date@@ at @@booking_time@@.', 'additional_note' => '', 'sms' => 'New booking: @@customer_name@@, @@pax@@ people, @@booking_date@@ @@booking_time@@.'],
+                'de' => ['subject' => '@@location_name@@ - Neue Reservierung', 'message' => 'Eine neue Reservierung von @@customer_name@@ für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ wurde erstellt.', 'additional_note' => '', 'sms' => 'Neue Reservierung: @@customer_name@@, @@pax@@ Personen, @@booking_date@@ @@booking_time@@.'],
+            ],
+        ],
+        'booking_edited_from_customer' => [
+            'label' => 'Prenotazione Modificata dal Cliente',
+            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
+            'translations' => [
+                'it' => ['subject' => '@@location_name@@ - Prenotazione modificata dal cliente', 'message' => '@@customer_name@@ ha modificato la prenotazione per @@pax@@ persone del @@booking_date@@ alle @@booking_time@@. La prenotazione è in attesa di conferma.', 'additional_note' => '', 'sms' => 'Prenotazione modificata da @@customer_name@@: @@booking_date@@ @@booking_time@@, @@pax@@ persone.'],
+                'en' => ['subject' => '@@location_name@@ - Booking modified by customer', 'message' => '@@customer_name@@ modified the booking for @@pax@@ people on @@booking_date@@ at @@booking_time@@. The booking is awaiting confirmation.', 'additional_note' => '', 'sms' => 'Booking modified by @@customer_name@@: @@booking_date@@ @@booking_time@@, @@pax@@ people.'],
+                'de' => ['subject' => '@@location_name@@ - Reservierung vom Kunden geändert', 'message' => '@@customer_name@@ hat die Reservierung für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ geändert. Die Reservierung wartet auf Bestätigung.', 'additional_note' => '', 'sms' => 'Reservierung von @@customer_name@@ geändert: @@booking_date@@ @@booking_time@@, @@pax@@ Personen.'],
+            ],
+        ],
         'booking_proposal' => [
             'label' => 'Proposta modifica prenotazione',
             'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],

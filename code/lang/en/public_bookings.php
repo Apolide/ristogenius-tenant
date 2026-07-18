@@ -1,0 +1,2 @@
+<?php
+return ['title'=>'Your booking','edit'=>'Modify booking','edit_title'=>'Modify your booking','save_changes'=>'Submit changes','cancel'=>'Cancel','updated'=>'The booking has been modified and is awaiting confirmation.','concurrent_update'=>'The booking was modified in the meantime. Reload the page before trying again.','customer'=>'Customer','language'=>'Language','history'=>['customer_edited'=>'Booking modified by customer']];

@@ -1,0 +1,2 @@
+<?php
+return ['title'=>'La tua prenotazione','edit'=>'Modifica prenotazione','edit_title'=>'Modifica la tua prenotazione','save_changes'=>'Invia modifiche','cancel'=>'Annulla','updated'=>'La prenotazione è stata modificata ed è in attesa di conferma.','concurrent_update'=>'La prenotazione è stata modificata nel frattempo. Ricarica la pagina prima di riprovare.','customer'=>'Cliente','language'=>'Lingua','history'=>['customer_edited'=>'Prenotazione modificata dal cliente']];

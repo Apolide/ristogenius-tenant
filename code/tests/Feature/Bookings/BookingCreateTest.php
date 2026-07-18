@@ -35,13 +35,13 @@ class BookingCreateTest extends TestCase
             ->set('firstname', 'Giulia')->set('lastname', 'Bianchi')
             ->set('email', 'giulia@example.test')->set('phone_prefix', '+39')->set('phone', '333 123 4567')
             ->set('lang', 'it')->set('booking_date', now()->addDay()->toDateString())
-            ->set('booking_time', '20:00')->set('pax', 4)->set('note', 'Seggiolone')
+            ->set('booking_time', '20:00')->set('pax', 4)->set('status', 'pending')->set('note', 'Seggiolone')
             ->call('save')->assertHasNoErrors();
 
         $customer = Customer::where('email', 'giulia@example.test')->firstOrFail();
         $this->assertSame('+393331234567', $customer->phone);
         $this->assertDatabaseHas('bookings', [
-            'customer_id' => $customer->id, 'pax' => 4, 'source' => 'backoffice', 'language' => 'it',
+            'customer_id' => $customer->id, 'pax' => 4, 'status' => 'accepted', 'source' => 'backoffice', 'language' => 'it',
         ]);
         $this->assertDatabaseHas('message_outboxes', [
             'aggregate_id' => Booking::firstOrFail()->id,
@@ -144,6 +144,7 @@ class BookingCreateTest extends TestCase
             ->call('save')->assertHasNoErrors();
 
         $this->assertSame(1, MessageOutbox::count());
+        $this->assertSame('booking_accepted', MessageOutbox::firstOrFail()->payload['message_case']);
     }
 
     public function test_selecting_a_suggestion_populates_existing_customer_data(): void

@@ -1,0 +1,2 @@
+<?php
+return ['title'=>'Ihre Reservierung','edit'=>'Reservierung ändern','edit_title'=>'Ihre Reservierung ändern','save_changes'=>'Änderungen senden','cancel'=>'Abbrechen','updated'=>'Die Reservierung wurde geändert und wartet auf Bestätigung.','concurrent_update'=>'Die Reservierung wurde inzwischen geändert. Laden Sie die Seite neu, bevor Sie es erneut versuchen.','customer'=>'Kunde','language'=>'Sprache','history'=>['customer_edited'=>'Reservierung vom Kunden geändert']];

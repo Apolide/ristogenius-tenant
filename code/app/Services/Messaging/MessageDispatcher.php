@@ -3,7 +3,6 @@
 namespace App\Services\Messaging;
 
 use App\Jobs\Messaging\SendMessageChannelJob;
-use App\Models\Booking;
 use App\Models\MessageOutbox;
 use App\Services\Settings\TenantSettingsService;
 use Illuminate\Support\Facades\Log;
@@ -22,13 +21,12 @@ class MessageDispatcher
             return;
         }
 
-        if (! Booking::query()->whereKey($outbox->aggregate_id)->exists()) {
-            Log::warning('Booking del messaggio non trovata', ['outbox_id' => $outbox->id]);
+        $channels = array_intersect(
+            $this->settings->messageChannelCaseChannels($messageCase),
+            $this->settings->enabledMessageChannels(),
+        );
 
-            return;
-        }
-
-        foreach ($this->settings->messageChannelCaseChannels($messageCase) as $channel) {
+        foreach ($channels as $channel) {
             $queue = config("messaging.queue.channels.{$channel}");
 
             if (! $queue) {
