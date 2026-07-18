@@ -29,7 +29,7 @@ class OpeningHoursEdit extends Component
         ]);
 
         if (! $validated['new_special_pranzo'] && ! $validated['new_special_cena']) {
-            $this->addError('new_special_pranzo', 'Seleziona almeno un servizio da chiudere.');
+            $this->addError('new_special_pranzo', __('reservation_settings.opening.service_error'));
             return;
         }
 
@@ -69,18 +69,18 @@ class OpeningHoursEdit extends Component
 
         $settingsService->updateSection('reservations', $reservations);
 
-        session()->flash('success', 'Orari aggiornati correttamente.');
+        session()->flash('success', __('reservation_settings.opening.updated'));
     }
 
-    public function render()
+    public function render(TenantSettingsService $settingsService)
     {
         return view('livewire.settings.opening-hours-edit', [
-            'days' => TenantSettingsService::DAYS,
-            'meals' => TenantSettingsService::MEALS,
+            'days' => $settingsService->localizedDays(),
+            'meals' => $settingsService->localizedMeals(),
             'exceptions' => TenantSettingException::query()
                 ->where('type', TenantSettingException::TYPE_OPENING_HOURS)
                 ->orderBy('starts_on')
                 ->get(),
-        ])->title('Orari di apertura');
+        ])->title(__('reservation_settings.opening.title'));
     }
 }

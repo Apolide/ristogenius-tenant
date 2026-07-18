@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Modalita di invio notifiche</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('reservation_settings.notifications.title') }}</h5>
             </div>
         </div>
 
@@ -14,7 +14,7 @@
 
                 <form wire:submit.prevent="save" class="space-y-5">
                     <div>
-                        <span class="block mb-2 text-sm font-medium text-defaulttextcolor">Modalita di invio notifiche</span>
+                        <span class="block mb-2 text-sm font-medium text-defaulttextcolor">{{ __('reservation_settings.notifications.title') }}</span>
 
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <label class="flex cursor-not-allowed items-center gap-3 rounded-lg border border-defaultborder bg-light px-4 py-3 opacity-75">
@@ -45,8 +45,8 @@
                     </div>
 
                     <div class="flex gap-3">
-                        <button type="submit" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">Salva</button>
-                        <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light mr-3">Annulla</a>
+                        <button type="submit" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">{{ __('reservation_settings.common.save') }}</button>
+                        <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light mr-3">{{ __('reservation_settings.common.cancel') }}</a>
                     </div>
                 </form>
             </div>

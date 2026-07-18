@@ -51,7 +51,7 @@ class PaxCapacityEdit extends Component
         ]);
 
         if ($validated['new_range_pax']['pranzo'] === null && $validated['new_range_pax']['cena'] === null) {
-            $this->addError('new_range_pax.pranzo', 'Inserisci almeno un valore pax.');
+            $this->addError('new_range_pax.pranzo', __('reservation_settings.pax.value_error'));
             return;
         }
 
@@ -93,7 +93,7 @@ class PaxCapacityEdit extends Component
 
         $settingsService->updateSection('reservations', $reservations);
 
-        session()->flash('success', 'Configurazione pax aggiornata correttamente.');
+        session()->flash('success', __('reservation_settings.pax.updated'));
     }
 
     public function render()
@@ -109,14 +109,14 @@ class PaxCapacityEdit extends Component
         }
 
         return view('livewire.settings.pax-capacity-edit', [
-            'days' => TenantSettingsService::DAYS,
-            'meals' => TenantSettingsService::MEALS,
+            'days' => $settingsService->localizedDays(),
+            'meals' => $settingsService->localizedMeals(),
             'slots' => $slots,
             'exceptions' => TenantSettingException::query()
                 ->where('type', TenantSettingException::TYPE_PAX_CAPACITY)
                 ->orderBy('starts_on')
                 ->get(),
-        ])->title('Pax per slot orario');
+        ])->title(__('reservation_settings.pax.title'));
     }
 
     private function slotsFor(TenantSettingsService $settingsService, array $openingHours, string $dayKey, string $mealKey): array

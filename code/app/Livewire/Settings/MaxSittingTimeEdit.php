@@ -26,12 +26,12 @@ class MaxSittingTimeEdit extends Component
 
         $settingsService->updateSection('reservations', $reservations);
 
-        session()->flash('success', 'Tempo massimo permanenza aggiornato correttamente.');
+        session()->flash('success', __('reservation_settings.sitting.updated'));
     }
 
     public function render()
     {
         return view('livewire.settings.max-sitting-time-edit')
-            ->title('Tempo massimo permanenza al tavolo');
+            ->title(__('reservation_settings.sitting.title'));
     }
 }
