@@ -2,17 +2,17 @@
     <div class="main-content">
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Clienti</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('customers.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('customers.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">Clienti</a>
+                            <a class="flex items-center text-primary hover:text-primary" href="{{ route('customers.index') }}">{{ __('customers.title') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -32,10 +32,10 @@
 
         <div class="box">
             <div class="box-header border-none">
-                <div class="box-title pb-0">MODIFICA CLIENTE</div>
+                <div class="box-title pb-0">{{ __('customers.form.edit') }}</div>
             </div>
             <div class="box-body">
-                <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light w-full h-12">Indietro</a>
+                <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light w-full h-12">{{ __('customers.back') }}</a>
                 <div class="mb-3"></div>
 
                 <form wire:submit.prevent="update">
@@ -44,11 +44,11 @@
 
                     <div class="w-full mb-5">
                         <input wire:model.live="blacklisted" type="checkbox" id="checkbox-blacklisted" class="ti-switch">
-                        <label for="checkbox-blacklisted" class="text-sm text-gray-500 ltr:ml-3 rtl:mr-3 dark:text-white/70 cursor-pointer">In blacklist</label>
+                        <label for="checkbox-blacklisted" class="text-sm text-gray-500 ltr:ml-3 rtl:mr-3 dark:text-white/70 cursor-pointer">{{ __('customers.form.blacklisted') }}</label>
                     </div>
 
-                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">Salva</button>
-                    <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light mr-3">Indietro</a>
+                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">{{ __('customers.save') }}</button>
+                    <a href="{{ route('customers.index') }}" class="ti-btn ti-btn-light mr-3">{{ __('customers.back') }}</a>
                 </form>
             </div>
         </div>

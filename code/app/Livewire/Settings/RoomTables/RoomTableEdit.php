@@ -57,7 +57,7 @@ class RoomTableEdit extends Component
 
         $roomTableService->updateRoomTable($this->roomTableId, $data);
 
-        session()->flash('success', 'Tavolo aggiornato con successo.');
+        session()->flash('success', __('room_settings.messages.table_updated'));
         $this->resetFields();
         $this->isVisible = false;
         $this->dispatch('show-room-table-listing');

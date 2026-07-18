@@ -24,6 +24,12 @@ class TenantSettingMessageTemplatesService
                     'additional_note' => '',
                     'sms' => 'unfortunately the date and time you have chosen for the reservation from @@location_name@@ is not available.',
                 ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Buchungsvorschlag bearbeiten',
+                    'message' => "Leider ist das von Ihnen gewählte Datum und die Uhrzeit für die Reservierung von @@location_name@@ nicht verfügbar. Wir bieten Ihnen eine Alternative an: @@booking_date@@ um @@booking_time@@. Bitte nehmen Sie diesen Vorschlag über die Schaltfläche 'Auf Vorschlag antworten' unten an oder lehnen Sie ihn ab.",
+                    'additional_note' => '',
+                    'sms' => 'Leider ist das von Ihnen gewählte Datum und die Uhrzeit für die Reservierung von @@location_name@@ nicht verfügbar.',
+                ],
             ],
         ],
         'booking_remind' => [
@@ -41,6 +47,12 @@ class TenantSettingMessageTemplatesService
                     'message' => 'we will be waiting for you at @@location_name@@ at @@booking_date@@ - @@booking_time@@. Please do not forget to warn us in case of unexpected circumstances, delays or if you are no longer able to come.',
                     'additional_note' => '',
                     'sms' => 'we will be waiting for you at @@booking_date@@ - @@booking_time@@.',
+                ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Erinnerung',
+                    'message' => 'Wir erwarten Sie am @@booking_date@@ - @@booking_time@@ im @@location_name@@. Bitte informieren Sie uns, falls es zu unvorhergesehenen Ereignissen, Verspätungen oder Ihrer Verhinderung kommt.',
+                    'additional_note' => '',
+                    'sms' => 'Wir erwarten Sie am @@booking_date@@ - @@booking_time@@.',
                 ],
             ],
         ],
@@ -60,6 +72,12 @@ class TenantSettingMessageTemplatesService
                     'additional_note' => '',
                     'sms' => 'Reservation at @@location_name@@ canceled: @@booking_date@@ @@booking_time@@ for @@pax@@ people.',
                 ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Buchung storniert',
+                    'message' => 'Die Reservierung im @@location_name@@ für @@pax@@ Personen am @@booking_date@@ @@booking_time@@ wurde storniert.',
+                    'additional_note' => '',
+                    'sms' => 'Reservierung im @@location_name@@ storniert: @@booking_date@@ @@booking_time@@ für @@pax@@ Personen.',
+                ],
             ],
         ],
         'booking_denied' => [
@@ -77,6 +95,12 @@ class TenantSettingMessageTemplatesService
                     'message' => 'unfortunately we cannot accept your reservation at @@location_name@@ for @@pax@@ people on @@booking_date@@ @@booking_time@@.',
                     'additional_note' => '',
                     'sms' => 'Reservation at @@location_name@@ rejected: @@booking_date@@ for @@pax@@ people.',
+                ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Ihre Reservierung konnte leider nicht angenommen werden.',
+                    'message' => 'Leider können wir Ihre Reservierung für @@location_name@@ für @@pax@@ Personen am @@booking_date@@ @@booking_time@@ nicht annehmen.',
+                    'additional_note' => '',
+                    'sms' => 'Reservierung für @@location_name@@ abgelehnt: @@booking_date@@ für @@pax@@ Personen.',
                 ],
             ],
         ],
@@ -96,6 +120,12 @@ class TenantSettingMessageTemplatesService
                     'additional_note' => 'We remind you that on Saturday evenings the maximum time you can stay at a table is 90 minutes and that we cannot guarantee that the table will remain available in the event of a delay of more than 15 minutes.',
                     'sms' => 'Reservation at @@location_name@@ confirmed for @@pax@@ people on @@booking_date@@ at @@booking_time@@',
                 ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Ihre Buchung wurde bestätigt',
+                    'message' => 'Ihre Reservierung im @@location_name@@ für @@pax@@ Personen wurde am @@booking_date@@ um @@booking_time@@ bestätigt. Sie können Ihre Reservierung jederzeit über die Schaltfläche „Reservierung ändern“ anpassen oder stornieren.',
+                    'additional_note' => 'Bitte beachten Sie, dass die maximale Aufenthaltsdauer an einem Tisch samstagsabends 90 Minuten beträgt und wir bei einer Verspätung von mehr als 15 Minuten nicht garantieren können, dass der Tisch frei bleibt.',
+                    'sms' => 'Reservierung im @@location_name@@ für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ bestätigt',
+                ],
             ],
         ],
         'booking_sent' => [
@@ -113,6 +143,12 @@ class TenantSettingMessageTemplatesService
                     'message' => 'your reservation at @@location_name@@ for @@pax@@ people on @@booking_date@@ at @@booking_time@@ has been sent. We remind you that you can independently modify or cancel your reservation using the Modify reservation button.',
                     'additional_note' => '',
                     'sms' => 'Reservation at @@location_name@@ sent for @@pax@@ people on @@booking_date@@ at @@booking_time@@',
+                ],
+                'de' => [
+                    'subject' => '@@location_name@@ - Ihre Buchung wurde gesendet',
+                    'message' => 'Ihre Reservierung im @@location_name@@ für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ wurde gesendet. Wir weisen Sie darauf hin, dass Sie Ihre Reservierung über die Schaltfläche "Reservierung ändern" selbstständig ändern oder stornieren können.',
+                    'additional_note' => '',
+                    'sms' => 'Reservierung im @@location_name@@ für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ gesendet',
                 ],
             ],
         ],
@@ -235,7 +271,7 @@ class TenantSettingMessageTemplatesService
     {
         $defaultTemplate = self::MESSAGE_TEMPLATE_DEFAULTS[$key];
         $template = [
-            'label' => $defaultTemplate['label'],
+            'label' => __("message_settings.templates.{$key}"),
             'wildcards' => $defaultTemplate['wildcards'],
             'translations' => [],
         ];

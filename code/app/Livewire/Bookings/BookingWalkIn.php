@@ -35,7 +35,7 @@ class BookingWalkIn extends Component
     public function openTablePicker(): void
     {
         if ($this->booking_time === '') {
-            $this->addError('booking_time', 'Seleziona un orario prima di scegliere i tavoli.');
+            $this->addError('booking_time', __('bookings.messages.select_time'));
             return;
         }
 
@@ -70,7 +70,7 @@ class BookingWalkIn extends Component
             'customer_id' => null, 'status' => 'seated', 'source' => 'walk-in', 'language' => $data['lang'], 'seated_at' => now(),
         ]);
         $booking->tables()->sync($this->selectedTablesIds);
-        session()->flash('success', 'Walk In inserito correttamente.');
+        session()->flash('success', __('bookings.messages.walkin_saved'));
         return redirect()->route('bookings.index', ['date' => $booking->booking_date->toDateString()]);
     }
 
@@ -81,6 +81,6 @@ class BookingWalkIn extends Component
             'tables' => $this->tablePickerOpen ? $service->availableTables($this->booking_date, $this->booking_time, null, $this->searchTable) : collect(),
             'timeslotStats' => $service->timeslotStats($this->booking_date),
             'languages' => $languages->enabled(),
-        ])->title('Nuovo Walk In');
+        ])->title(__('bookings.walk_in'));
     }
 }

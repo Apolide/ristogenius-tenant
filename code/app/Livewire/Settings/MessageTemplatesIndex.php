@@ -59,7 +59,7 @@ class MessageTemplatesIndex extends Component
         $messageTemplatesService->updateMessageTemplate($this->editingKey, $this->form);
         $this->form = $messageTemplatesService->messageTemplate($this->editingKey) ?? [];
 
-        session()->flash('success', 'Messaggio aggiornato correttamente.');
+        session()->flash('success', __('message_settings.messages.updated'));
     }
 
     public function resetTemplate(TenantSettingMessageTemplatesService $messageTemplatesService): void
@@ -72,7 +72,7 @@ class MessageTemplatesIndex extends Component
         $this->form = $messageTemplatesService->messageTemplate($this->editingKey) ?? [];
         $this->resetErrorBag();
 
-        session()->flash('success', 'Messaggio ripristinato correttamente.');
+        session()->flash('success', __('message_settings.messages.reset'));
     }
 
     public function render(TenantSettingMessageTemplatesService $messageTemplatesService)
@@ -80,6 +80,6 @@ class MessageTemplatesIndex extends Component
         return view('livewire.settings.message-templates-index', [
             'languages' => $messageTemplatesService->languageMeta(),
             'templates' => $messageTemplatesService->messageTemplates($this->search),
-        ])->title('Messaggi automatici');
+        ])->title(__('message_settings.title'));
     }
 }

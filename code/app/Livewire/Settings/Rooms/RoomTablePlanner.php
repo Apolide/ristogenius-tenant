@@ -161,7 +161,7 @@ class RoomTablePlanner extends Component
     public function render()
     {
         return view('livewire.settings.rooms.room-table-planner')
-            ->title('Mappatura sala');
+            ->title(__('room_planner.title'));
     }
 
     private function loadRoom(string $roomId): void

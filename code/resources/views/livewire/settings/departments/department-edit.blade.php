@@ -4,7 +4,7 @@
             <div class="box-header border-none">
                 <div class="flex justify-between">
                     <div>
-                        <div class="box-title pb-0">MODIFICA REPARTO</div>
+                        <div class="box-title pb-0">{{ __('department_settings.edit_title') }}</div>
                     </div>
                 </div>
             </div>
@@ -14,10 +14,10 @@
                     @include('livewire.settings.departments.partials.department-form')
 
                     <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">
-                        Salva
+                        {{ __('department_settings.save') }}
                     </button>
                     <button wire:click="abort" type="button" class="ti-btn ti-btn-light mr-3">
-                        Annulla
+                        {{ __('department_settings.cancel') }}
                     </button>
                 </form>
             </div>

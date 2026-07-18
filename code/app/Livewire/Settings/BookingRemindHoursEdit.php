@@ -26,12 +26,12 @@ class BookingRemindHoursEdit extends Component
 
         $settingsService->updateSection('automations', $automations);
 
-        session()->flash('success', 'Ore promemoria prenotazione aggiornate correttamente.');
+        session()->flash('success', __('reservation_settings.reminder.updated'));
     }
 
     public function render()
     {
         return view('livewire.settings.booking-remind-hours-edit')
-            ->title('Ore promemoria prenotazione');
+            ->title(__('reservation_settings.reminder.title'));
     }
 }

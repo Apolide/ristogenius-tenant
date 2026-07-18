@@ -94,7 +94,7 @@ class BookingIndex extends Component
             'totalPax' => $bookings->sum('pax'),
             'arrivingPax' => $bookings->whereIn('status', ['pending', 'waiting', 'accepted'])->sum('pax'),
             'servingPax' => $bookings->where('status', 'seated')->sum('pax'),
-        ])->title('Prenotazioni');
+        ])->title(__('bookings.title'));
     }
     private function defaultMeal(TenantSettingsService $settings): string
     {

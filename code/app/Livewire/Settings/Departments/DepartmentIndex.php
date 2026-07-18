@@ -42,6 +42,6 @@ class DepartmentIndex extends Component
     {
         return view('livewire.settings.departments.department-index', [
             'departments' => $departmentService->getDepartments($this->search),
-        ])->title('Reparti');
+        ])->title(__('department_settings.title'));
     }
 }

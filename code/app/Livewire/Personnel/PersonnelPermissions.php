@@ -39,7 +39,7 @@ class PersonnelPermissions extends Component
         $enabled = (bool) ($this->assigned[$userId][$permission] ?? false);
         $permissions->set($user, $permission, $enabled);
 
-        session()->flash('success', 'Permesso aggiornato.');
+        session()->flash('success', __('personnel.messages.permission_updated'));
     }
 
     public function render(PersonnelPermissionsService $permissions)

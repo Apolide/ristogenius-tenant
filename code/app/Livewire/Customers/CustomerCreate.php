@@ -63,7 +63,7 @@ class CustomerCreate extends Component
         $customerService->createCustomer($this->validate($this->rules()));
 
         $this->resetFields();
-        session()->flash('success', 'Cliente creato con successo.');
+        session()->flash('success', __('customers.messages.created'));
         $this->isVisible = false;
         $this->dispatch('customer-refresh');
         $this->dispatch('show-listing');

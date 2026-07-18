@@ -38,7 +38,7 @@ class RoomDelete extends Component
 
         $roomService->deleteRoom($this->roomId);
 
-        session()->flash('success', 'Sala eliminata con successo.');
+        session()->flash('success', __('room_settings.messages.room_deleted'));
         $this->resetFields();
         $this->dispatch('show-listing');
         $this->dispatch('room-refresh');

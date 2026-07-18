@@ -112,7 +112,7 @@ class TenantSettingsService
             $savedChannels = $savedCases[$key]['channels'] ?? $case['channels'];
 
             $cases[$key] = [
-                'label' => $case['label'],
+                'label' => __("message_channel_cases.cases.{$key}"),
                 'required' => $case['required'],
                 'channels' => $this->normalizeMessageChannels($savedChannels),
             ];
@@ -125,6 +125,21 @@ class TenantSettingsService
         }
 
         return array_filter($cases, fn (array $case) => str_contains(strtolower($case['label']), strtolower($search)));
+    }
+
+    public function localizedDays(): array
+    {
+        return collect(self::DAYS)->map(fn (array $day, string $key) => [
+            'label' => __("reservation_settings.days.{$key}"),
+            'short' => __("reservation_settings.day_short.{$key}"),
+        ])->all();
+    }
+
+    public function localizedMeals(): array
+    {
+        return collect(self::MEALS)->map(
+            fn (string $meal, string $key) => __("reservation_settings.meals.{$key}")
+        )->all();
     }
 
     public function messageChannelCase(string $key): ?array

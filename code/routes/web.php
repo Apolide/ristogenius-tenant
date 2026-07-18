@@ -15,6 +15,7 @@ use App\Livewire\Customers\CustomerEdit;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Personnel\PersonnelCreate;
+use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
 use App\Livewire\Personnel\PersonnelPermissions;
 use App\Livewire\Profile\ProfileEdit;
@@ -99,6 +100,7 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/personnel', PersonnelIndex::class)->name('personnel.index');
             Route::get('/manage/personnel/create', PersonnelCreate::class)->name('personnel.create');
             Route::get('/manage/personnel/permissions', PersonnelPermissions::class)->name('personnel.permissions');
+            Route::get('/manage/personnel/{user}/edit', PersonnelEdit::class)->name('personnel.edit');
         });
     });
 

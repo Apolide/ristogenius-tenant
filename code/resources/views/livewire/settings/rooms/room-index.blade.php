@@ -2,17 +2,17 @@
     <div class="main-content">
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Gestione delle sale</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('room_settings.rooms.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('room_settings.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a href="{{ route('settings.rooms') }}" class="flex items-center text-textmuted">Sala</a>
+                            <a href="{{ route('settings.rooms') }}" class="flex items-center text-textmuted">{{ __('room_settings.rooms.breadcrumb') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -54,27 +54,27 @@
             <div class="box">
                 <div class="box-header border-none">
                     <div>
-                        <div class="box-title pb-0">ELENCO SALE</div>
+                        <div class="box-title pb-0">{{ __('room_settings.rooms.list') }}</div>
                     </div>
                 </div>
 
                 <div class="box-body">
                     <div class="pb-3">
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cerca sala" class="form-control">
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('room_settings.rooms.search') }}" class="form-control">
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-bordered whitespace-nowrap min-w-full">
                             <thead>
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Attivo</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Costo servizio</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Costo servizio %</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Ordinamento</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Capienza</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Fumatori</th>
+                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('room_settings.actions') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.name') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.active') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.service_charge') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.service_charge_percentage') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.order') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.capacity') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.rooms.smoking') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -86,21 +86,21 @@
                                                     <a href="{{ route('rooms.planner', ['room' => $room->id, 'mode' => 'view']) }}"
                                                        class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-info text-white hover:bg-info">
                                                         <i class="las text-3xl la-eye"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Vedi</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('room_settings.rooms.view') }}</span>
                                                     </a>
                                                 </div>
                                                 <div class="hs-tooltip ti-main-tooltip">
                                                     <button wire:click="$dispatch('click-edit-room', { id: '{{ $room->id }}' })"
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                         <i class="las text-3xl la-pen"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Modifica</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('room_settings.edit') }}</span>
                                                     </button>
                                                 </div>
                                                 <div class="hs-tooltip ti-main-tooltip">
                                                     <button wire:click="$dispatch('click-delete-room', { id: '{{ $room->id }}' })"
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-danger text-white hover:bg-danger">
                                                         <i class="las text-3xl la-trash"></i>
-                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">Elimina</span>
+                                                        <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">{{ __('room_settings.delete') }}</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -108,9 +108,9 @@
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $room->name }}</td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             @if ($room->active)
-                                                <span class="badge bg-success/10 !text-success">Si</span>
+                                                <span class="badge bg-success/10 !text-success">{{ __('room_settings.yes') }}</span>
                                             @else
-                                                <span class="badge bg-danger/10 !text-danger">No</span>
+                                                <span class="badge bg-danger/10 !text-danger">{{ __('room_settings.no') }}</span>
                                             @endif
                                         </td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ number_format((float) $room->service_charge, 2, ',', '.') }} &euro;</td>
@@ -119,15 +119,15 @@
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $room->capacity }}</td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             @if ($room->smoking_allowed)
-                                                <span class="badge bg-success/10 !text-success">Si</span>
+                                                <span class="badge bg-success/10 !text-success">{{ __('room_settings.yes') }}</span>
                                             @else
-                                                <span class="badge bg-danger/10 !text-danger">No</span>
+                                                <span class="badge bg-danger/10 !text-danger">{{ __('room_settings.no') }}</span>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                        <td colspan="8" class="text-center text-sm text-gray-500">Nessuna sala trovata.</td>
+                                        <td colspan="8" class="text-center text-sm text-gray-500">{{ __('room_settings.rooms.empty') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

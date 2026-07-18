@@ -4,7 +4,7 @@
             <div class="box-header border-none">
                 <div class="flex justify-between">
                     <div>
-                        <div class="box-title pb-0">NUOVO TAVOLO</div>
+                        <div class="box-title pb-0">{{ __('room_settings.tables.new') }}</div>
                     </div>
                 </div>
             </div>
@@ -14,10 +14,10 @@
                     @include('livewire.settings.room-tables.partials.room-table-form')
 
                     <button wire:target="save" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">
-                        Salva
+                        {{ __('room_settings.save') }}
                     </button>
                     <button wire:click="abort" type="button" class="ti-btn ti-btn-light mr-3">
-                        Annulla
+                        {{ __('room_settings.cancel') }}
                     </button>
                 </form>
             </div>

@@ -42,6 +42,6 @@ class RoomIndex extends Component
     {
         return view('livewire.settings.rooms.room-index', [
             'rooms' => $roomService->getRooms($this->search),
-        ])->title('Gestione delle sale');
+        ])->title(__('room_settings.rooms.title'));
     }
 }

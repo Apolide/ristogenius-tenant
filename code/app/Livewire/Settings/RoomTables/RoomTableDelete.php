@@ -38,7 +38,7 @@ class RoomTableDelete extends Component
 
         $roomTableService->deleteRoomTable($this->roomTableId);
 
-        session()->flash('success', 'Tavolo eliminato con successo.');
+        session()->flash('success', __('room_settings.messages.table_deleted'));
         $this->resetFields();
         $this->dispatch('show-room-table-listing');
         $this->dispatch('room-table-refresh');

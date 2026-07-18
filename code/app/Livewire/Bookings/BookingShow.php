@@ -40,7 +40,7 @@ class BookingShow extends Component
         $this->booking->recordHistory('tables_changed', 'Tavoli assegnati modificati', ['tables' => ['from' => $before, 'to' => $after]]);
         $this->booking->load('histories');
         $this->closePickTableModal();
-        session()->flash('success', 'Tavoli assegnati correttamente.');
+        session()->flash('success', __('bookings.messages.tables_saved'));
     }
 
     public function render(BookingService $bookingService, CustomerLanguageService $languages)
@@ -51,6 +51,6 @@ class BookingShow extends Component
                 : collect(),
             'statusLabels' => config('bookings.statuses'),
             'bookingLanguage' => $languages->meta($this->booking->language ?: $this->booking->customer?->lang),
-        ])->title('Dettaglio prenotazione');
+        ])->title(__('bookings.detail'));
     }
 }

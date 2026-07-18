@@ -30,6 +30,13 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
         ]);
 
+        $this->call([
+            TenantProfileSeeder::class,
+        ]);
+        $this->call([
+            TenantSettingsSeeder::class,
+        ]);
+
         // php artisan db:seed --class=LocationSeeder
         //
         $this->call([

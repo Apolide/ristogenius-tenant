@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Impostazioni</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('reservation_settings.index.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
@@ -12,7 +12,7 @@
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <span class="flex items-center text-textmuted">Impostazioni</span>
+                            <span class="flex items-center text-textmuted">{{ __('reservation_settings.index.title') }}</span>
                         </li>
                     </ol>
                 </nav>
@@ -22,8 +22,8 @@
         <div class="box mb-4">
             <div class="box-header border-none">
                 <div>
-                    <div class="box-title pb-0">Prenotazioni</div>
-                    <p class="text-xs text-gray-500 font-normal">Configurazioni operative salvate sul profilo tenant.</p>
+                    <div class="box-title pb-0">{{ __('reservation_settings.index.reservations') }}</div>
+                    <p class="text-xs text-gray-500 font-normal">{{ __('reservation_settings.index.reservations_help') }}</p>
                 </div>
             </div>
             <div class="box-body">
@@ -31,8 +31,8 @@
                     <table class="table table-bordered whitespace-nowrap min-w-full">
                         <thead>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
+                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.actions') }}</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.name') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -42,7 +42,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Orari</td>
+                                <td>{{ __('reservation_settings.index.hours') }}</td>
                             </tr>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
                                 <td class="whitespace-nowrap text-sm font-medium">
@@ -50,7 +50,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Pax massimi per slot orario</td>
+                                <td>{{ __('reservation_settings.index.pax') }}</td>
                             </tr>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
                                 <td class="whitespace-nowrap text-sm font-medium">
@@ -58,7 +58,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Tempo massimo permanenza al tavolo (in minuti)</td>
+                                <td>{{ __('reservation_settings.index.sitting') }}</td>
                             </tr>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
                                 <td class="whitespace-nowrap text-sm font-medium">
@@ -66,7 +66,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Modalita di invio notifiche</td>
+                                <td>{{ __('reservation_settings.index.notifications') }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -77,8 +77,8 @@
         <div class="box mb-4">
             <div class="box-header border-none">
                 <div>
-                    <div class="box-title pb-0">Operativita</div>
-                    <p class="text-xs text-gray-500 font-normal">Reparti usati per personale, produzione e invio comande.</p>
+                    <div class="box-title pb-0">{{ __('reservation_settings.index.operations') }}</div>
+                    <p class="text-xs text-gray-500 font-normal">{{ __('reservation_settings.index.operations_help') }}</p>
                 </div>
             </div>
             <div class="box-body">
@@ -86,8 +86,8 @@
                     <table class="table table-bordered whitespace-nowrap min-w-full">
                         <thead>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
+                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.actions') }}</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.name') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -97,7 +97,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Reparti</td>
+                                <td>{{ __('reservation_settings.index.departments') }}</td>
                             </tr>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
                                 <td class="whitespace-nowrap text-sm font-medium">
@@ -105,7 +105,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Sale</td>
+                                <td>{{ __('reservation_settings.index.rooms') }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -116,8 +116,8 @@
         <div class="box mb-4">
             <div class="box-header border-none">
                 <div>
-                    <div class="box-title pb-0">Automazioni</div>
-                    <p class="text-xs text-gray-500 font-normal">Regole automatiche collegate alle prenotazioni.</p>
+                    <div class="box-title pb-0">{{ __('reservation_settings.index.automations') }}</div>
+                    <p class="text-xs text-gray-500 font-normal">{{ __('reservation_settings.index.automations_help') }}</p>
                 </div>
             </div>
             <div class="box-body">
@@ -125,8 +125,8 @@
                     <table class="table table-bordered whitespace-nowrap min-w-full">
                         <thead>
                             <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
+                                <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.actions') }}</th>
+                                <th class="border-b dark:border-defaultborder/10 text-start">{{ __('reservation_settings.common.name') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -136,7 +136,7 @@
                                         <i class="las text-3xl la-pen"></i>
                                     </a>
                                 </td>
-                                <td>Quante ore prima ricordare al cliente della prenotazione?</td>
+                                <td>{{ __('reservation_settings.index.reminder_question') }}</td>
                             </tr>
                         </tbody>
                     </table>

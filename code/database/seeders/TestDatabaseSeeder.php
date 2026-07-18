@@ -41,5 +41,14 @@ class TestDatabaseSeeder extends Seeder
         $this->call([
             PersonnelPermissionsSeeder::class,
         ]);
+
+        $this->call([
+            TenantProfileSeeder::class,
+        ]);
+        $this->call([
+            TenantSettingsSeeder::class,
+            RoomSeeder::class,
+            RoomTableSeeder::class,
+        ]);
     }
 }

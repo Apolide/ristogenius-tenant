@@ -45,7 +45,7 @@ class RoomTableCreate extends Component
         $roomTableService->createRoomTable($data);
 
         $this->resetFields();
-        session()->flash('success', 'Tavolo creato con successo.');
+        session()->flash('success', __('room_settings.messages.table_created'));
         $this->isVisible = false;
         $this->dispatch('room-table-refresh');
         $this->dispatch('show-room-table-listing');

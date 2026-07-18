@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Run after the web authentication/session middleware, so Livewire requests
+        // and normal pages always use the authenticated personnel member's language.
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetUserLocale::class);
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,

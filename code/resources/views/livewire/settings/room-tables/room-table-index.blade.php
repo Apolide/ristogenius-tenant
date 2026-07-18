@@ -2,23 +2,23 @@
     <div class="main-content">
         <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Tavoli</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('room_settings.tables.title') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('room_settings.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="{{ route('settings.rooms') }}">
-                                Sala
+                                {{ __('room_settings.rooms.breadcrumb') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
                         <li class="text-[12px]">
-                            <a class="flex items-center text-textmuted" href="javascript:void(0);">Tavoli</a>
+                            <a class="flex items-center text-textmuted" href="javascript:void(0);">{{ __('room_settings.tables.breadcrumb') }}</a>
                         </li>
                     </ol>
                 </nav>
@@ -50,19 +50,19 @@
             <div class="box">
                 <div class="box-body">
                     <div class="pb-3">
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cerca tavolo o sala" class="form-control">
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('room_settings.tables.search') }}" class="form-control">
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-bordered whitespace-nowrap min-w-full">
                             <thead>
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Nome o numero tavolo</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Tipo</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Sala</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Min Persone</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Max Persone</th>
+                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('room_settings.actions') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.tables.name') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.tables.type') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.tables.room') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.tables.min_people') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('room_settings.tables.max_people') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -98,7 +98,7 @@
                                     </tr>
                                 @empty
                                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                        <td colspan="6" class="text-center text-sm text-gray-500">Nessun tavolo trovato.</td>
+                                        <td colspan="6" class="text-center text-sm text-gray-500">{{ __('room_settings.tables.empty') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

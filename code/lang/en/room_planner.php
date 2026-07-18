@@ -1,0 +1,2 @@
+<?php
+return ['settings'=>'Settings','room'=>'Room','title'=>'Room layout','select_room'=>'Select room:','view'=>'View','edit'=>'Edit','capacity'=>'Capacity','smoking'=>'Smoking','tool'=>'Tool','mobile'=>'On mobile','select'=>'Select','pan'=>'Pan','add_tables'=>'Add tables','shape'=>'Shape','circular'=>'Circular','square'=>'Square','rectangular'=>'Rectangular','number'=>'Number','columns'=>'Columns','prefix'=>'Prefix','action'=>'Action','add_grid'=>'Add in grid','empty'=>'No rooms available.'];

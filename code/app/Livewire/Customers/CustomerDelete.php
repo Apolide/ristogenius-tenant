@@ -34,7 +34,7 @@ class CustomerDelete extends Component
             $customerService->deleteCustomer($this->customerId);
         }
 
-        session()->flash('success', 'Cliente eliminato con successo.');
+        session()->flash('success', __('customers.messages.deleted'));
         $this->customerId = null;
         $this->customerName = null;
         $this->isVisible = false;

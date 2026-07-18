@@ -28,7 +28,7 @@ class CustomerImport extends Component
 
     public function import(): void
     {
-        session()->flash('success', 'Import clienti da CSV pronto: la sincronizzazione sara implementata successivamente.');
+        session()->flash('success', __('customers.messages.import_pending'));
     }
 
     public function abort(): void

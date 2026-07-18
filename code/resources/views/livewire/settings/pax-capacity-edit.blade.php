@@ -2,8 +2,8 @@
     <div class="main-content">
         <div x-data="{ activeDay: 'lunedi' }" class="w-full">
             <div class="mb-6">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Pax per slot orario</h5>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Imposta capienza standard e override a range data.</p>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('reservation_settings.pax.title') }}</h5>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.help') }}</p>
             </div>
 
             @if (session('success'))
@@ -14,19 +14,19 @@
                 <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900 sm:p-5">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-[1.4fr_minmax(180px,260px)] md:items-end">
                         <div>
-                            <label for="fallback" class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Fallback pax</label>
-                            <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">Numero di pax usato quando una singola fascia oraria non ha un valore specifico.</p>
+                            <label for="fallback" class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">{{ __('reservation_settings.pax.fallback') }}</label>
+                            <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.fallback_help') }}</p>
                         </div>
                         <input type="number" wire:model="fallback" id="fallback" min="0" class="form-control">
                     </div>
 
                     <div class="mt-4">
-                        <button type="button" wire:click="applyFallbackToWeekly" class="ti-btn ti-btn-light">Applica fallback a tutti gli slot settimanali</button>
+                        <button type="button" wire:click="applyFallbackToWeekly" class="ti-btn ti-btn-light">{{ __('reservation_settings.pax.apply') }}</button>
                     </div>
                 </section>
 
                 <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                    <div role="tablist" aria-label="Giorni della settimana" class="flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
+                    <div role="tablist" aria-label="{{ __('reservation_settings.common.weekdays') }}" class="flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
                         @foreach ($days as $dayKey => $day)
                             <button type="button" role="tab" :aria-selected="activeDay === '{{ $dayKey }}'" @click="activeDay = '{{ $dayKey }}'"
                                 class="ti-btn !mb-0 inline-flex items-center justify-center rounded-lg !px-4 !py-2 text-sm font-semibold transition"
@@ -43,7 +43,7 @@
                     <section x-show="activeDay === '{{ $dayKey }}'" x-transition.opacity role="tabpanel" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900 sm:p-6">
                         <div class="mb-6">
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $day['label'] }}</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Massimo pax per fascia oraria.</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.max') }}</p>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -60,7 +60,7 @@
                                                 <input type="number" wire:model="weekly.{{ $dayKey }}.{{ $mealKey }}.{{ $slotIndex }}" id="{{ $dayKey }}_{{ $mealKey }}_{{ $slotIndex }}" placeholder="Pax" min="0" class="form-control">
                                             </div>
                                         @empty
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">Servizio chiuso o senza slot configurati.</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.closed') }}</p>
                                         @endforelse
                                     </div>
                                 </div>
@@ -71,28 +71,28 @@
 
                 <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900 sm:p-6">
                     <div class="mb-6">
-                        <h4 class="text-lg font-bold text-gray-900 dark:text-white">Configurazione per range specifici</h4>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Gestisci eccezioni o periodi con capienza diversa rispetto alla regola settimanale.</p>
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('reservation_settings.pax.ranges') }}</h4>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.ranges_help') }}</p>
                     </div>
 
                     <div class="mb-6 grid grid-cols-1 gap-3 md:grid-cols-[180px_180px_150px_150px_auto] md:items-end">
                         <div>
-                            <label for="pax_range_start" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Dal</label>
+                            <label for="pax_range_start" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">{{ __('reservation_settings.common.from') }}</label>
                             <input type="date" id="pax_range_start" wire:model="new_range_start" class="form-control">
                         </div>
                         <div>
-                            <label for="pax_range_end" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Al</label>
+                            <label for="pax_range_end" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">{{ __('reservation_settings.common.to') }}</label>
                             <input type="date" id="pax_range_end" wire:model="new_range_end" class="form-control">
                         </div>
                         <div>
-                            <label for="pax_pranzo" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Pax pranzo</label>
+                            <label for="pax_pranzo" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">{{ __('reservation_settings.pax.lunch') }}</label>
                             <input type="number" id="pax_pranzo" wire:model="new_range_pax.pranzo" min="0" class="form-control">
                         </div>
                         <div>
-                            <label for="pax_cena" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Pax cena</label>
+                            <label for="pax_cena" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">{{ __('reservation_settings.pax.dinner') }}</label>
                             <input type="number" id="pax_cena" wire:model="new_range_pax.cena" min="0" class="form-control">
                         </div>
-                        <button type="button" wire:click="addRangeConfiguration" class="ti-btn ti-btn-primary-full">Aggiungi</button>
+                        <button type="button" wire:click="addRangeConfiguration" class="ti-btn ti-btn-primary-full">{{ __('reservation_settings.common.add') }}</button>
                     </div>
 
                     <div class="space-y-3">
@@ -101,20 +101,20 @@
                                 <div>
                                     <div class="font-semibold text-gray-900 dark:text-white">{{ $exception->starts_on->format('d/m/Y') }} - {{ $exception->ends_on->format('d/m/Y') }}</div>
                                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                                        Pranzo: {{ $exception->payload['pranzo'] ?? 'standard' }} / Cena: {{ $exception->payload['cena'] ?? 'standard' }}
+                                        {{ __('reservation_settings.meals.pranzo') }}: {{ $exception->payload['pranzo'] ?? __('reservation_settings.pax.standard') }} / {{ __('reservation_settings.meals.cena') }}: {{ $exception->payload['cena'] ?? __('reservation_settings.pax.standard') }}
                                     </div>
                                 </div>
-                                <button type="button" wire:click="removeRangeConfiguration({{ $exception->id }})" class="ti-btn ti-btn-danger">Rimuovi</button>
+                                <button type="button" wire:click="removeRangeConfiguration({{ $exception->id }})" class="ti-btn ti-btn-danger">{{ __('reservation_settings.common.remove') }}</button>
                             </div>
                         @empty
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Nessun range specifico configurato.</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('reservation_settings.pax.empty') }}</p>
                         @endforelse
                     </div>
                 </section>
 
                 <div class="flex gap-3">
-                    <button type="submit" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full">Salva configurazione pax</button>
-                    <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light">Annulla</a>
+                    <button type="submit" wire:loading.attr="disabled" class="ti-btn ti-btn-primary-full">{{ __('reservation_settings.pax.save') }}</button>
+                    <a href="{{ route('settings.index') }}" class="ti-btn ti-btn-light">{{ __('reservation_settings.common.cancel') }}</a>
                 </div>
             </form>
         </div>

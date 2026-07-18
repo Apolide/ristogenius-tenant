@@ -34,6 +34,7 @@ docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan 
 SEED LOCALHOST DB
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed --class=DatabaseSeeder
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php php artisan db:seed --class=TestDatabaseSeeder
+
 php artisan db:seed --class=BookingSeeder
 
 

@@ -41,7 +41,7 @@ class BookingForm extends Component
     public function openTablePicker(): void
     {
         if ($this->booking_date === '' || $this->booking_time === '') {
-            $this->addError('booking_time', 'Seleziona data e orario prima di assegnare i tavoli.');
+            $this->addError('booking_time', __('bookings.messages.select_datetime'));
             return;
         }
         $this->tablePickerSelection = $this->selectedTablesIds;
@@ -112,14 +112,14 @@ class BookingForm extends Component
         if ($previousTables !== $currentTables) {
             $this->booking->recordHistory('tables_changed', 'Tavoli assegnati modificati', ['tables' => ['from' => $previousTables, 'to' => $currentTables]]);
         }
-        session()->flash('success', 'Prenotazione salvata correttamente.');
+        session()->flash('success', __('bookings.messages.saved'));
         return redirect()->route('bookings.show', $this->booking);
     }
 
     public function delete()
     {
         abort_unless($this->booking, 404); $this->booking->delete();
-        session()->flash('success', 'Prenotazione eliminata.');
+        session()->flash('success', __('bookings.messages.deleted'));
         return redirect()->route('bookings.index');
     }
 
@@ -131,7 +131,7 @@ class BookingForm extends Component
             'tables' => $this->tablePickerOpen
                 ? $service->availableTables($this->booking_date, $this->booking_time, $this->booking?->id, $this->searchTable)
                 : collect(),
-        ])->title($this->booking ? 'Modifica prenotazione' : 'Nuova prenotazione');
+        ])->title($this->booking ? __('bookings.edit') : __('bookings.new'));
     }
 
     private function searchCustomers(string $field): void

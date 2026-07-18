@@ -37,13 +37,13 @@ class NotificationModesEdit extends Component
 
         $settingsService->updateSection('reservations', $reservations);
 
-        session()->flash('success', 'Modalita di invio notifiche aggiornata correttamente.');
+        session()->flash('success', __('reservation_settings.notifications.updated'));
     }
 
     public function render()
     {
         return view('livewire.settings.notification-modes-edit')
-            ->title('Modalita di invio notifiche');
+            ->title(__('reservation_settings.notifications.title'));
     }
 
     private function withRequiredEmail(array $channels): array

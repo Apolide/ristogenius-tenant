@@ -1,0 +1,6 @@
+<?php
+return [
+    'title'=>'Messaggi automatici','breadcrumb'=>'Messaggi','refresh'=>'Aggiorna','search'=>'Cerca messaggio','actions'=>'Azioni','message'=>'Messaggio','edit'=>'Modifica','empty'=>'Nessun messaggio trovato.','edit_title'=>'MODIFICA MESSAGGIO: :label','reset'=>'Ripristina messaggio','languages'=>'Lingue','subject'=>'Oggetto :language','subject_placeholder'=>'Oggetto del messaggio','body'=>'Messaggio :language','body_placeholder'=>'Testo del messaggio','automatic_name'=>'@@customer_name@@ viene inserito automaticamente dal sistema.','additional_note'=>'Note aggiuntive :language','additional_note_placeholder'=>'Note aggiuntive','sms'=>'Testo SMS :language (max 160 caratteri)','sms_placeholder'=>'Testo SMS','save'=>'Salva','cancel'=>'Annulla',
+    'messages'=>['updated'=>'Messaggio aggiornato correttamente.','reset'=>'Messaggio ripristinato correttamente.'],
+    'templates'=>['booking_proposal'=>'Proposta modifica prenotazione','booking_remind'=>'Promemoria prenotazione','booking_canceled'=>'Prenotazione cancellata','booking_denied'=>'Prenotazione rifiutata','booking_accepted'=>'Prenotazione accettata','booking_sent'=>'Prenotazione inviata'],
+];
