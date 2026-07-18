@@ -3,6 +3,7 @@
 namespace App\Livewire\Profile;
 
 use App\Models\TenantProfile;
+use App\Services\TenantPublicAssetService;
 use Illuminate\Support\Facades\URL;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -49,9 +50,15 @@ class ProfileEdit extends Component
         ]);
 
         if ($this->image) {
+            app(TenantPublicAssetService::class)->replaceUploadedFile(
+                $this->image,
+                'logo',
+                'logo'
+            );
+
             $profile
                 ->addMedia($this->image->getRealPath())
-                ->usingFileName('logo.'.$this->image->getClientOriginalExtension())
+                ->usingFileName('logo.'.strtolower($this->image->getClientOriginalExtension()))
                 ->toMediaCollection('logo');
         }
 
@@ -87,7 +94,10 @@ class ProfileEdit extends Component
         $this->province = $profile->province;
         $this->postcode = $profile->postcode;
         $this->address = $profile->address;
-        $this->profileImage = $profile->getFirstMediaUrl('logo') ?: null;
+        $media = $profile->getFirstMedia('logo');
+        $this->profileImage = $media
+            ? app(TenantPublicAssetService::class)->mirrorMediaIfLocal($media, 'logo') ?: $profile->getFirstMediaUrl('logo')
+            : null;
 
         if ($this->profileImage && ! str_starts_with($this->profileImage, 'http')) {
             $this->profileImage = URL::to($this->profileImage);

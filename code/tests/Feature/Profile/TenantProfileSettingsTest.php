@@ -7,7 +7,7 @@ use App\Models\TenantProfile;
 use Database\Seeders\TenantProfileSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -23,6 +23,13 @@ class TenantProfileSettingsTest extends TestCase
         config()->set('tenant.name', 'Ristorante Test');
         config()->set('tenant.slug', 'ristorante-test');
         config()->set('media-library.disk_name', 'public');
+    }
+
+    protected function tearDown(): void
+    {
+        File::deleteDirectory(public_path('tenant-assets/ristorante-test'));
+
+        parent::tearDown();
     }
 
     public function test_tenant_profile_seeder_creates_the_default_profile_from_configuration(): void
@@ -95,9 +102,29 @@ class TenantProfileSettingsTest extends TestCase
         $this->assertStringEndsWith('/logo.png', $media->getPathRelativeToRoot());
         $this->assertSame([], $media->generated_conversions);
         Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
+        $this->assertFileExists(public_path('tenant-assets/ristorante-test/logo/logo.png'));
 
         Livewire::test(ProfileEdit::class)
-            ->assertSet('profileImage', URL::to($profile->getFirstMediaUrl('logo')));
+            ->assertSet('profileImage', asset('tenant-assets/ristorante-test/logo/logo.png'));
+    }
+
+    public function test_existing_local_storage_logo_is_mirrored_to_public_assets(): void
+    {
+        Storage::fake('public');
+        $profile = TenantProfile::create(['name' => 'Ristorante Test']);
+        $file = UploadedFile::fake()->image('logo.png', 600, 400)->size(256);
+
+        $profile
+            ->addMedia($file->getRealPath())
+            ->usingFileName('logo.png')
+            ->toMediaCollection('logo');
+
+        $this->assertFileDoesNotExist(public_path('tenant-assets/ristorante-test/logo/logo.png'));
+
+        Livewire::test(ProfileEdit::class)
+            ->assertSet('profileImage', asset('tenant-assets/ristorante-test/logo/logo.png'));
+
+        $this->assertFileExists(public_path('tenant-assets/ristorante-test/logo/logo.png'));
     }
 
     public function test_logo_upload_must_be_an_image(): void
