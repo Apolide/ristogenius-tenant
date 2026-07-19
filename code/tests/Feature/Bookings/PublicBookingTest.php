@@ -72,6 +72,16 @@ class PublicBookingTest extends TestCase
         $this->assertSame('staff', $outbox->payload['audience']);
     }
 
+    public function test_edit_link_for_canceled_booking_redirects_to_signed_view_page(): void
+    {
+        [$customer, $booking] = $this->booking();
+        $booking->update(['status' => 'canceled']);
+        $urls = app(BookingPublicUrlService::class);
+
+        $this->get($urls->edit($booking, 'it'))
+            ->assertRedirect($urls->view($booking, 'it'));
+    }
+
     private function booking(): array
     {
         config()->set('tenant.customer_languages', 'it,en');

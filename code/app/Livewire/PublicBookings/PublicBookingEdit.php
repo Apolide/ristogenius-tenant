@@ -46,7 +46,11 @@ class PublicBookingEdit extends Component
     public function mount(Customer $customer, Booking $booking, string $language): void
     {
         abort_unless($booking->customer_id === $customer->id && ! $booking->isWalkIn(), 404);
-        abort_if(in_array($booking->status, ['denied', 'canceled', 'finalized', 'no-show'], true), 403);
+        if (in_array($booking->status, ['denied', 'canceled', 'finalized', 'no-show'], true)) {
+            $this->redirect(app(BookingPublicUrlService::class)->view($booking, $language));
+
+            return;
+        }
         $this->customer = $customer;
         $this->booking = $booking;
         $this->language = $language;
