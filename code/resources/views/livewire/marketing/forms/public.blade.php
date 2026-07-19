@@ -8,14 +8,23 @@
                 <span class="text-xl font-semibold">{{ $branding['name'] }}</span>
             </div>
             @if (count($languages) > 1)
-                <nav class="flex flex-wrap gap-2" aria-label="Lingua">
-                    @foreach ($languages as $code => $meta)
-                        <a href="{{ route('marketing.forms.public', ['language' => $code, 'form' => $form->slug]) }}"
-                           class="ti-btn {{ $language === $code ? 'ti-btn-primary' : 'ti-btn-light' }} ti-btn-sm" hreflang="{{ $code }}">
-                            {{ $meta['flag'] }} {{ strtoupper($code) }}
-                        </a>
-                    @endforeach
-                </nav>
+                <div>
+                    <label for="form-language" class="sr-only">{{ __('public_bookings.language') }}</label>
+                    <select
+                        id="form-language"
+                        onchange="window.location.href = this.value"
+                        class="appearance-none rounded-lg border border-gray-300 bg-white px-5 py-2 pr-8 text-sm focus:border-gray-500 focus:outline-none"
+                    >
+                        @foreach ($languages as $code => $meta)
+                            <option
+                                value="{{ route('marketing.forms.public', ['language' => $code, 'form' => $form->slug]) }}"
+                                @selected($language === $code)
+                            >
+                                {{ $meta['flag'] }} {{ strtoupper($code) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             @endif
         </div>
     </header>

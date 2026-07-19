@@ -21,9 +21,31 @@ class PublicBookingTest extends TestCase
     {
         [$customer, $booking] = $this->booking();
 
-        $this->get(app(BookingPublicUrlService::class)->view($booking, 'it'))
+        $urls = app(BookingPublicUrlService::class);
+
+        $this->get($urls->view($booking, 'it'))
             ->assertOk()
-            ->assertSee('La tua prenotazione');
+            ->assertSee('La tua prenotazione')
+            ->assertSee('id="booking-language"', false)
+            ->assertSee('selected', false)
+            ->assertSee($urls->view($booking, 'it'))
+            ->assertSee($urls->view($booking, 'en'));
+    }
+
+    public function test_customer_signed_edit_page_language_select_contains_signed_urls(): void
+    {
+        [$customer, $booking] = $this->booking();
+        $service = Mockery::mock(BookingService::class);
+        $service->shouldReceive('slots')->once()->andReturn([]);
+        $this->app->instance(BookingService::class, $service);
+        $urls = app(BookingPublicUrlService::class);
+
+        $this->get($urls->edit($booking, 'it'))
+            ->assertOk()
+            ->assertSee('id="booking-language"', false)
+            ->assertSee('selected', false)
+            ->assertSee($urls->edit($booking, 'it'))
+            ->assertSee($urls->edit($booking, 'en'));
     }
 
     public function test_unsigned_booking_page_is_rejected(): void

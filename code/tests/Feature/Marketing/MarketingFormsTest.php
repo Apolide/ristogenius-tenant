@@ -152,6 +152,39 @@ class MarketingFormsTest extends TestCase
             ->assertSee('required', false);
     }
 
+    public function test_public_form_language_select_links_to_each_enabled_language(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'multilingual-request',
+            'translations' => [
+                'it' => ['title' => 'Richiesta'],
+                'en' => ['title' => 'Request'],
+                'de' => ['title' => 'Anfrage'],
+            ],
+            'enabled_languages' => ['it', 'en', 'de'],
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('marketing.forms.public', [
+            'language' => 'de',
+            'form' => $form->slug,
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertSee('id="form-language"', false)
+            ->assertSee('selected', false)
+            ->assertSee('Anfrage');
+
+        foreach (['it', 'en', 'de'] as $language) {
+            $response->assertSee(route('marketing.forms.public', [
+                'language' => $language,
+                'form' => $form->slug,
+            ]));
+        }
+    }
+
     public function test_default_booking_form_seeder_is_idempotent(): void
     {
         $this->seed(MarketingBookingFormSeeder::class);
