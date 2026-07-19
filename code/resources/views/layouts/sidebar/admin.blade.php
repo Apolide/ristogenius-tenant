@@ -65,7 +65,7 @@
             <span class="side-menu__label">Cassa</span>
         </a>
     </li>
-
+--}}
 
     <li class="slide__category"><span class="category-name">Markekting</span></li>
 
@@ -86,7 +86,7 @@
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 624px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="/manage/forms" class="side-menu__item">Forms</a>
+                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">Forms</a>
             </li>
             <li class="slide">
                 <a href="/manage/marketing/campaigns" class="side-menu__item">Campagne</a>
@@ -103,14 +103,11 @@
             <li class="slide">
                 <a href="/manage/polls" class="side-menu__item">Sondaggi</a>
             </li>
-
-
-
         </ul>
 
     </li>
 
---}}
+
 
     <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.personnel') }}</span></li>
 

@@ -14,6 +14,11 @@ use App\Livewire\Contacts\ContactIndex;
 use App\Livewire\Customers\CustomerEdit;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
+use App\Livewire\Marketing\Forms\FormCreate as MarketingFormCreate;
+use App\Livewire\Marketing\Forms\FormEdit as MarketingFormEdit;
+use App\Livewire\Marketing\Forms\FormIndex as MarketingFormIndex;
+use App\Livewire\Marketing\Forms\PublicForm as MarketingPublicForm;
+use App\Livewire\Marketing\Forms\SubmissionIndex as MarketingSubmissionIndex;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -55,6 +60,8 @@ Route::domain(env('DOMAIN'))->group(function () {
 
     Route::get('/', fn () => view('welcome'));
 
+    Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
+
     /*
     |--------------------------------------------------------------------------
     | Signed public customer booking routes
@@ -81,6 +88,12 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
             Route::get('/manage/contacts', ContactIndex::class);
             Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
+            Route::prefix('/manage/marketing/forms')->name('marketing.forms.')->group(function (): void {
+                Route::get('/', MarketingFormIndex::class)->name('index');
+                Route::get('/create', MarketingFormCreate::class)->name('create');
+                Route::get('/responses', MarketingSubmissionIndex::class)->name('submissions');
+                Route::get('/{form}/edit', MarketingFormEdit::class)->name('edit');
+            });
         });
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CUSTOMERS)->group(function () {

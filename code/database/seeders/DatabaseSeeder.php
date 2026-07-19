@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
         ]);
-        
+
         $this->call([
             AdminSeeder::class,
         ]);
@@ -35,6 +35,12 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call([
             TenantSettingsSeeder::class,
+        ]);
+
+        $this->call([
+            MarketingBookingFormSeeder::class,
+            JobApplicationFormSeeder::class,
+            CateringOrderFormSeeder::class,
         ]);
 
         // php artisan db:seed --class=LocationSeeder

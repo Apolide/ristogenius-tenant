@@ -16,6 +16,17 @@ class LocationSeeder extends Seeder
      */
     public function run(): void
     {
+        if ($this->hasExistingLocationData()) {
+            $this->command?->info(sprintf(
+                'LocationSeeder skipped: location tables already contain data (regions: %d, provinces: %d, comuni: %d).',
+                Region::count(),
+                Province::count(),
+                Comuni::count(),
+            ));
+
+            return;
+        }
+
         $regionsPath = base_path('private/json/regioni_filtered.json');
         $provincesPath = base_path('private/json/province_filtered.json');
         $comuniPath = base_path('private/json/comuni_filtered.json');
@@ -33,9 +44,9 @@ class LocationSeeder extends Seeder
         $provincesData = $this->loadJson($provincesPath);
         $comuniData = $this->loadJson($comuniPath);
 
-        $this->command?->info('Regions loaded from JSON: ' . count($regionsData));
-        $this->command?->info('Provinces loaded from JSON: ' . count($provincesData));
-        $this->command?->info('Comuni loaded from JSON: ' . count($comuniData));
+        $this->command?->info('Regions loaded from JSON: '.count($regionsData));
+        $this->command?->info('Provinces loaded from JSON: '.count($provincesData));
+        $this->command?->info('Comuni loaded from JSON: '.count($comuniData));
 
         Schema::disableForeignKeyConstraints();
 
@@ -67,7 +78,7 @@ class LocationSeeder extends Seeder
             $jsonRegionIdToDbRegionId[(string) $regionItem['id']] = $region->id;
         }
 
-        $this->command?->info('Regions inserted: ' . count($jsonRegionIdToDbRegionId));
+        $this->command?->info('Regions inserted: '.count($jsonRegionIdToDbRegionId));
 
         /*
          * Map:
@@ -85,7 +96,7 @@ class LocationSeeder extends Seeder
 
             if (! isset($jsonRegionIdToDbRegionId[$jsonRegionId])) {
                 throw new RuntimeException(
-                    "Region not found for province '{$provinceItem['name']}'. " .
+                    "Region not found for province '{$provinceItem['name']}'. ".
                     "JSON region_id: {$jsonRegionId}"
                 );
             }
@@ -98,7 +109,7 @@ class LocationSeeder extends Seeder
             $siglaToDbProvinceId[(string) $provinceItem['sigla']] = $province->id;
         }
 
-        $this->command?->info('Provinces inserted: ' . count($siglaToDbProvinceId));
+        $this->command?->info('Provinces inserted: '.count($siglaToDbProvinceId));
 
         $insertedComuni = 0;
 
@@ -109,7 +120,7 @@ class LocationSeeder extends Seeder
 
             if (! isset($siglaToDbProvinceId[$provinceSigla])) {
                 throw new RuntimeException(
-                    "Province not found for comune '{$comuneItem['name']}'. " .
+                    "Province not found for comune '{$comuneItem['name']}'. ".
                     "JSON provincia: {$provinceSigla}"
                 );
             }
@@ -122,8 +133,18 @@ class LocationSeeder extends Seeder
             $insertedComuni++;
         }
 
-        $this->command?->info('Comuni inserted: ' . $insertedComuni);
+        $this->command?->info('Comuni inserted: '.$insertedComuni);
         $this->command?->info('Location seeding completed successfully.');
+    }
+
+    /**
+     * Never overwrite an existing or partially populated location dataset.
+     */
+    private function hasExistingLocationData(): bool
+    {
+        return Region::query()->exists()
+            || Province::query()->exists()
+            || Comuni::query()->exists();
     }
 
     /**
@@ -158,7 +179,7 @@ class LocationSeeder extends Seeder
         foreach ($keys as $key) {
             if (! array_key_exists($key, $item) || $item[$key] === null || $item[$key] === '') {
                 throw new RuntimeException(
-                    "Missing required key '{$key}' in {$source}. Item: " . json_encode($item)
+                    "Missing required key '{$key}' in {$source}. Item: ".json_encode($item)
                 );
             }
         }

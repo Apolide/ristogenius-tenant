@@ -55,7 +55,7 @@ php artisan view:clear
 
 docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && find /var/www/html/storage /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \; && find /var/www/html/storage /var/www/html/bootstrap/cache -type f -exec chmod 664 {} \; && su www-data -s /bin/sh -c 'php /var/www/html/artisan log:clear 2>/dev/null || php /var/www/html/artisan about >/dev/null' && ls -l /var/www/html/storage/logs/laravel.log"
 
-docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/public/tenant-assets && find /var/www/html/public/tenant-assets -type d -exec chmod 775 {} \; && find /var/www/html/public/tenant-assets -type f -exec chmod 664 {} \;"
+docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/public/tenant-assets && find /var/www/html/public/tenant-assets -type d -exec chmod 775 {} \; && find /var/www/html/public/tenant-assets -type f -exec chmod 664 {} \;
 
 /////////////// TESTING
 

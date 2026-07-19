@@ -30,6 +30,7 @@
     <!-- Notifications Css -->
     <link rel="stylesheet" href="/assets/libs/awesome-notifications/style.css">
 
+    @stack('head-scripts')
     @livewireStyles
 </head>
 
