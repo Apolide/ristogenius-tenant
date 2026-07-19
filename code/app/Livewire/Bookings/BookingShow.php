@@ -51,7 +51,7 @@ class BookingShow extends Component
 
     public function accept(BookingMessageService $messages): void
     {
-        $this->changePendingStatus('accepted', $messages);
+        $this->changePendingStatus('booking_sent', $messages);
     }
 
     public function deny(BookingMessageService $messages): void
@@ -92,7 +92,7 @@ class BookingShow extends Component
 
     private function changePendingStatus(string $status, BookingMessageService $messages): void
     {
-        abort_unless($this->booking->status === 'pending' && in_array($status, ['accepted', 'denied'], true), 422);
+        abort_unless($this->booking->status === 'pending' && in_array($status, ['booking_sent', 'denied'], true), 422);
         DB::transaction(function () use ($status, $messages): void {
             $this->booking->update(['status' => $status]);
             $messages->bookingStatusChanged($this->booking->refresh());

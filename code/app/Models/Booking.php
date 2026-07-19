@@ -13,7 +13,7 @@ class Booking extends Model
 {
     use HasUuids, SoftDeletes;
 
-    protected $fillable = ['customer_id', 'booking_date', 'booking_time', 'pax', 'status', 'source', 'language', 'note', 'seated_at', 'finalized_at'];
+    protected $fillable = ['customer_id', 'booking_date', 'booking_time', 'pax', 'status', 'source', 'language', 'note', 'restaurant_note', 'seated_at', 'finalized_at'];
 
     protected $casts = ['booking_date' => 'date', 'seated_at' => 'datetime', 'finalized_at' => 'datetime', 'pax' => 'integer'];
 

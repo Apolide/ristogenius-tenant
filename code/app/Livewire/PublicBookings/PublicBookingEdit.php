@@ -15,7 +15,7 @@ use Livewire\Component;
 
 class PublicBookingEdit extends Component
 {
-    private const CUSTOMER_CANCELABLE_STATUSES = ['pending', 'accepted', 'waiting'];
+    private const CUSTOMER_CANCELABLE_STATUSES = ['pending', 'booking_sent', 'accepted', 'waiting'];
 
     public Booking $booking;
 
@@ -36,6 +36,22 @@ class PublicBookingEdit extends Component
     public function updatedBookingDate(): void
     {
         $this->booking_time = '';
+    }
+
+    public function updatedPax(): void
+    {
+        if ($this->booking_time === '') {
+            return;
+        }
+
+        $slots = app(BookingService::class)->availableSlots(
+            $this->booking_date,
+            $this->pax,
+            $this->booking->id,
+        );
+        if (! isset($slots[$this->booking_time])) {
+            $this->booking_time = '';
+        }
     }
 
     public function hydrate(): void
@@ -130,7 +146,7 @@ class PublicBookingEdit extends Component
             'languages' => $languages->enabled(),
             'languageUrls' => collect($languages->enabled())->mapWithKeys(fn (array $meta, string $language) => [$language => $urls->edit($this->booking, $language)])->all(),
             'viewUrl' => $urls->view($this->booking, $this->language),
-            'slots' => $bookings->slots($this->booking_date),
+            'slots' => $bookings->availableSlots($this->booking_date, $this->pax, $this->booking->id),
             'canCancel' => in_array($this->booking->status, self::CUSTOMER_CANCELABLE_STATUSES, true),
         ])->layout('layouts.customer-booking', ['title' => __('public_bookings.edit_title')]);
     }

@@ -12,7 +12,7 @@
 
         <div class="mt-8"><h3 class="text-base font-semibold mb-3">{{ __('bookings.show.history') }}</h3>
             <div class="table-responsive"><table class="table table-bordered min-w-full"><thead><tr><th>{{ __('bookings.show.date') }}</th><th>{{ __('bookings.show.event') }}</th><th>{{ __('bookings.show.details') }}</th></tr></thead><tbody>
-                @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i') }}</td><td>{{ $history->event === 'booking_edited_from_customer' ? __('public_bookings.history.customer_edited') : (in_array($history->event, ['booking_canceled', 'booking_canceled_from_customer'], true) ? __('bookings.show.events.booking_canceled') : __("bookings.show.events.{$history->event}")) }}</td><td>{{ $history->description ?: '-' }}</td></tr>
+                @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i') }}</td><td>{{ $history->event === 'booking_edited_from_customer' ? __('public_bookings.history.customer_edited') : ($history->event === 'booking_proposal' ? __('message_channel_cases.cases.booking_proposal') : (in_array($history->event, ['booking_canceled', 'booking_canceled_from_customer'], true) ? __('bookings.show.events.booking_canceled') : __("bookings.show.events.{$history->event}"))) }}</td><td>{{ $history->description ?: '-' }}</td></tr>
                 @empty<tr><td colspan="3" class="text-center">{{ __('bookings.show.no_history') }}</td></tr>@endforelse
             </tbody></table></div>
         </div>

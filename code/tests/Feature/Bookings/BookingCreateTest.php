@@ -3,6 +3,8 @@
 namespace Tests\Feature\Bookings;
 
 use App\Livewire\Bookings\BookingCreate;
+use App\Livewire\Bookings\BookingEdit;
+use App\Livewire\Bookings\BookingShow;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\MessageOutbox;
@@ -147,6 +149,64 @@ class BookingCreateTest extends TestCase
         $this->assertSame('booking_accepted', MessageOutbox::firstOrFail()->payload['message_case']);
     }
 
+    public function test_accepting_a_pending_booking_marks_it_as_sent_and_queues_booking_sent(): void
+    {
+        $booking = $this->existingBooking('pending');
+
+        Livewire::test(BookingShow::class, ['booking' => $booking])
+            ->call('accept')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'booking_sent']);
+        $this->assertSame('booking_sent', MessageOutbox::firstOrFail()->payload['message_case']);
+    }
+
+    public function test_edit_page_cannot_change_customer_or_booking_status(): void
+    {
+        $booking = $this->existingBooking('booking_sent');
+
+        Livewire::test(BookingEdit::class, ['booking' => $booking])
+            ->assertSee(__('bookings.form.send_proposal'))
+            ->assertDontSee(__('bookings.form.hint'))
+            ->assertDontSeeHtml('wire:model="status"')
+            ->assertDontSeeHtml('wire:model.live.debounce.800ms="firstname"')
+            ->set('firstname', 'Nome manipolato')
+            ->set('email', 'changed@example.test')
+            ->set('lang', 'en')
+            ->set('status', 'denied')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'booking_sent', 'language' => 'it']);
+        $this->assertDatabaseHas('customers', ['id' => $booking->customer_id, 'firstname' => 'Giulia', 'email' => 'giulia@example.test']);
+        $this->assertSame(0, MessageOutbox::count());
+    }
+
+    public function test_booking_proposal_requires_a_change_and_includes_restaurant_notes(): void
+    {
+        $booking = $this->existingBooking('booking_sent');
+        $component = Livewire::test(BookingEdit::class, ['booking' => $booking])
+            ->set('send_booking_proposal', true)
+            ->set('restaurant_note', 'Possiamo ospitarvi mezz’ora più tardi.')
+            ->call('save')
+            ->assertHasErrors(['send_booking_proposal']);
+
+        $this->assertSame(0, MessageOutbox::count());
+
+        $component
+            ->set('booking_time', '20:30')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $outbox = MessageOutbox::firstOrFail();
+        $this->assertSame('booking_proposal', $outbox->payload['message_case']);
+        $this->assertStringContainsString('Possiamo ospitarvi mezz’ora più tardi.', $outbox->payload['deliveries'][0]['content']['additional_note']);
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'restaurant_note' => 'Possiamo ospitarvi mezz’ora più tardi.',
+        ]);
+    }
+
     public function test_selecting_a_suggestion_populates_existing_customer_data(): void
     {
         $customer = Customer::create([
@@ -169,5 +229,23 @@ class BookingCreateTest extends TestCase
             ->assertHasErrors(['lang']);
 
         $this->assertSame(0, Booking::count());
+    }
+
+    private function existingBooking(string $status): Booking
+    {
+        $customer = Customer::create([
+            'firstname' => 'Giulia', 'display_name' => 'Giulia', 'email' => 'giulia@example.test',
+            'registration_source' => 'backoffice', 'lang' => 'it',
+        ]);
+
+        return Booking::create([
+            'customer_id' => $customer->id,
+            'booking_date' => now()->addDay(),
+            'booking_time' => '20:00',
+            'pax' => 2,
+            'status' => $status,
+            'source' => 'public-form',
+            'language' => 'it',
+        ]);
     }
 }

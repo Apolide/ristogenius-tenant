@@ -75,6 +75,6 @@
         @include('livewire.bookings.partials.table-picker-modal', ['saveAction' => 'saveTables', 'closeAction' => 'closeModal'])
     @elseif($modal)<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"><div class="bg-white rounded p-5 w-[500px] max-w-[95vw]">
         @if($modal === 'note')<h2 class="text-xl font-bold mb-3">Note prenotazione</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
-        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
+        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'booking_sent','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
         <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">Chiudi</button></div></div>@endif
 </div></div>

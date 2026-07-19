@@ -74,11 +74,27 @@
                                 <input id="{{ $fieldId }}" type="checkbox" wire:model="answers.{{ $field->key }}" value="1" @required($field->required)>
                             @elseif ($field->type === 'file')
                                 <input id="{{ $fieldId }}" type="file" wire:model="answers.{{ $field->key }}" class="form-control" accept=".pdf,.doc,.docx" @required($field->required)>
+                            @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'time')
+                                <select id="{{ $fieldId }}" wire:model="answers.time" class="form-control cursor-pointer" @required($field->required) @disabled(blank($answers['date'] ?? null))>
+                                    <option value="">{{ __('bookings.form.select_time') }}</option>
+                                    @foreach ($bookingSlots as $value => $slot)
+                                        <option value="{{ $value }}">{{ $slot['label'] }}</option>
+                                    @endforeach
+                                </select>
+                            @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'date')
+                                <input id="{{ $fieldId }}" type="date" wire:model.live="answers.date"
+                                       class="form-control cursor-pointer dark:[color-scheme:dark]"
+                                       onclick="if (this.showPicker) this.showPicker()"
+                                       min="{{ now()->toDateString() }}" @required($field->required)>
+                            @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'guests')
+                                <input id="{{ $fieldId }}" type="number" wire:model.live.debounce.300ms="answers.guests"
+                                       class="form-control" min="1" @required($field->required)>
                             @else
                                 <input id="{{ $fieldId }}"
                                        type="{{ in_array($field->type, ['email', 'number', 'date', 'time', 'tel'], true) ? $field->type : 'text' }}"
-                                       wire:model="answers.{{ $field->key }}" class="form-control"
+                                       wire:model="answers.{{ $field->key }}" class="form-control @if(in_array($field->type, ['date', 'time'], true)) cursor-pointer dark:[color-scheme:dark] @endif"
                                        @required($field->required)
+                                       @if(in_array($field->type, ['date', 'time'], true)) onclick="if (this.showPicker) this.showPicker()" @endif
                                        @if($field->type === 'number') min="1" @endif
                                        @if($field->type === 'date' && $field->key === 'date') min="{{ now()->toDateString() }}" @endif>
                             @endif

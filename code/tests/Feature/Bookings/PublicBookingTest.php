@@ -36,7 +36,7 @@ class PublicBookingTest extends TestCase
     {
         [$customer, $booking] = $this->booking();
         $service = Mockery::mock(BookingService::class);
-        $service->shouldReceive('slots')->once()->andReturn([]);
+        $service->shouldReceive('availableSlots')->once()->andReturn([]);
         $this->app->instance(BookingService::class, $service);
         $urls = app(BookingPublicUrlService::class);
 
@@ -44,6 +44,8 @@ class PublicBookingTest extends TestCase
             ->assertOk()
             ->assertSee('id="booking-language"', false)
             ->assertSee('selected', false)
+            ->assertSee('this.showPicker', false)
+            ->assertSee('dark:[color-scheme:dark]', false)
             ->assertSee($urls->edit($booking, 'it'))
             ->assertSee($urls->edit($booking, 'en'));
     }
@@ -59,7 +61,7 @@ class PublicBookingTest extends TestCase
     {
         [$customer, $booking] = $this->booking();
         $service = Mockery::mock(BookingService::class);
-        $service->shouldReceive('slots')->andReturn(['20:30' => ['label' => '20:30', 'meal' => 'cena']]);
+        $service->shouldReceive('availableSlots')->andReturn(['20:30' => ['label' => '20:30', 'meal' => 'cena']]);
         $service->shouldReceive('ensureCapacity')->once()->andReturnNull();
         $this->app->instance(BookingService::class, $service);
 

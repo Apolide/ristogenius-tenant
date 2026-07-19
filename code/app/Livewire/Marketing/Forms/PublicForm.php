@@ -3,6 +3,7 @@
 namespace App\Livewire\Marketing\Forms;
 
 use App\Models\MarketingForm;
+use App\Services\BookingService;
 use App\Services\CustomerLanguageService;
 use App\Services\MarketingForms\PublicFormSubmissionService;
 use App\Services\TenantBrandingService;
@@ -22,6 +23,26 @@ class PublicForm extends Component
 
     public bool $submitted = false;
 
+    public function updatedAnswers(mixed $value, string $key): void
+    {
+        if (! in_array($this->form->type, ['booking', 'event'], true)) {
+            return;
+        }
+
+        if ($key === 'date') {
+            $this->answers['time'] = '';
+
+            return;
+        }
+
+        if ($key === 'guests' && filled($this->answers['time'] ?? null)) {
+            $availableSlots = $this->bookingSlots();
+            if (! isset($availableSlots[$this->answers['time']])) {
+                $this->answers['time'] = '';
+            }
+        }
+    }
+
     public function mount(MarketingForm $form, string $language): void
     {
         abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
@@ -37,6 +58,7 @@ class PublicForm extends Component
 
     public function submit(PublicFormSubmissionService $submissions): void
     {
+        $bookingSlots = $this->bookingSlots();
         $rules = [];
         foreach ($this->form->fields()->where('visible', true)->get() as $f) {
             $r = $f->required ? ['required'] : ['nullable'];
@@ -55,7 +77,9 @@ class PublicForm extends Component
                 'email' => ['email'],
                 'number' => ['integer', 'min:1'],
                 'date' => $f->key === 'date' ? ['date', 'after_or_equal:today'] : ['date'],
-                'time' => ['date_format:H:i'],
+                'time' => in_array($this->form->type, ['booking', 'event'], true)
+                    ? ['date_format:H:i', Rule::in(array_keys($bookingSlots))]
+                    : ['date_format:H:i'],
                 'checkbox' => $f->required ? ['accepted'] : ['boolean'],
                 'select', 'radio' => [Rule::in($localizedOptions)],
                 'file' => ['file', 'mimes:pdf,doc,docx', 'max:10240'],
@@ -83,6 +107,19 @@ class PublicForm extends Component
             'fields' => $this->form->fields()->where('visible', true)->get(),
             'branding' => $branding->branding(),
             'languages' => collect($languages->enabled())->only($this->form->enabled_languages)->all(),
+            'bookingSlots' => $this->bookingSlots(),
         ])->layout('layouts.customer-booking', ['title' => $this->form->translations[$this->language]['title']]);
+    }
+
+    private function bookingSlots(): array
+    {
+        if (! in_array($this->form->type, ['booking', 'event'], true)) {
+            return [];
+        }
+
+        return app(BookingService::class)->availableSlots(
+            (string) ($this->answers['date'] ?? ''),
+            (int) ($this->answers['guests'] ?? 1),
+        );
     }
 }

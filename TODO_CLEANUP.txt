@@ -54,9 +54,7 @@ php artisan view:clear
 
 CACHE CLEAR:
 docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php \
-php artisan cache:clear \
-php artisan config:clear \
-php artisan view:clear
+php artisan cache:clear && php artisan config:clear && php artisan view:clear
 
 /////////////// PROBLEMA PERMESSI
 

@@ -28,7 +28,7 @@ class TenantSettingMessageTemplatesService
         ],
         'booking_proposal' => [
             'label' => 'Proposta modifica prenotazione',
-            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
+            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@', '@@restaurant_note@@'],
             'translations' => [
                 'it' => [
                     'subject' => '@@location_name@@ - Proposta modifica prenotazione',

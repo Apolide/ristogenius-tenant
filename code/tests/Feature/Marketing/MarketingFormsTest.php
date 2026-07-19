@@ -3,9 +3,12 @@
 namespace Tests\Feature\Marketing;
 
 use App\Livewire\Marketing\Forms\PublicForm;
+use App\Models\Booking;
+use App\Models\Customer;
 use App\Models\MarketingForm;
 use App\Models\User;
 use App\Services\MarketingForms\FormBlueprintService;
+use App\Services\Settings\TenantSettingsService;
 use Database\Seeders\CateringOrderFormSeeder;
 use Database\Seeders\JobApplicationFormSeeder;
 use Database\Seeders\MarketingBookingFormSeeder;
@@ -135,6 +138,59 @@ class MarketingFormsTest extends TestCase
         $this->assertContains('occasion', collect($submission->field_snapshot)->pluck('key'));
     }
 
+    public function test_public_booking_form_only_lists_slots_with_enough_remaining_capacity(): void
+    {
+        $date = now()->addWeek()->toDateString();
+        $day = array_keys(TenantSettingsService::DAYS)[now()->addWeek()->dayOfWeekIso - 1];
+        $settingsService = app(TenantSettingsService::class);
+        $reservations = $settingsService->settings()['reservations'];
+        $reservations['opening_hours']['timerange'] = 30;
+        $reservations['opening_hours']['weekly'][$day]['pranzo']['open'] = false;
+        $reservations['opening_hours']['weekly'][$day]['cena'] = [
+            'open' => true, 'start' => '20:00', 'end' => '21:00',
+        ];
+        $reservations['pax_capacity']['fallback'] = 4;
+        $reservations['pax_capacity']['weekly'][$day]['cena'] = [4, 8];
+        $settingsService->updateSection('reservations', $reservations);
+
+        $customer = Customer::create([
+            'firstname' => 'Mario', 'display_name' => 'Mario', 'email' => 'full@example.test',
+            'registration_source' => 'backoffice', 'lang' => 'it',
+        ]);
+        Booking::create([
+            'customer_id' => $customer->id, 'booking_date' => $date, 'booking_time' => '20:00',
+            'pax' => 4, 'status' => 'accepted', 'source' => 'backoffice', 'language' => 'it',
+        ]);
+        Booking::create([
+            'customer_id' => $customer->id, 'booking_date' => $date, 'booking_time' => '20:30',
+            'pax' => 4, 'status' => 'accepted', 'source' => 'backoffice', 'language' => 'it',
+        ]);
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'booking', 'slug' => 'capacity-booking',
+            'translations' => ['it' => ['title' => 'Prenota']],
+            'enabled_languages' => ['it'], 'is_active' => true,
+        ]);
+
+        $component = Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->set('answers.date', $date)
+            ->set('answers.guests', 1)
+            ->assertDontSeeHtml('<option value="20:00">')
+            ->assertSeeHtml('<option value="20:30">');
+
+        $component
+            ->set('answers.guests', 5)
+            ->assertDontSeeHtml('<option value="20:30">')
+            ->set('answers.guests', 4)
+            ->assertSeeHtml('<option value="20:30">');
+
+        try {
+            app(\App\Services\BookingService::class)->ensureCapacity($date, '20:30', 5);
+            $this->fail('Il controllo server-side avrebbe dovuto rifiutare lo slot.');
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            $this->assertArrayHasKey('pax', $exception->errors());
+        }
+    }
+
     public function test_public_form_is_available_to_guests_and_marks_required_fields_in_html(): void
     {
         $form = app(FormBlueprintService::class)->create([
@@ -165,6 +221,14 @@ class MarketingFormsTest extends TestCase
             'enabled_languages' => ['it', 'en', 'de'],
             'is_active' => true,
         ]);
+        $form->fields()->create([
+            'key' => 'event_date', 'type' => 'date', 'label' => ['de' => 'Datum'],
+            'required' => true, 'visible' => true, 'position' => 3,
+        ]);
+        $form->fields()->create([
+            'key' => 'event_time', 'type' => 'time', 'label' => ['de' => 'Uhrzeit'],
+            'required' => true, 'visible' => true, 'position' => 4,
+        ]);
 
         $response = $this->get(route('marketing.forms.public', [
             'language' => 'de',
@@ -175,6 +239,8 @@ class MarketingFormsTest extends TestCase
             ->assertOk()
             ->assertSee('id="form-language"', false)
             ->assertSee('selected', false)
+            ->assertSee('this.showPicker', false)
+            ->assertSee('dark:[color-scheme:dark]', false)
             ->assertSee('Anfrage');
 
         foreach (['it', 'en', 'de'] as $language) {

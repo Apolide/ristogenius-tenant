@@ -5,11 +5,14 @@ namespace App\Services\MarketingForms;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\MarketingForm;
+use App\Services\BookingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PublicFormSubmissionService
 {
+    public function __construct(private BookingService $bookings) {}
+
     public function submit(MarketingForm $form, array $payload, string $language): Booking|\App\Models\MarketingFormSubmission
     {
         if (! in_array($form->type, ['booking', 'event'], true)) {
@@ -21,6 +24,7 @@ class PublicFormSubmissionService
         }
 
         return DB::transaction(function () use ($form, $payload, $language): Booking {
+            $this->bookings->ensureCapacity($payload['date'], $payload['time'], (int) $payload['guests']);
             $customer = $this->customer($payload, $language);
 
             $booking = Booking::create([

@@ -21,6 +21,7 @@ class BookingEdit extends BookingForm
         $this->pax = $booking->pax;
         $this->status = $booking->status;
         $this->note = $booking->note ?? '';
+        $this->restaurant_note = $booking->restaurant_note ?? '';
         $this->selectedTablesIds = $booking->tables()->pluck('settings_room_tables.id')->all();
         $this->tablePickerSelection = $this->selectedTablesIds;
     }

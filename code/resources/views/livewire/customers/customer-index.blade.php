@@ -89,7 +89,7 @@
                                     <label class="mb-1 block font-semibold text-sm" for="bookingStatus">{{ __('customers.filters.booking_status') }}</label>
                                     <select wire:model.live.debounce.300ms="bookingStatus" id="bookingStatus" class="form-control">
                                         <option value="">{{ __('customers.filters.all_m') }}</option>
-                                        @foreach (['pending','accepted','denied','canceled','no-show','seated','waiting','finalized'] as $status)<option value="{{ $status }}">{{ __('customers.statuses.'.$status) }}</option>@endforeach
+                                        @foreach (['pending','booking_sent','accepted','denied','canceled','no-show','seated','waiting','finalized'] as $status)<option value="{{ $status }}">{{ __('customers.statuses.'.$status) }}</option>@endforeach
                                     </select>
                                 </div>
                                 <div>
