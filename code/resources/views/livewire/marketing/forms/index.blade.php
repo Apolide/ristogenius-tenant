@@ -29,7 +29,7 @@
                                         <div class="flex flex-wrap gap-2">
                                             @foreach ($form->enabled_languages as $language)
                                                 @php($meta = $languageMeta[$language] ?? ['flag' => '🌐', 'label' => strtoupper($language)])
-                                                <a href="{{ route('marketing.forms.public', [$language, $form]) }}" target="_blank" rel="noopener noreferrer"
+                                                <a href="{{ route('marketing.forms.public', ['language' => $language, 'form' => $form->slug]) }}" target="_blank" rel="noopener noreferrer"
                                                    class="ti-btn ti-btn-light ti-btn-sm" title="{{ $meta['label'] }}" aria-label="Apri il form in {{ $meta['label'] }}">
                                                     <span class="text-xl">{{ $meta['flag'] }}</span>
                                                 </a>

@@ -37,6 +37,11 @@ class Booking extends Model
         return $this->hasMany(BookingHistory::class)->latest();
     }
 
+    public function formSubmissions(): HasMany
+    {
+        return $this->hasMany(MarketingFormSubmission::class);
+    }
+
     public function recordHistory(string $event, ?string $description = null, array $changes = [], ?string $actor = null): void
     {
         $this->histories()->create([

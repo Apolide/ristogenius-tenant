@@ -9,12 +9,17 @@ class MarketingFormSubmission extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['language', 'payload'];
+    protected $fillable = ['booking_id', 'language', 'field_snapshot', 'payload'];
 
-    protected $casts = ['payload' => 'array'];
+    protected $casts = ['field_snapshot' => 'array', 'payload' => 'array'];
 
     public function form()
     {
         return $this->belongsTo(MarketingForm::class, 'marketing_form_id');
+    }
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 }

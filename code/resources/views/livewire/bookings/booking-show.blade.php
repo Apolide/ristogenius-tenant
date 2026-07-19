@@ -39,6 +39,26 @@
                 <tr><td class="font-bold">Inserita il</td><td>{{ $booking->created_at?->format('d/m/Y H:i:s') }}</td></tr>
             </tbody></table></div>
 
+            @if($customFormFields->isNotEmpty())
+                <div class="mt-8">
+                    <h4 class="text-base font-semibold mb-3">Campi personalizzati del form</h4>
+                    @if($sourceForm)<p class="text-sm text-textmuted mb-3">Form: {{ $sourceForm->title($booking->language) }}</p>@endif
+                    <div class="table-responsive"><table class="table table-bordered min-w-full"><tbody>
+                        @foreach($customFormFields as $field)
+                            <tr><td class="font-bold w-1/3">{{ $field['label'] }}</td><td>
+                                @if(is_array($field['value']))
+                                    {{ $field['value'] !== [] ? implode(', ', $field['value']) : '-' }}
+                                @elseif(is_bool($field['value']))
+                                    {{ $field['value'] ? 'Sì' : 'No' }}
+                                @else
+                                    {{ filled($field['value']) ? $field['value'] : '-' }}
+                                @endif
+                            </td></tr>
+                        @endforeach
+                    </tbody></table></div>
+                </div>
+            @endif
+
             <div class="mt-8">
                 <h4 class="text-base font-semibold mb-3">{{ __('bookings.show.history') }}</h4>
                 <div class="table-responsive"><table class="table table-bordered min-w-full"><thead><tr><th>{{ __('bookings.show.date') }}</th><th>{{ __('bookings.show.event') }}</th><th>{{ __('bookings.show.author') }}</th><th>{{ __('bookings.show.details') }}</th></tr></thead><tbody>

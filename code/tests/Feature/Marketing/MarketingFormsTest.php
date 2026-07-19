@@ -64,6 +64,94 @@ class MarketingFormsTest extends TestCase
         $this->assertDatabaseCount('marketing_form_submissions', 1);
     }
 
+    public function test_public_multi_value_checkbox_is_initialized_as_an_array(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'checkbox-form',
+            'translations' => ['it' => ['title' => 'Checkbox']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+        $form->fields()->create([
+            'key' => 'preferences',
+            'type' => 'checkbox',
+            'label' => ['it' => 'Preferenze'],
+            'options' => ['it' => ['check1', 'check2']],
+            'required' => false,
+            'visible' => true,
+            'position' => 3,
+        ]);
+
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->assertSet('answers.preferences', []);
+    }
+
+    public function test_public_booking_form_creates_pending_booking_instead_of_generic_submission(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'booking',
+            'slug' => 'booking',
+            'translations' => ['it' => ['title' => 'Prenota', 'description' => 'Richiedi un tavolo']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+        $form->fields()->create([
+            'key' => 'occasion',
+            'type' => 'text',
+            'label' => ['it' => 'Occasione'],
+            'required' => false,
+            'visible' => true,
+            'position' => 8,
+        ]);
+
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->set('answers.name', 'Mario Rossi')
+            ->set('answers.email', 'mario@example.test')
+            ->set('answers.phone', '+393331234567')
+            ->set('answers.date', now()->addDay()->toDateString())
+            ->set('answers.time', '20:00')
+            ->set('answers.guests', 4)
+            ->set('answers.occasion', 'Compleanno')
+            ->call('submit')
+            ->assertHasNoErrors()
+            ->assertSet('submitted', true);
+
+        $this->assertDatabaseHas('bookings', [
+            'status' => 'pending',
+            'source' => 'public-form',
+            'pax' => 4,
+            'language' => 'it',
+        ]);
+        $this->assertDatabaseHas('customers', ['email' => 'mario@example.test']);
+        $booking = \App\Models\Booking::query()->firstOrFail();
+        $this->assertDatabaseHas('marketing_form_submissions', [
+            'marketing_form_id' => $form->id,
+            'booking_id' => $booking->id,
+            'language' => 'it',
+        ]);
+        $submission = $form->submissions()->firstOrFail();
+        $this->assertSame('Compleanno', $submission->payload['occasion']);
+        $this->assertContains('occasion', collect($submission->field_snapshot)->pluck('key'));
+    }
+
+    public function test_public_form_is_available_to_guests_and_marks_required_fields_in_html(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'public-request',
+            'translations' => ['it' => ['title' => 'Richiesta pubblica', 'description' => 'Descrizione pubblica']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+
+        $this->get(route('marketing.forms.public', ['language' => 'it', 'form' => $form->slug]))
+            ->assertOk()
+            ->assertSee('Richiesta pubblica')
+            ->assertSee('Descrizione pubblica')
+            ->assertSee('required', false);
+    }
+
     public function test_default_booking_form_seeder_is_idempotent(): void
     {
         $this->seed(MarketingBookingFormSeeder::class);
@@ -77,6 +165,10 @@ class MarketingFormsTest extends TestCase
         $this->assertTrue($form->is_active);
         $this->assertCount(7, $form->fields);
         $this->assertSame(1, MarketingForm::query()->where('slug', 'booking')->count());
+        $this->assertStringEndsWith('/form/it/booking', route('marketing.forms.public', [
+            'language' => 'it',
+            'form' => $form->slug,
+        ]));
     }
 
     public function test_job_application_form_seeder_creates_cv_form_once(): void

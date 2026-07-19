@@ -14,6 +14,12 @@ class SubmissionIndex extends Component
 
     public function render()
     {
-        return view('livewire.marketing.forms.submissions', ['submissions' => MarketingFormSubmission::with('form')->latest()->paginate(15)])->title(__('marketing_forms.responses'));
+        return view('livewire.marketing.forms.submissions', [
+            'submissions' => MarketingFormSubmission::query()
+                ->with('form')
+                ->whereHas('form', fn ($query) => $query->whereNotIn('type', ['booking', 'event']))
+                ->latest()
+                ->paginate(15),
+        ])->title(__('marketing_forms.responses'));
     }
 }

@@ -51,11 +51,14 @@ class FormEdit extends Component
 
     public function addField(CustomerLanguageService $languages): void
     {
-        $rules = ['newField.key' => ['required', 'alpha_dash', 'max:80', Rule::unique('marketing_form_fields', 'key')->where('marketing_form_id', $this->form->id)], 'newField.type' => ['required', Rule::in(config('marketing_forms.field_types'))], 'newField.required' => ['boolean'], 'newField.visible' => ['boolean']];
+        $hasOptions = in_array($this->newField['type'] ?? '', ['checkbox', 'radio', 'select'], true);
+        $rules = ['newField.key' => ['required', 'alpha_dash', 'max:80', Rule::unique('marketing_form_fields', 'key')->where('marketing_form_id', $this->form->id)], 'newField.type' => ['required', Rule::in(config('marketing_forms.field_types'))], 'newField.required' => ['boolean'], 'newField.visible' => ['boolean'], 'newField.options' => ['array']];
         foreach ($this->form->enabled_languages as $lang) {
             $rules['newField.label.'.$lang] = ['required', 'string', 'max:255'];
+            $rules['newField.options.'.$lang] = [$hasOptions ? 'required' : 'nullable', 'string'];
         }
         $data = $this->validate($rules)['newField'];
+        $data['options'] = $hasOptions ? $this->localizedOptions($data['options']) : null;
         $data['position'] = ($this->form->fields()->max('position') ?? -1) + 1;
         $data['locked'] = false;
         $this->form->fields()->create($data);
@@ -103,7 +106,7 @@ class FormEdit extends Component
             return;
         }
 
-        $hasOptions = in_array($this->editField['type'] ?? '', ['select', 'radio'], true);
+        $hasOptions = in_array($this->editField['type'] ?? '', ['checkbox', 'radio', 'select'], true);
         $rules = [
             'editField.type' => ['required', Rule::in(config('marketing_forms.field_types'))],
             'editField.required' => ['boolean'],
@@ -116,12 +119,7 @@ class FormEdit extends Component
         }
         $this->validate($rules);
 
-        $options = $hasOptions
-            ? collect($this->form->enabled_languages)->mapWithKeys(fn (string $language): array => [
-                $language => collect(explode(',', $this->editField['options'][$language] ?? ''))
-                    ->map(fn (string $option): string => trim($option))->filter()->values()->all(),
-            ])->all()
-            : null;
+        $options = $hasOptions ? $this->localizedOptions($this->editField['options']) : null;
 
         $service->updateField($this->form, $this->editingFieldId, [
             'type' => $this->editField['type'],
@@ -133,6 +131,14 @@ class FormEdit extends Component
 
         $this->cancelEditingField();
         session()->flash('success', 'Campo personalizzato aggiornato.');
+    }
+
+    private function localizedOptions(array $options): array
+    {
+        return collect($this->form->enabled_languages)->mapWithKeys(fn (string $language): array => [
+            $language => collect(explode(',', $options[$language] ?? ''))
+                ->map(fn (string $option): string => trim($option))->filter()->values()->all(),
+        ])->all();
     }
 
     public function deleteField(int $id): void

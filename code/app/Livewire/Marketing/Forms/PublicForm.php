@@ -3,6 +3,10 @@
 namespace App\Livewire\Marketing\Forms;
 
 use App\Models\MarketingForm;
+use App\Services\CustomerLanguageService;
+use App\Services\MarketingForms\PublicFormSubmissionService;
+use App\Services\TenantBrandingService;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -23,20 +27,41 @@ class PublicForm extends Component
         abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
         $this->form = $form;
         $this->language = $language;
+
+        foreach ($form->fields()->where('visible', true)->where('type', 'checkbox')->get() as $field) {
+            if (($field->options[$language] ?? []) !== []) {
+                $this->answers[$field->key] = [];
+            }
+        }
     }
 
-    public function submit(): void
+    public function submit(PublicFormSubmissionService $submissions): void
     {
         $rules = [];
         foreach ($this->form->fields()->where('visible', true)->get() as $f) {
             $r = $f->required ? ['required'] : ['nullable'];
-            $r[] = match ($f->type) {
-                'email' => 'email',
-                'number' => 'numeric',
-                'date' => 'date',
-                'file' => 'file|mimes:pdf,doc,docx|max:10240',
-                default => 'string',
+            $localizedOptions = $f->options[$this->language] ?? [];
+            if ($f->type === 'checkbox' && $localizedOptions !== []) {
+                $r[] = 'array';
+                if ($f->required) {
+                    $r[] = 'min:1';
+                }
+                $rules['answers.'.$f->key] = $r;
+                $rules['answers.'.$f->key.'.*'] = [Rule::in($localizedOptions)];
+
+                continue;
+            }
+            $typeRules = match ($f->type) {
+                'email' => ['email'],
+                'number' => ['integer', 'min:1'],
+                'date' => $f->key === 'date' ? ['date', 'after_or_equal:today'] : ['date'],
+                'time' => ['date_format:H:i'],
+                'checkbox' => $f->required ? ['accepted'] : ['boolean'],
+                'select', 'radio' => [Rule::in($localizedOptions)],
+                'file' => ['file', 'mimes:pdf,doc,docx', 'max:10240'],
+                default => ['string', 'max:5000'],
             };
+            $r = [...$r, ...$typeRules];
             $rules['answers.'.$f->key] = $r;
         }
         $payload = $this->validate($rules)['answers'];
@@ -45,12 +70,19 @@ class PublicForm extends Component
                 $payload[$field->key] = $payload[$field->key]->store("marketing-forms/{$this->form->id}", 'local');
             }
         }
-        $this->form->submissions()->create(['language' => $this->language, 'payload' => $payload]);
+        $submissions->submit($this->form, $payload, $this->language);
         $this->submitted = true;
+        $this->answers = [];
     }
 
-    public function render()
+    public function render(TenantBrandingService $branding, CustomerLanguageService $languages)
     {
-        return view('livewire.marketing.forms.public', ['fields' => $this->form->fields()->where('visible', true)->get()])->layout('layouts.guest');
+        app()->setLocale($this->language);
+
+        return view('livewire.marketing.forms.public', [
+            'fields' => $this->form->fields()->where('visible', true)->get(),
+            'branding' => $branding->branding(),
+            'languages' => collect($languages->enabled())->only($this->form->enabled_languages)->all(),
+        ])->layout('layouts.customer-booking', ['title' => $this->form->translations[$this->language]['title']]);
     }
 }

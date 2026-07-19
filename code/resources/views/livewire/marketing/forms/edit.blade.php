@@ -99,8 +99,8 @@
                     @foreach ($form->enabled_languages as $language)
                         <div x-show="activeEditLanguage === '{{ $language }}'" role="tabpanel" class="md:col-span-2 space-y-4">
                             <div><label>Etichetta {{ $languageMeta[$language]['label'] ?? strtoupper($language) }}</label><input wire:model="editField.label.{{ $language }}" class="form-control">@error('editField.label.'.$language)<span class="text-danger">{{ $message }}</span>@enderror</div>
-                            @if (in_array($editField['type'] ?? '', ['select', 'radio'], true))
-                                <div><label>Opzioni {{ $languageMeta[$language]['label'] ?? strtoupper($language) }}</label><input wire:model="editField.options.{{ $language }}" class="form-control" placeholder="Opzione 1, Opzione 2"><p class="text-xs text-textmuted mt-1">Separa le opzioni con una virgola.</p></div>
+                            @if (in_array($editField['type'] ?? '', ['checkbox', 'radio', 'select'], true))
+                                <div><label>Valori {{ $languageMeta[$language]['label'] ?? strtoupper($language) }}</label><input wire:model="editField.options.{{ $language }}" class="form-control" placeholder="Valore 1, Valore 2"><p class="text-xs text-textmuted mt-1">Separa i valori con una virgola.</p>@error('editField.options.'.$language)<span class="text-danger">{{ $message }}</span>@enderror</div>
                             @endif
                         </div>
                     @endforeach
@@ -115,7 +115,7 @@
             <div class="box-header"><div class="box-title">Aggiungi campo personalizzato</div></div>
             <div class="box-body grid md:grid-cols-2 gap-4">
                 <div><label>Identificativo</label><input wire:model="newField.key" class="form-control">@error('newField.key')<span class="text-danger">{{ $message }}</span>@enderror</div>
-                <div><label>Tipo</label><select wire:model="newField.type" class="form-control">@foreach(config('marketing_forms.field_types') as $type)<option>{{ $type }}</option>@endforeach</select></div>
+                <div><label>Tipo</label><select wire:model.live="newField.type" class="form-control">@foreach(config('marketing_forms.field_types') as $type)<option>{{ $type }}</option>@endforeach</select></div>
                 <div class="md:col-span-2 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                     <div role="tablist" aria-label="Lingue etichetta" class="--prevent-on-load-init flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
                         @foreach ($form->enabled_languages as $language)
@@ -136,6 +136,14 @@
                         <label for="new-field-label-{{ $language }}">Etichetta {{ $languageMeta[$language]['label'] ?? strtoupper($language) }}</label>
                         <input id="new-field-label-{{ $language }}" wire:model="newField.label.{{ $language }}" class="form-control">
                         @error('newField.label.'.$language) <span class="text-danger">{{ $message }}</span> @enderror
+                        @if (in_array($newField['type'] ?? '', ['checkbox', 'radio', 'select'], true))
+                            <div class="mt-4">
+                                <label for="new-field-options-{{ $language }}">Valori {{ $languageMeta[$language]['label'] ?? strtoupper($language) }}</label>
+                                <input id="new-field-options-{{ $language }}" wire:model="newField.options.{{ $language }}" class="form-control" placeholder="Valore 1, Valore 2">
+                                <p class="text-xs text-textmuted mt-1">Separa i valori con una virgola.</p>
+                                @error('newField.options.'.$language) <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
                     </div>
                 @endforeach
                 <div><label class="block"><input type="checkbox" wire:model="newField.required" class="ti-switch"> Obbligatorio</label><label class="block mt-3"><input type="checkbox" wire:model="newField.visible" class="ti-switch"> Visibile</label></div>
