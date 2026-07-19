@@ -10,7 +10,7 @@ return [
     'defaults_restored' => 'Casi invio messaggi ripristinati correttamente.',
     'cases' => [
         'waitlist_table_ready' => 'Lista d’attesa: tavolo pronto', 'booking_accepted' => 'Prenotazione accettata',
-        'booking_canceled' => 'Prenotazione cancellata', 'booking_denied' => 'Prenotazione rifiutata',
+        'booking_canceled' => 'Prenotazione cancellata', 'booking_canceled_from_customer' => 'Prenotazione cancellata dal cliente', 'booking_denied' => 'Prenotazione rifiutata',
         'booking_edited' => 'Prenotazione modificata', 'booking_edited_confirm_to_customer' => 'Conferma modifica prenotazione al cliente',
         'booking_edited_from_customer' => 'Prenotazione modificata dal cliente', 'booking_poll_send' => 'Sondaggio prenotazione inviato',
         'booking_proposal' => 'Proposta prenotazione', 'booking_received' => 'Prenotazione ricevuta',

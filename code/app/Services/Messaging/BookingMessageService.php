@@ -48,6 +48,11 @@ class BookingMessageService
         return $this->record($booking, 'booking_edited_from_customer', 'customer-edit-'.$booking->updated_at->getTimestamp());
     }
 
+    public function customerCanceled(Booking $booking): MessageOutbox
+    {
+        return $this->record($booking, 'booking_canceled_from_customer', 'customer-cancel-'.$booking->updated_at->getTimestamp());
+    }
+
     public function record(Booking $booking, string $messageCase, string $event): MessageOutbox
     {
         if (! str_starts_with($messageCase, 'booking_')) {

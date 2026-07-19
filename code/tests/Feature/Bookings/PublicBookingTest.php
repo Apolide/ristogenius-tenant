@@ -53,6 +53,25 @@ class PublicBookingTest extends TestCase
         $this->assertSame('booking_edited_from_customer', MessageOutbox::query()->latest()->firstOrFail()->payload['message_case']);
     }
 
+    public function test_customer_can_cancel_booking_and_staff_notification_is_queued(): void
+    {
+        [$customer, $booking] = $this->booking();
+
+        Livewire::test(PublicBookingEdit::class, compact('customer', 'booking') + ['language' => 'it'])
+            ->call('cancelBooking')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'canceled']);
+        $this->assertDatabaseHas('booking_histories', [
+            'booking_id' => $booking->id,
+            'event' => 'booking_canceled',
+            'actor' => 'Cliente',
+        ]);
+        $outbox = MessageOutbox::query()->latest()->firstOrFail();
+        $this->assertSame('booking_canceled_from_customer', $outbox->payload['message_case']);
+        $this->assertSame('staff', $outbox->payload['audience']);
+    }
+
     private function booking(): array
     {
         config()->set('tenant.customer_languages', 'it,en');

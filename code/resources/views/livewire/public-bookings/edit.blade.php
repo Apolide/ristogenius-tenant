@@ -9,7 +9,7 @@
                 <div><label class="form-label">{{ __('bookings.form.people') }}</label><input type="number" min="1" wire:model="pax" class="form-control" required></div>
             </div>
             <div class="mt-4"><label class="form-label">{{ __('bookings.form.notes') }}</label><textarea wire:model="note" class="form-control"></textarea></div>
-            <div class="flex flex-wrap gap-3 mt-6"><button type="submit" class="ti-btn ti-btn-primary">{{ __('public_bookings.save_changes') }}</button><a href="{{ $viewUrl }}" class="ti-btn ti-btn-light">{{ __('public_bookings.cancel') }}</a></div>
+            <div class="flex flex-wrap gap-3 mt-6"><button type="submit" class="ti-btn ti-btn-primary">{{ __('public_bookings.save_changes') }}</button>@if($canCancel)<button type="button" wire:click="cancelBooking" wire:confirm="{{ __('public_bookings.cancel_booking_confirm') }}" class="ti-btn ti-btn-danger-full">{{ __('public_bookings.cancel_booking') }}</button>@endif<a href="{{ $viewUrl }}" class="ti-btn ti-btn-light">{{ __('public_bookings.cancel') }}</a></div>
         </form>
     </div></section>
 </div>
