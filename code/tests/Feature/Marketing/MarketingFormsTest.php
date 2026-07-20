@@ -243,6 +243,39 @@ class MarketingFormsTest extends TestCase
         $this->assertDatabaseCount('marketing_form_submissions', 1);
     }
 
+    public function test_public_phone_field_uses_country_validation_and_stores_e164(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'phone-request',
+            'translations' => ['it' => ['title' => 'Telefono']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+        $form->fields()->create([
+            'key' => 'phone', 'type' => 'tel', 'label' => ['it' => 'Telefono'],
+            'required' => true, 'visible' => true, 'position' => 4,
+        ]);
+
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->assertSeeHtml('autocomplete="tel-country-code"')
+            ->set('answers.name', 'Mario Rossi')
+            ->set('answers.email', 'mario@example.test')
+            ->set('answers.privacy_consent', true)
+            ->set('answers.phone_region', 'DE')
+            ->set('answers.phone', '030 901820')
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $this->assertSame('+4930901820', $form->submissions()->firstOrFail()->payload['phone']);
+
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->set('answers.phone_region', 'IT')
+            ->set('answers.phone', 'telefono abc')
+            ->call('submit')
+            ->assertHasErrors(['answers.phone']);
+    }
+
     public function test_public_multi_value_checkbox_is_initialized_as_an_array(): void
     {
         $form = app(FormBlueprintService::class)->create([

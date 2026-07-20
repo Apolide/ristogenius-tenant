@@ -4,10 +4,12 @@ namespace App\Livewire\Bookings;
 
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Rules\ValidPhoneNumber;
 use App\Services\BookingService;
 use App\Services\CustomerLanguageService;
 use App\Services\Messaging\BookingMessageService;
 use App\Services\PhoneCountryService;
+use App\Services\PhoneNumberService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +32,8 @@ class BookingForm extends Component
     public string $phone = '';
 
     public string $phone_prefix = '+39';
+
+    public string $phone_region = 'IT';
 
     public string $lang = 'it';
 
@@ -127,7 +131,7 @@ class BookingForm extends Component
         $this->activeSearchField = null;
     }
 
-    public function save(BookingService $service, BookingMessageService $messages)
+    public function save(BookingService $service, BookingMessageService $messages, PhoneNumberService $phoneNumbers)
     {
         // A booking created by authenticated backoffice personnel is already
         // accepted. Ignore any client-side attempt to submit another status.
@@ -141,8 +145,8 @@ class BookingForm extends Component
         $data = $this->validate([
             'firstname' => ['required', 'string', 'max:100'], 'lastname' => ['nullable', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:255', 'required_without:phone'],
-            'phone' => ['nullable', 'string', 'max:25', 'required_without:email'],
-            'phone_prefix' => ['nullable', 'required_with:phone', 'regex:/^\+[0-9]{1,4}$/'], 'lang' => ['required', Rule::in($languages)],
+            'phone' => ['nullable', 'string', 'max:25', 'required_without:email', new ValidPhoneNumber($this->phone_region)],
+            'phone_region' => ['nullable', 'required_with:phone', Rule::in(array_column(app(PhoneCountryService::class)->countries(), 'region'))], 'lang' => ['required', Rule::in($languages)],
             'booking_date' => ['required', 'date', 'after_or_equal:today'],
             'booking_time' => ['required', 'date_format:H:i'], 'pax' => ['required', 'integer', 'min:1'],
             'status' => ['required', Rule::in(array_keys(config('bookings.statuses')))], 'note' => ['nullable', 'string', 'max:5000'],
@@ -159,7 +163,7 @@ class BookingForm extends Component
         }
         $service->ensureCapacity($data['booking_date'], $data['booking_time'], $data['pax'], $this->booking?->id);
         $email = $data['email'] ?: null;
-        $phone = $this->normalizePhone($data['phone'] ?? null, $data['phone_prefix'] ?? null);
+        $phone = $phoneNumbers->normalize($data['phone'] ?? null, $data['phone_region'] ?? 'IT');
         $this->validateUniqueContacts($email, $phone);
 
         try {
@@ -236,17 +240,6 @@ class BookingForm extends Component
         $this->customer_id = '';
         $this->activeSearchField = $field;
         $this->customerSuggestions = app(BookingService::class)->searchCustomers($field, $this->{$field});
-    }
-
-    private function normalizePhone(?string $phone, ?string $prefix): ?string
-    {
-        if (! $phone) {
-            return null;
-        }
-
-        return str_starts_with($phone, '+')
-            ? '+'.preg_replace('/\D+/', '', substr($phone, 1))
-            : $prefix.preg_replace('/\D+/', '', $phone);
     }
 
     private function hasProposalChanges(array $data): bool

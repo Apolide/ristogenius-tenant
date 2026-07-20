@@ -81,6 +81,14 @@
                                 <input id="{{ $fieldId }}" type="checkbox" wire:model="answers.{{ $field->key }}" value="1" @required($field->required)>
                             @elseif ($field->type === 'file')
                                 <input id="{{ $fieldId }}" type="file" wire:model="answers.{{ $field->key }}" class="form-control" accept=".pdf,.doc,.docx" @required($field->required)>
+                            @elseif ($field->type === 'tel' && $field->key === 'phone')
+                                <div class="flex gap-2">
+                                    <select wire:model="answers.phone_region" class="form-control max-w-[260px]" autocomplete="tel-country-code" @required($field->required)>
+                                        @foreach($countries as $country)<option value="{{ $country['region'] }}">{{ $country['flag'] }} {{ $country['name'] }} {{ $country['prefix'] }}</option>@endforeach
+                                    </select>
+                                    <input id="{{ $fieldId }}" type="tel" wire:model="answers.phone" class="form-control" inputmode="tel" autocomplete="tel-national" maxlength="25" @required($field->required)>
+                                </div>
+                                @error('answers.phone_region') <p class="mt-1 text-sm text-danger">{{ $message }}</p> @enderror
                             @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'time')
                                 <select id="{{ $fieldId }}" wire:model="answers.time" class="form-control cursor-pointer" @required($field->required) @disabled(blank($answers['date'] ?? null))>
                                     <option value="">{{ __('bookings.form.select_time') }}</option>

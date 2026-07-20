@@ -5,7 +5,7 @@
     </div>
     <div class="box"><div class="box-body">
         @if ($errors->any()) <div class="alert alert-danger mb-5">{{ $errors->first() }}</div> @endif
-        <form wire:submit="save" @unless($booking) oninput="const phone = this.elements.phone; const email = this.elements.email; phone.required = email.value.trim() === ''; email.required = phone.value.trim() === ''; this.elements.phone_prefix.required = phone.value.trim() !== '';" @endunless>
+        <form wire:submit="save" @unless($booking) oninput="const phone = this.elements.phone; const email = this.elements.email; phone.required = email.value.trim() === ''; email.required = phone.value.trim() === ''; this.elements.phone_region.required = phone.value.trim() !== '';" @endunless>
             @if($booking)
                 <div class="mb-5 rounded-lg border border-warning/40 bg-warning/10 p-4">
                     <label class="flex items-start gap-3 font-medium">
@@ -35,7 +35,7 @@
                 <p id="booking-contact-help" class="text-textmuted text-sm mb-2">{{ __('bookings.messages.contact_required') }}</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="relative"><label class="block text-sm font-medium">{{ __('bookings.form.phone') }}</label><div class="flex gap-2">
-                        <select name="phone_prefix" wire:model="phone_prefix" class="form-control max-w-[260px]" autocomplete="tel-country-code" @required(trim($phone) !== '')><option value="">{{ __('bookings.form.prefix') }}</option>@foreach($countries as $country)<option value="{{ $country['prefix'] }}">{{ $country['name'] }} {{ $country['flag'] }} {{ $country['prefix'] }}</option>@endforeach</select>
+                        <select name="phone_region" wire:model="phone_region" class="form-control max-w-[260px]" autocomplete="tel-country-code" @required(trim($phone) !== '')><option value="">{{ __('bookings.form.prefix') }}</option>@foreach($countries as $country)<option value="{{ $country['region'] }}">{{ $country['name'] }} {{ $country['flag'] }} {{ $country['prefix'] }}</option>@endforeach</select>
                         <input name="phone" wire:model.live.debounce.800ms="phone" class="form-control" inputmode="tel" autocomplete="tel-national" maxlength="25" aria-describedby="booking-contact-help" @required(trim($email) === '')>
                     </div>@error('phone')<p class="text-danger text-sm">{{ $message }}</p>@enderror @include('livewire.bookings.partials.customer-suggestions', ['field' => 'phone'])</div>
                     <div class="relative"><label class="block text-sm font-medium">Email</label><input type="email" name="email" wire:model.live.debounce.800ms="email" class="form-control" autocomplete="email" aria-describedby="booking-contact-help" @required(trim($phone) === '')>@error('email')<p class="text-danger text-sm">{{ $message }}</p>@enderror @include('livewire.bookings.partials.customer-suggestions', ['field' => 'email'])</div>

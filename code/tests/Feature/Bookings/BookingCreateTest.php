@@ -110,13 +110,13 @@ class BookingCreateTest extends TestCase
         Log::spy();
         Customer::create([
             'firstname' => 'Mario', 'display_name' => 'Mario',
-            'email' => null, 'phone' => '+39060606', 'lang' => 'it',
+            'email' => null, 'phone' => '+393331112222', 'lang' => 'it',
             'registration_source' => 'backoffice',
         ]);
 
         Livewire::test(BookingCreate::class)
             ->set('firstname', 'AAA')->set('lastname', '')
-            ->set('email', '')->set('phone_prefix', '+39')->set('phone', '060606')
+            ->set('email', '')->set('phone_region', 'IT')->set('phone', '333 111 2222')
             ->set('lang', 'en')->set('booking_date', now()->addDay()->toDateString())
             ->set('booking_time', '20:00')->set('pax', 2)
             ->call('save')->assertHasErrors(['phone']);
@@ -126,7 +126,20 @@ class BookingCreateTest extends TestCase
         Log::shouldHaveReceived('warning')
             ->once()
             ->withArgs(fn (string $message, array $context): bool => $context['field'] === 'phone'
-                && $context['contact_hash'] === hash('sha256', '+39060606'));
+                && $context['contact_hash'] === hash('sha256', '+393331112222'));
+    }
+
+    public function test_it_rejects_letters_and_numbers_invalid_for_the_selected_country(): void
+    {
+        Livewire::test(BookingCreate::class)
+            ->set('firstname', 'Giulia')->set('email', '')
+            ->set('phone_region', 'IT')->set('phone', 'numero abc')
+            ->set('lang', 'it')->set('booking_date', now()->addDay()->toDateString())
+            ->set('booking_time', '20:00')->set('pax', 2)
+            ->call('save')
+            ->assertHasErrors(['phone']);
+
+        $this->assertSame(0, Booking::count());
     }
 
     public function test_it_records_the_outbox_without_sending_synchronously(): void
