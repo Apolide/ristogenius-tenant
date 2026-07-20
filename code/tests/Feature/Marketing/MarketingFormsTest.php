@@ -39,7 +39,7 @@ class MarketingFormsTest extends TestCase
 
     public static function types(): array
     {
-        return [['booking', 7], ['event', 7], ['generic', 2]];
+        return [['booking', 9], ['event', 9], ['generic', 4]];
     }
 
     public function test_locked_standard_field_cannot_be_hidden(): void
@@ -56,14 +56,14 @@ class MarketingFormsTest extends TestCase
         $service = app(FormBlueprintService::class);
         $form = $service->create(['type' => 'generic', 'slug' => 'jobs', 'translations' => ['it' => ['title' => 'Lavora con noi']], 'enabled_languages' => ['it'], 'notify_user_ids' => [$user->id]]);
         $form->fields()->create(['key' => 'cv', 'type' => 'text', 'label' => ['it' => 'CV'], 'required' => true, 'visible' => true, 'position' => 3]);
-        $this->assertCount(3, $form->fields()->get());
+        $this->assertCount(5, $form->fields()->get());
         $this->assertTrue($form->notificationUsers->contains($user));
     }
 
     public function test_public_form_validates_and_stores_submission(): void
     {
         $form = app(FormBlueprintService::class)->create(['type' => 'generic', 'slug' => 'catering', 'translations' => ['it' => ['title' => 'Catering']], 'enabled_languages' => ['it'], 'is_active' => true]);
-        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])->set('answers.name', 'Mario Rossi')->set('answers.email', 'mario@example.test')->call('submit')->assertSet('submitted', true);
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])->set('answers.name', 'Mario Rossi')->set('answers.email', 'mario@example.test')->set('answers.privacy_consent', true)->call('submit')->assertSet('submitted', true);
         $this->assertDatabaseCount('marketing_form_submissions', 1);
     }
 
@@ -115,6 +115,7 @@ class MarketingFormsTest extends TestCase
             ->set('answers.date', now()->addDay()->toDateString())
             ->set('answers.time', '20:00')
             ->set('answers.guests', 4)
+            ->set('answers.privacy_consent', true)
             ->set('answers.occasion', 'Compleanno')
             ->call('submit')
             ->assertHasNoErrors()
@@ -205,7 +206,62 @@ class MarketingFormsTest extends TestCase
             ->assertOk()
             ->assertSee('Richiesta pubblica')
             ->assertSee('Descrizione pubblica')
+            ->assertSee(route('privacy-policy', ['language' => 'it']))
             ->assertSee('required', false);
+    }
+
+    public function test_public_form_privacy_policy_link_uses_the_customer_language(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'multilingual-privacy-request',
+            'translations' => [
+                'it' => ['title' => 'Richiesta privacy'],
+                'en' => ['title' => 'Privacy request'],
+                'de' => ['title' => 'Datenschutzanfrage'],
+            ],
+            'enabled_languages' => ['it', 'en', 'de'],
+            'is_active' => true,
+        ]);
+
+        foreach (['it', 'en', 'de'] as $language) {
+            $this->get(route('marketing.forms.public', ['language' => $language, 'form' => $form->slug]))
+                ->assertOk()
+                ->assertSee(route('privacy-policy', ['language' => $language]))
+                ->assertSee('target="_blank"', false);
+        }
+    }
+
+    #[DataProvider('privacyPolicyLanguages')]
+    public function test_privacy_policy_route_renders_each_available_language(string $language, string $heading): void
+    {
+        $this->assertFileExists(resource_path("views/legal/privacy-policy-{$language}.blade.php"));
+        $this->assertTrue(view()->exists("legal.privacy-policy-{$language}"));
+
+        $this->get(route('privacy-policy', ['language' => $language]))
+            ->assertOk()
+            ->assertSee($heading)
+            ->assertSee('fixed inset-x-0 top-0', false)
+            ->assertSee('id="terms-scroll"', false)
+            ->assertSee('overflow-y-auto bg-white', false)
+            ->assertSee('onclick="window.close()"', false);
+    }
+
+    public static function privacyPolicyLanguages(): array
+    {
+        return [
+            'Italian' => ['it', 'INFORMATIVA SUL TRATTAMENTO DEI DATI PERSONALI'],
+            'English' => ['en', 'INFORMATION NOTICE ON THE PROCESSING OF PERSONAL DATA'],
+            'German' => ['de', 'INFORMATIONSHINWEIS ZUR VERARBEITUNG PERSONENBEZOGENER DATEN'],
+        ];
+    }
+
+    public function test_privacy_policy_route_falls_back_to_italian_for_an_unsupported_language(): void
+    {
+        $this->get(route('privacy-policy', ['language' => 'fr']))
+            ->assertOk()
+            ->assertSee('INFORMATIVA SUL TRATTAMENTO DEI DATI PERSONALI')
+            ->assertDontSee('INFORMATION NOTICE ON THE PROCESSING OF PERSONAL DATA');
     }
 
     public function test_public_form_language_select_links_to_each_enabled_language(): void
@@ -262,7 +318,9 @@ class MarketingFormsTest extends TestCase
         $this->assertSame(['it', 'en', 'de'], $form->enabled_languages);
         $this->assertSame('Prenota un tavolo', $form->translations['it']['title']);
         $this->assertTrue($form->is_active);
-        $this->assertCount(7, $form->fields);
+        $this->assertCount(9, $form->fields);
+        $this->assertTrue($form->fields()->where('key', 'privacy_consent')->where('required', true)->where('visible', true)->where('locked', true)->exists());
+        $this->assertTrue($form->fields()->where('key', 'marketing_consent')->where('required', false)->where('visible', true)->where('locked', false)->exists());
         $this->assertSame(1, MarketingForm::query()->where('slug', 'booking')->count());
         $this->assertStringEndsWith('/form/it/booking', route('marketing.forms.public', [
             'language' => 'it',

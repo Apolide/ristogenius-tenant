@@ -40,7 +40,9 @@ use App\Livewire\Settings\RoomTables\RoomTableIndex;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
 use App\Services\Personnel\PersonnelPermissionsService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\HtmlString;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +61,19 @@ Route::domain(env('DOMAIN'))->group(function () {
     });
 
     Route::get('/', fn () => view('welcome'));
+
+    Route::get('/privacy-policy', function (Request $request) {
+        $language = strtolower((string) $request->query('language', app()->getLocale()));
+        if (! in_array($language, ['it', 'en', 'de'], true)) {
+            $language = 'it';
+        }
+        app()->setLocale($language);
+
+        return view('layouts.legal', [
+            'title' => __('marketing_forms.privacy_policy'),
+            'slot' => new HtmlString(view("legal.privacy-policy-{$language}")->render()),
+        ]);
+    })->name('privacy-policy');
 
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
 

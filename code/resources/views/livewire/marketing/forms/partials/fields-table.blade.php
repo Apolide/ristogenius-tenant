@@ -32,7 +32,7 @@
                             @if ($allowEdit ?? false)
                                 <button wire:click="startEditingField({{ $field->id }})" class="ti-btn ti-btn-warning ti-btn-md">Modifica</button>
                             @endif
-                            @if (! $field->required)
+                            @if (($allowEdit ?? false) && ! $field->required)
                                 <button wire:click="deleteField({{ $field->id }})" wire:confirm="Eliminare questo campo?" class="ti-btn ti-btn-danger ti-btn-md">Elimina</button>
                             @endif
                         </div>

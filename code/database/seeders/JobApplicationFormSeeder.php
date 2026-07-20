@@ -22,7 +22,6 @@ class JobApplicationFormSeeder extends Seeder
             ['key' => 'position', 'type' => 'text', 'label' => ['it' => 'Posizione desiderata', 'en' => 'Desired position', 'de' => 'Gewünschte Position', 'fr' => 'Poste souhaité', 'es' => 'Puesto deseado'], 'required' => true],
             ['key' => 'cover_letter', 'type' => 'textarea', 'label' => ['it' => 'Presentazione', 'en' => 'Cover letter', 'de' => 'Anschreiben', 'fr' => 'Lettre de motivation', 'es' => 'Carta de presentación'], 'required' => false],
             ['key' => 'cv', 'type' => 'file', 'label' => ['it' => 'Curriculum vitae', 'en' => 'Curriculum vitae', 'de' => 'Lebenslauf', 'fr' => 'Curriculum vitae', 'es' => 'Currículum vitae'], 'required' => true],
-            ['key' => 'privacy_consent', 'type' => 'checkbox', 'label' => ['it' => 'Acconsento al trattamento dei dati personali', 'en' => 'I consent to the processing of my personal data', 'de' => 'Ich stimme der Verarbeitung meiner personenbezogenen Daten zu', 'fr' => 'Je consens au traitement de mes données personnelles', 'es' => 'Consiento el tratamiento de mis datos personales'], 'required' => true],
         ]);
 
         $this->command?->info($created ? 'Default job application form created.' : 'Job application form already exists; no changes were made.');
