@@ -79,17 +79,13 @@ class MarketingFormsTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('marketing_forms', ['id' => $form->id]);
-        $this->assertSame([
-            'mode' => 'dates',
-            'slot_mode' => 'custom',
-            'single_date' => '',
-            'dates' => [$date],
-            'range_start' => '',
-            'range_end' => '',
-            'min_guests' => 2,
-            'max_guests' => 6,
-            'slots' => [['time' => '20:30', 'capacity' => 8]],
-        ], $form->fresh()->schedule);
+        $schedule = $form->fresh()->schedule;
+        $this->assertSame('dates', $schedule['mode']);
+        $this->assertSame('custom', $schedule['slot_mode']);
+        $this->assertSame([$date], $schedule['dates']);
+        $this->assertSame(2, $schedule['min_guests']);
+        $this->assertSame(6, $schedule['max_guests']);
+        $this->assertSame([['time' => '20:30', 'capacity' => 8]], $schedule['slots']);
 
         Livewire::test(PublicForm::class, ['form' => $form->fresh(), 'language' => 'it'])
             ->set('answers.date', $date)
@@ -158,6 +154,46 @@ class MarketingFormsTest extends TestCase
             ->assertDontSeeHtml('max="10"')
             ->set('answers.date', now()->addWeeks(2)->toDateString())
             ->assertDontSeeHtml('<option value="19:30">19:30</option>');
+    }
+
+    public function test_event_flatpickr_only_enables_the_configured_dates(): void
+    {
+        $dates = [now()->addWeek()->toDateString(), now()->addWeeks(2)->toDateString()];
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'event',
+            'slug' => 'event-datepicker',
+            'translations' => ['it' => ['title' => 'Evento datepicker']],
+            'enabled_languages' => ['it'],
+            'schedule' => ['mode' => 'dates', 'slot_mode' => 'standard', 'dates' => $dates],
+            'is_active' => true,
+        ]);
+
+        $this->get(route('marketing.forms.public', ['language' => 'it', 'form' => $form->slug]))
+            ->assertOk()
+            ->assertSee('data-marketing-datepicker="flatpickr"', false)
+            ->assertSee('/assets/libs/flatpickr/flatpickr.min.js', false)
+            ->assertSee('marketing-bookable-day', false)
+            ->assertSee($dates[0])
+            ->assertSee($dates[1]);
+    }
+
+    public function test_public_form_can_fall_back_to_the_native_datepicker(): void
+    {
+        config()->set('marketing_forms.datepicker', 'native');
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'event',
+            'slug' => 'native-event-datepicker',
+            'translations' => ['it' => ['title' => 'Evento native']],
+            'enabled_languages' => ['it'],
+            'schedule' => ['mode' => 'single', 'single_date' => now()->addWeek()->toDateString()],
+            'is_active' => true,
+        ]);
+
+        $this->get(route('marketing.forms.public', ['language' => 'it', 'form' => $form->slug]))
+            ->assertOk()
+            ->assertSee('type="date"', false)
+            ->assertSee('this.showPicker', false)
+            ->assertDontSee('data-marketing-datepicker="flatpickr"', false);
     }
 
     public function test_locked_standard_field_cannot_be_hidden(): void

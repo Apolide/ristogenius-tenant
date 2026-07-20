@@ -19702,6 +19702,20 @@ label{
 }
 
 /* End:: Terms & Conditions */
+
+/* Giorni prenotabili nei form marketing pubblici */
+.flatpickr-day.marketing-bookable-day:not(.selected) {
+  background-color: rgb(var(--primary) / 0.14);
+  border-color: rgb(var(--primary) / 0.22);
+  color: rgb(var(--primary));
+  font-weight: 600;
+}
+
+.flatpickr-day.marketing-bookable-day:not(.selected):hover,
+.flatpickr-day.marketing-bookable-day:not(.selected):focus {
+  background-color: rgb(var(--primary) / 0.24);
+  border-color: rgb(var(--primary) / 0.35);
+}
 /* Start:: Timeline */
 .timeline{
   position: relative;

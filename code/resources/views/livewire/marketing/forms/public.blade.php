@@ -89,13 +89,19 @@
                                     $eventMode = $eventSchedule['mode'] ?? null;
                                     $minimumDate = $eventMode === 'single' ? ($eventSchedule['single_date'] ?? now()->toDateString()) : ($eventMode === 'range' ? ($eventSchedule['range_start'] ?? now()->toDateString()) : now()->toDateString());
                                     $maximumDate = $eventMode === 'single' ? ($eventSchedule['single_date'] ?? null) : ($eventMode === 'range' ? ($eventSchedule['range_end'] ?? null) : null);
+                                    $enabledDates = match ($eventMode) {
+                                        'single' => array_values(array_filter([$eventSchedule['single_date'] ?? null])),
+                                        'dates' => array_values(array_filter($eventSchedule['dates'] ?? [])),
+                                        'range' => filled($eventSchedule['range_start'] ?? null) && filled($eventSchedule['range_end'] ?? null)
+                                            ? [['from' => $eventSchedule['range_start'], 'to' => $eventSchedule['range_end']]]
+                                            : [],
+                                        default => null,
+                                    };
                                 @endphp
-                                <input id="{{ $fieldId }}" type="date" wire:model.live="answers.date"
-                                       class="form-control cursor-pointer dark:[color-scheme:dark]"
-                                       onclick="if (this.showPicker) this.showPicker()"
-                                       min="{{ $minimumDate }}" @if($maximumDate) max="{{ $maximumDate }}" @endif @required($field->required)>
-                                @if ($eventMode === 'dates')
-                                    <p class="mt-1 text-xs text-textmuted">Date disponibili: {{ implode(', ', $eventSchedule['dates'] ?? []) }}</p>
+                                @if (config('marketing_forms.datepicker') === 'flatpickr')
+                                    @include('livewire.marketing.forms.partials.date-flatpickr')
+                                @else
+                                    @include('livewire.marketing.forms.partials.date-native')
                                 @endif
                             @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'guests')
                                 @php

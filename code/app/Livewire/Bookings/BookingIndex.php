@@ -117,7 +117,7 @@ class BookingIndex extends Component
     public function render(TenantSettingsService $settings, BookingService $bookingService)
     {
         $hours = $this->mealRange($settings);
-        $bookings = Booking::query()->with(['customer', 'tables.room'])->whereDate('booking_date', $this->date)
+        $bookings = Booking::query()->with(['customer', 'tables.room', 'eventFormSubmission.form'])->whereDate('booking_date', $this->date)
             ->when($this->meal !== 'all' && $hours, fn (Builder $q) => $q->whereTime('booking_time', '>=', $hours['start'])->whereTime('booking_time', '<', $hours['end']))
             ->when(! $this->showHistory, fn (Builder $q) => $q->whereNotIn('status', ['denied', 'canceled', 'no-show', 'finalized']))
             ->when(trim($this->search), fn (Builder $q) => $q->whereHas('customer', fn (Builder $c) => $c->where('display_name', 'like', '%'.$this->search.'%')->orWhere('firstname', 'like', '%'.$this->search.'%')->orWhere('lastname', 'like', '%'.$this->search.'%')))

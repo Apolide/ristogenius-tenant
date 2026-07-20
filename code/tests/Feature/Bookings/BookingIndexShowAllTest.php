@@ -5,6 +5,7 @@ namespace Tests\Feature\Bookings;
 use App\Livewire\Bookings\BookingIndex;
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Models\MarketingForm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -53,5 +54,46 @@ class BookingIndexShowAllTest extends TestCase
             ->assertSee('Pranzo Cliente')
             ->assertSee('Cena Cliente')
             ->assertSee('Storico Cliente');
+    }
+
+    public function test_event_booking_displays_event_badge_with_form_name_tooltip(): void
+    {
+        $date = now()->addWeek()->toDateString();
+        $customer = Customer::create([
+            'firstname' => 'Mario',
+            'lastname' => 'Rossi',
+            'display_name' => 'Mario Rossi',
+            'email' => 'event-booking@example.test',
+            'registration_source' => 'test',
+            'lang' => 'it',
+        ]);
+        $booking = Booking::create([
+            'customer_id' => $customer->id,
+            'booking_date' => $date,
+            'booking_time' => '20:30',
+            'pax' => 4,
+            'status' => 'accepted',
+            'source' => 'public-form',
+            'language' => 'it',
+        ]);
+        $form = MarketingForm::create([
+            'type' => 'event',
+            'slug' => 'festa-pugliese',
+            'translations' => ['it' => ['title' => 'Festa pugliese']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+        $form->submissions()->create([
+            'booking_id' => $booking->id,
+            'language' => 'it',
+            'field_snapshot' => [],
+            'payload' => [],
+        ]);
+
+        Livewire::test(BookingIndex::class)
+            ->set('date', $date)
+            ->set('meal', 'all')
+            ->assertSee(__('bookings.show.event'))
+            ->assertSeeHtml('title="Festa pugliese"');
     }
 }

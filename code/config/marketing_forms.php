@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'datepicker' => env('MARKETING_FORMS_DATEPICKER', 'flatpickr'),
     'field_types' => ['text', 'textarea', 'email', 'tel', 'number', 'date', 'time', 'checkbox', 'radio', 'select', 'file'],
     'blueprints' => [
         'booking' => [
