@@ -30,6 +30,9 @@ class FormEdit extends Component
     public function mount(): void
     {
         $this->translations = $this->form->translations;
+        foreach ($this->form->enabled_languages as $language) {
+            $this->translations[$language]['booking_policy'] ??= '';
+        }
         $storedSchedule = $this->form->schedule ?? [];
         $this->eventSchedule = array_replace([
             'mode' => 'single',
@@ -123,6 +126,9 @@ class FormEdit extends Component
         foreach ($this->form->enabled_languages as $language) {
             $rules["translations.{$language}.title"] = ['required', 'string', 'max:255'];
             $rules["translations.{$language}.description"] = ['nullable', 'string'];
+            if (in_array($this->form->type, ['booking', 'event'], true)) {
+                $rules["translations.{$language}.booking_policy"] = ['nullable', 'string'];
+            }
         }
 
         $this->validate($rules);

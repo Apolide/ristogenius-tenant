@@ -39,6 +39,11 @@
 
             @if ($submitted)
                 <div class="alert alert-success">Grazie, la richiesta è stata inviata correttamente.</div>
+                @if (in_array($form->type, ['booking', 'event'], true) && filled($form->translations[$language]['booking_policy'] ?? null))
+                    <div class="mt-4 rounded border border-defaultborder bg-defaultbackground p-4">
+                        {!! $form->translations[$language]['booking_policy'] !!}
+                    </div>
+                @endif
             @else
                 <form wire:submit="submit" class="space-y-5">
                     @foreach ($fields as $field)

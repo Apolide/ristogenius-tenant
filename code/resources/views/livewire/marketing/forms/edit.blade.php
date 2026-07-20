@@ -56,6 +56,14 @@
                             <textarea id="description_{{ $language }}" class="form-control">{{ $translations[$language]['description'] ?? '' }}</textarea>
                         </div>
                         @error('translations.'.$language.'.description') <span class="text-danger">{{ $message }}</span> @enderror
+                        @if (in_array($form->type, ['booking', 'event'], true))
+                            <div wire:ignore class="mt-4">
+                                <label class="block mb-2 font-medium" for="booking_policy_{{ $language }}">Booking policy</label>
+                                <p class="mb-2 text-xs text-textmuted">Questo testo verrà mostrato al cliente dopo l’invio della prenotazione.</p>
+                                <textarea id="booking_policy_{{ $language }}" class="form-control">{{ $translations[$language]['booking_policy'] ?? '' }}</textarea>
+                            </div>
+                            @error('translations.'.$language.'.booking_policy') <span class="text-danger">{{ $message }}</span> @enderror
+                        @endif
                     </section>
                 @endforeach
             </div>
@@ -89,11 +97,11 @@
                         </div>
                     @elseif (($eventSchedule['mode'] ?? '') === 'dates')
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between gap-3"><span class="font-medium">Giorni dell’evento</span><button type="button" wire:click="addEventDate" class="ti-btn ti-btn-light ti-btn-sm">Aggiungi giorno</button></div>
+                            <div class="flex items-center justify-between gap-3"><span class="font-medium">Giorni dell’evento</span><button type="button" wire:click="addEventDate" class="ti-btn ti-btn-light ti-btn-md">Aggiungi giorno</button></div>
                             @foreach (($eventSchedule['dates'] ?? []) as $index => $date)
                                 <div wire:key="event-date-{{ $index }}" class="flex items-start gap-2">
                                     <div class="grow"><input type="date" wire:model="eventSchedule.dates.{{ $index }}" min="{{ now()->toDateString() }}" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.dates.'.$index)<span class="text-danger">{{ $message }}</span>@enderror</div>
-                                    <button type="button" wire:click="removeEventDate({{ $index }})" class="ti-btn ti-btn-danger ti-btn-sm" aria-label="Rimuovi giorno">Rimuovi</button>
+                                    <button type="button" wire:click="removeEventDate({{ $index }})" class="ti-btn ti-btn-danger ti-btn-md" aria-label="Rimuovi giorno">Rimuovi</button>
                                 </div>
                             @endforeach
                         </div>
@@ -120,12 +128,12 @@
                         <div><label for="event-max-guests" class="block mb-2 font-medium">Numero massimo di persone per prenotazione</label><input id="event-max-guests" type="number" min="1" wire:model="eventSchedule.max_guests" class="form-control">@error('eventSchedule.max_guests')<span class="text-danger">{{ $message }}</span>@enderror</div>
                     </div>
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between gap-3"><div><div class="font-medium">Slot orari</div><p class="text-xs text-textmuted">La capienza indica il totale di persone prenotabili nello slot.</p></div><button type="button" wire:click="addEventSlot" class="ti-btn ti-btn-light ti-btn-sm">Aggiungi slot</button></div>
+                        <div class="flex items-center justify-between gap-3"><div><div class="font-medium">Slot orari</div><p class="text-xs text-textmuted">La capienza indica il totale di persone prenotabili nello slot.</p></div><button type="button" wire:click="addEventSlot" class="ti-btn ti-btn-light ti-btn-md">Aggiungi slot</button></div>
                         @foreach (($eventSchedule['slots'] ?? []) as $index => $slot)
                             <div wire:key="event-slot-{{ $index }}" class="grid items-start gap-3 rounded border border-defaultborder p-3 sm:grid-cols-[1fr_1fr_auto]">
                                 <div><label class="block mb-2 text-sm">Orario</label><input type="time" wire:model="eventSchedule.slots.{{ $index }}.time" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.slots.'.$index.'.time')<span class="text-danger">{{ $message }}</span>@enderror</div>
                                 <div><label class="block mb-2 text-sm">Capienza persone</label><input type="number" min="1" wire:model="eventSchedule.slots.{{ $index }}.capacity" class="form-control">@error('eventSchedule.slots.'.$index.'.capacity')<span class="text-danger">{{ $message }}</span>@enderror</div>
-                                <button type="button" wire:click="removeEventSlot({{ $index }})" class="ti-btn ti-btn-danger ti-btn-sm sm:mt-7" aria-label="Rimuovi slot">Rimuovi</button>
+                                <button type="button" wire:click="removeEventSlot({{ $index }})" class="ti-btn ti-btn-danger ti-btn-md sm:mt-7" aria-label="Rimuovi slot">Rimuovi</button>
                             </div>
                         @endforeach
                         @error('eventSchedule.slots') <span class="text-danger">{{ $message }}</span> @enderror
@@ -235,18 +243,25 @@
             console.error('TinyMCE non caricato');
         } else {
             const languages = @js($form->enabled_languages);
-
-            const syncDescription = (language, editor) => {
-                editor.save();
-                $wire.set(`translations.${language}.description`, editor.getContent(), false);
-            };
+            const editorFields = @js(in_array($form->type, ['booking', 'event'], true) ? ['description', 'booking_policy'] : ['description']);
+            const editorTargets = {};
 
             languages.forEach((language) => {
-                tinymce.init({
+                editorFields.forEach((field) => {
+                    editorTargets[`${field}_${language}`] = { language, field };
+                });
+            });
+
+            const syncContent = (language, field, editor) => {
+                editor.save();
+                $wire.set(`translations.${language}.${field}`, editor.getContent(), false);
+            };
+
+            tinymce.init({
                     license_key: 'gpl',
                     promotion: false,
                     entity_encoding: 'raw',
-                    selector: `#description_${language}`,
+                    selector: Object.keys(editorTargets).map((id) => `#${id}`).join(', '),
                     force_br_newlines: true,
                     force_p_newlines: false,
                     forced_root_block: 'p',
@@ -264,16 +279,17 @@
                         'alignright alignjustify | bullist numlist outdent indent | codesample | link image | table | code',
                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                     setup: function (editor) {
+                        const target = editorTargets[editor.id];
+
                         editor.on('init', function () {
                             editor.save();
                         });
 
                         editor.on('change input undo redo focusout', function () {
-                            syncDescription(language, editor);
+                            syncContent(target.language, target.field, editor);
                         });
                     },
                 });
-            });
         }
     </script>
     @endscript

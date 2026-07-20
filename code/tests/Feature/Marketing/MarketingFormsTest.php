@@ -204,6 +204,28 @@ class MarketingFormsTest extends TestCase
         $service->updateField($form, $form->fields->first()->id, ['visible' => false, 'required' => true]);
     }
 
+    public function test_booking_policy_is_editable_as_localized_rich_content(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'booking',
+            'slug' => 'booking-policy-form',
+            'translations' => ['it' => ['title' => 'Prenota', 'description' => '']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+
+        Livewire::test(FormEdit::class, ['form' => $form])
+            ->assertSeeHtml('id="booking_policy_it"')
+            ->set('translations.it.booking_policy', '<p><strong>Condizioni di prenotazione</strong></p>')
+            ->call('saveDetails')
+            ->assertHasNoErrors();
+
+        $this->assertSame(
+            '<p><strong>Condizioni di prenotazione</strong></p>',
+            $form->fresh()->translations['it']['booking_policy'],
+        );
+    }
+
     public function test_generic_form_can_have_custom_fields_and_notification_users(): void
     {
         $user = User::factory()->create();
@@ -249,7 +271,7 @@ class MarketingFormsTest extends TestCase
         $form = app(FormBlueprintService::class)->create([
             'type' => 'booking',
             'slug' => 'booking',
-            'translations' => ['it' => ['title' => 'Prenota', 'description' => 'Richiedi un tavolo']],
+            'translations' => ['it' => ['title' => 'Prenota', 'description' => 'Richiedi un tavolo', 'booking_policy' => '<p><strong>Presentarsi dieci minuti prima.</strong></p>']],
             'enabled_languages' => ['it'],
             'is_active' => true,
         ]);
@@ -273,7 +295,8 @@ class MarketingFormsTest extends TestCase
             ->set('answers.occasion', 'Compleanno')
             ->call('submit')
             ->assertHasNoErrors()
-            ->assertSet('submitted', true);
+            ->assertSet('submitted', true)
+            ->assertSeeHtml('<p><strong>Presentarsi dieci minuti prima.</strong></p>');
 
         $this->assertDatabaseHas('bookings', [
             'status' => 'pending',
