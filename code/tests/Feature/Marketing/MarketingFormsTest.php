@@ -239,8 +239,31 @@ class MarketingFormsTest extends TestCase
     public function test_public_form_validates_and_stores_submission(): void
     {
         $form = app(FormBlueprintService::class)->create(['type' => 'generic', 'slug' => 'catering', 'translations' => ['it' => ['title' => 'Catering']], 'enabled_languages' => ['it'], 'is_active' => true]);
-        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])->set('answers.name', 'Mario Rossi')->set('answers.email', 'mario@example.test')->set('answers.privacy_consent', true)->call('submit')->assertSet('submitted', true);
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->assertSee(route('privacy-policy', ['language' => 'it']))
+            ->set('answers.name', 'Mario Rossi')
+            ->set('answers.email', 'mario@example.test')
+            ->set('answers.privacy_consent', true)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertDontSee(route('privacy-policy', ['language' => 'it']));
         $this->assertDatabaseCount('marketing_form_submissions', 1);
+    }
+
+    public function test_public_form_hides_privacy_link_when_both_consent_fields_are_hidden(): void
+    {
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic',
+            'slug' => 'no-consent-link',
+            'translations' => ['it' => ['title' => 'Richiesta']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+        $form->fields()->whereIn('key', ['privacy_consent', 'marketing_consent'])->update(['visible' => false]);
+
+        $this->get(route('marketing.forms.public', ['language' => 'it', 'form' => $form->slug]))
+            ->assertOk()
+            ->assertDontSee(route('privacy-policy', ['language' => 'it']));
     }
 
     public function test_public_phone_field_uses_country_validation_and_stores_e164(): void

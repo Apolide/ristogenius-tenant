@@ -268,7 +268,7 @@
                     relative_urls: false,
                     remove_script_host: false,
                     convert_urls: true,
-                    height: 500,
+                    height: 300,
                     menubar: true,
                     valid_elements: "ins[*],div[class|data-embed|id|itemscope|itemtype|itemprop|content|meta],a[href|target|rel|class|id|itemprop],p[itemprop],br,b,i,u,strong,em,li,ul,ol,h2[class],h3[itemprop],h4,img[src|alt|class|width|height|itemprop|loading],table[border|cellspacing|cellpadding|class],thead[class],tbody[class],tr[class],th[scope|class|style|width],td[class|style],span[itemprop|class],meta[itemprop|content],iframe[width|height|loading|src|allow|allowfullscreen]",
                     invalid_elements: 'class,pre,id,dir,lang,script',

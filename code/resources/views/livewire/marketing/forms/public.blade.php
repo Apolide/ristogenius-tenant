@@ -151,7 +151,7 @@
                 </form>
             @endif
 
-            @if ($fields->contains(fn ($field) => in_array($field->key, ['privacy_consent', 'marketing_consent'], true)))
+            @if (! $submitted && $fields->contains(fn ($field) => in_array($field->key, ['privacy_consent', 'marketing_consent'], true)))
                 <div class="mt-6 border-t border-defaultborder pt-4 text-sm">
                     <a href="{{ route('privacy-policy', ['language' => $language]) }}"
                        target="_blank" rel="noopener noreferrer" class="text-primary underline">
