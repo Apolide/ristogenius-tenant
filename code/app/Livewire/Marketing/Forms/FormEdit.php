@@ -7,17 +7,12 @@ use App\Services\CustomerLanguageService;
 use App\Services\MarketingForms\FormBlueprintService;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class FormEdit extends Component
 {
-    use WithFileUploads;
-
     public MarketingForm $form;
 
     public array $translations = [];
-
-    public $image;
 
     public array $newField = ['key' => '', 'type' => 'text', 'label' => [], 'options' => [], 'required' => false, 'visible' => true];
 
@@ -122,7 +117,7 @@ class FormEdit extends Component
 
     public function saveDetails(): void
     {
-        $rules = ['translations' => ['required', 'array'], 'image' => ['nullable', 'image', 'max:5120']];
+        $rules = ['translations' => ['required', 'array']];
         foreach ($this->form->enabled_languages as $language) {
             $rules["translations.{$language}.title"] = ['required', 'string', 'max:255'];
             $rules["translations.{$language}.description"] = ['nullable', 'string'];
@@ -132,13 +127,8 @@ class FormEdit extends Component
         }
 
         $this->validate($rules);
-        $values = ['translations' => $this->translations];
-        if ($this->image) {
-            $values['image_path'] = $this->image->store('marketing-forms/images', 'public');
-        }
-        $this->form->update($values);
+        $this->form->update(['translations' => $this->translations]);
         $this->form->refresh();
-        $this->image = null;
         session()->flash('success', 'Dati del form aggiornati.');
     }
 

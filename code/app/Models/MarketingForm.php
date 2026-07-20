@@ -9,9 +9,9 @@ class MarketingForm extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['type', 'slug', 'translations', 'enabled_languages', 'schedule', 'image_path', 'is_active', 'accepts_coupons'];
+    protected $fillable = ['type', 'slug', 'translations', 'enabled_languages', 'schedule', 'image_path', 'style_settings', 'is_active', 'accepts_coupons'];
 
-    protected $casts = ['translations' => 'array', 'enabled_languages' => 'array', 'schedule' => 'array', 'is_active' => 'boolean', 'accepts_coupons' => 'boolean'];
+    protected $casts = ['translations' => 'array', 'enabled_languages' => 'array', 'schedule' => 'array', 'style_settings' => 'array', 'is_active' => 'boolean', 'accepts_coupons' => 'boolean'];
 
     public function fields()
     {

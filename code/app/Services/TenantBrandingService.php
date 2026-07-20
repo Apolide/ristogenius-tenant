@@ -19,6 +19,7 @@ class TenantBrandingService
         return [
             'name' => $profile->name ?: config('tenant.name', config('app.name')),
             'logo_url' => $logo ? $this->absoluteUrl($logo) : null,
+            'address' => $profile->address,
         ];
     }
 

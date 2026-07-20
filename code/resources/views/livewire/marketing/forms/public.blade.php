@@ -1,11 +1,11 @@
-<div>
-    <header class="box mb-6">
-        <div class="box-body flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
+<div class="tenant-public-form-page" style="{{ $formStyleVariables }}; @if($backgroundUrl) --tenant-form-background-image: url('{{ $backgroundUrl }}'); @endif">
+    <div class="tenant-public-form-overlay" aria-hidden="true"></div>
+    <header class="tenant-public-form-header">
+        <div class="flex h-full w-full items-center justify-between gap-3 px-4 sm:px-6">
+            <div class="flex min-w-0 items-center gap-3 overflow-hidden">
                 @if ($branding['logo_url'])
-                    <img src="{{ $branding['logo_url'] }}" alt="{{ $branding['name'] }}" class="max-h-16 max-w-52">
+                    <img src="{{ $branding['logo_url'] }}" alt="{{ $branding['name'] }}" class="tenant-public-form-logo">
                 @endif
-                <span class="text-xl font-semibold">{{ $branding['name'] }}</span>
             </div>
             @if (count($languages) > 1)
                 <div>
@@ -29,28 +29,26 @@
         </div>
     </header>
 
-    <section class="box">
-        @if ($form->image_path)
-            <img src="{{ Storage::disk('public')->url($form->image_path) }}" class="w-full max-h-80 object-cover" alt="{{ $form->translations[$language]['title'] }}">
-        @endif
-        <div class="box-body">
+    <div class="tenant-public-form-content">
+    <section class="tenant-public-form-card">
+        <div>
             <h1 class="text-2xl font-semibold">{{ $form->translations[$language]['title'] }}</h1>
-            <div class="my-4">{!! $form->translations[$language]['description'] ?? '' !!}</div>
+            <div class="tenant-public-form-rich-text my-4">{!! $form->translations[$language]['description'] ?? '' !!}</div>
 
             @if ($submitted)
                 <div class="alert alert-success">Grazie, la richiesta è stata inviata correttamente.</div>
                 @if (in_array($form->type, ['booking', 'event'], true) && filled($form->translations[$language]['booking_policy'] ?? null))
-                    <div class="mt-4 rounded border border-defaultborder bg-defaultbackground p-4">
+                    <div class="booking-policy tenant-public-form-rich-text mt-4 rounded border border-defaultborder bg-defaultbackground p-4">
                         {!! $form->translations[$language]['booking_policy'] !!}
                     </div>
                 @endif
             @else
-                <form wire:submit="submit" class="space-y-5">
+                <form wire:submit="submit" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     @foreach ($fields as $field)
                         @php
                             $fieldId = 'form-field-'.$field->id;
                         @endphp
-                        <div>
+                        <div class="{{ in_array($field->type, ['textarea'], true) ? 'lg:col-span-2' : '' }}">
                             <label for="{{ $fieldId }}" class="block mb-2 font-medium">
                                 {{ $field->label[$language] ?? $field->key }}
                                 @if ($field->required) <span class="text-danger" aria-hidden="true">*</span> @endif
@@ -142,7 +140,7 @@
                         </div>
                     @endforeach
 
-                    <div class="pt-3">
+                    <div class="pt-2 lg:col-span-2">
                         <button class="ti-btn ti-btn-primary-full" type="submit" wire:loading.attr="disabled" wire:target="submit">
                             <span wire:loading.remove wire:target="submit">Invia</span>
                             <span wire:loading wire:target="submit">Invio in corso…</span>
@@ -161,4 +159,17 @@
             @endif
         </div>
     </section>
+    </div>
+
+    <footer class="tenant-public-form-footer">
+        <div class="flex h-full w-full flex-col items-center justify-center gap-1 px-4 text-center text-xs sm:flex-row sm:justify-between sm:px-6 sm:text-left">
+            <span>
+                <strong>{{ $branding['name'] }}</strong>
+                @if ($branding['address'])
+                    <span aria-hidden="true"> · </span>{{ $branding['address'] }}
+                @endif
+            </span>
+            <a href="https://ristogenius.com" target="_blank" rel="noopener noreferrer">by <strong>RistoGenius</strong></a>
+        </div>
+    </footer>
 </div>

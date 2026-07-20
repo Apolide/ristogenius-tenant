@@ -4,9 +4,9 @@
 
 <div class="content">
     <div class="main-content">
-        <div class="flex justify-between mb-6">
+        <div class="flex flex-wrap justify-between gap-3 mb-6">
             <h5 class="page-title">{{ __('marketing_forms.edit') }}: {{ $form->title() }}</h5>
-            <a href="{{ route('marketing.forms.index') }}" class="ti-btn ti-btn-light">Torna alla lista</a>
+            <div class="flex gap-2"><a href="{{ route('marketing.forms.style', $form) }}" class="ti-btn ti-btn-primary">Personalizza stile</a><a href="{{ route('marketing.forms.index') }}" class="ti-btn ti-btn-light">Torna alla lista</a></div>
         </div>
 
         @if (session('success')) <div class="alert alert-success mb-5">{{ session('success') }}</div> @endif
@@ -16,18 +16,6 @@
         <form wire:submit="saveDetails" x-data="{ activeLanguage: '{{ $firstLanguage }}' }" class="box">
             <div class="box-header"><div class="box-title">Contenuto del form</div></div>
             <div class="box-body space-y-6">
-                <div>
-                    <label class="block mb-2 font-medium">Immagine</label>
-                    @if ($image)
-                        <img src="{{ $image->temporaryUrl() }}" class="w-48 h-32 object-cover rounded mb-3" alt="Anteprima nuova immagine">
-                    @elseif ($form->image_path)
-                        <img src="{{ Storage::disk('public')->url($form->image_path) }}" class="w-48 h-32 object-cover rounded mb-3" alt="Immagine del form">
-                    @endif
-                    <input type="file" wire:model="image" class="form-control" accept="image/jpeg,image/png,image/webp">
-                    <p class="text-xs text-textmuted mt-1">JPG, PNG o WebP, massimo 5 MB.</p>
-                    @error('image') <span class="text-danger">{{ $message }}</span> @enderror
-                </div>
-
                 <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                     <div role="tablist" aria-label="Lingue" class="--prevent-on-load-init flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
                         @foreach ($form->enabled_languages as $language)
@@ -270,8 +258,11 @@
                     convert_urls: true,
                     height: 300,
                     menubar: true,
-                    valid_elements: "ins[*],div[class|data-embed|id|itemscope|itemtype|itemprop|content|meta],a[href|target|rel|class|id|itemprop],p[itemprop],br,b,i,u,strong,em,li,ul,ol,h2[class],h3[itemprop],h4,img[src|alt|class|width|height|itemprop|loading],table[border|cellspacing|cellpadding|class],thead[class],tbody[class],tr[class],th[scope|class|style|width],td[class|style],span[itemprop|class],meta[itemprop|content],iframe[width|height|loading|src|allow|allowfullscreen]",
-                    invalid_elements: 'class,pre,id,dir,lang,script',
+                    valid_elements: "ins[*],div[class|data-embed|id|itemscope|itemtype|itemprop|content|meta|style],a[href|target|rel|class|id|itemprop|style],p[itemprop|style],br,b,i,u,strong,em,li[style],ul[style],ol[style],h2[class|style],h3[itemprop|style],h4[style],img[src|alt|class|width|height|itemprop|loading],table[border|cellspacing|cellpadding|class],thead[class],tbody[class],tr[class],th[scope|class|style|width],td[class|style],span[itemprop|class|style],meta[itemprop|content],iframe[width|height|loading|src|allow|allowfullscreen]",
+                    valid_styles: {
+                        '*': 'color,background-color,text-align',
+                    },
+                    invalid_elements: 'script,style,object,embed',
                     allow_unsafe_link_target: true,
                     plugins: 'advlist anchor charmap code codesample fullscreen image insertdatetime link lists preview searchreplace table visualblocks wordcount',
                     toolbar: 'undo redo | formatselect | ' +

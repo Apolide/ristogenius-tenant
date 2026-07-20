@@ -19707,6 +19707,43 @@ label{
 }
 
 /* End:: Terms & Conditions */
+/* Start:: Public marketing form theme */
+.tenant-public-form-page {
+  min-height: 100vh;
+  color: var(--tenant-form-text);
+  background-color: var(--tenant-form-page-background);
+  background-image: var(--tenant-form-background-image, none);
+  background-position: var(--tenant-form-background-position);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.tenant-public-form-overlay { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-color: rgb(0 0 0 / calc(var(--tenant-form-background-overlay) * 1%)); }
+.tenant-public-form-header, .tenant-public-form-footer { position: fixed; inset-inline: 0; z-index: 30; box-shadow: 0 1px 8px rgb(0 0 0 / 0.08); }
+.tenant-public-form-header { top: 0; height: var(--tenant-form-header-height); color: var(--tenant-form-header-text); background-color: var(--tenant-form-header-background); }
+.tenant-public-form-logo { display: block; flex: 0 1 auto; width: auto !important; height: auto !important; max-width: 11rem !important; max-height: calc(var(--tenant-form-header-height) - 1rem) !important; object-fit: contain; }
+.tenant-public-form-footer { bottom: 0; height: var(--tenant-form-footer-height); color: var(--tenant-form-footer-text); background-color: var(--tenant-form-footer-background); }
+.tenant-public-form-content { position: relative; z-index: 10; width: 100%; min-height: 100vh; padding: calc(var(--tenant-form-header-height) + 1.25rem) 1rem calc(var(--tenant-form-footer-height) + 1.25rem); }
+.tenant-public-form-card { width: 100%; max-width: var(--tenant-form-content-max-width); margin-inline: auto; padding: 1.25rem; border-radius: var(--tenant-form-form-radius); background-color: var(--tenant-form-form-background); box-shadow: 0 12px 35px rgb(0 0 0 / 0.14); }
+.tenant-public-form-card h1, .tenant-public-form-card h2, .tenant-public-form-card h3, .tenant-public-form-card h4 { color: var(--tenant-form-heading); }
+.tenant-public-form-card label { color: var(--tenant-form-label); }
+.tenant-public-form-page a { color: var(--tenant-form-link); text-decoration: underline; }
+.tenant-public-form-card input:not([type="checkbox"]):not([type="radio"]), .tenant-public-form-card textarea, .tenant-public-form-card select { color: var(--tenant-form-input-text); border-color: var(--tenant-form-input-border); background-color: var(--tenant-form-input-background); }
+.tenant-public-form-card input[type="checkbox"], .tenant-public-form-card input[type="radio"] { color: var(--tenant-form-control-accent); accent-color: var(--tenant-form-control-accent); }
+.tenant-public-form-card input[type="date"]::-webkit-calendar-picker-indicator, .tenant-public-form-card input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.8; }
+.tenant-public-form-card button[type="submit"] { color: var(--tenant-form-button-text); background-color: var(--tenant-form-button-background); }
+.tenant-public-form-card .tenant-public-form-rich-text ul { list-style: disc outside; padding-inline-start: 1.5rem; }
+.tenant-public-form-card .tenant-public-form-rich-text ol { list-style: decimal outside; padding-inline-start: 1.5rem; }
+.tenant-public-form-card .tenant-public-form-rich-text ul ul { list-style-type: circle; }
+.tenant-public-form-card .tenant-public-form-rich-text ol ol { list-style-type: lower-alpha; }
+.tenant-public-form-card .tenant-public-form-rich-text li { display: list-item; margin-block: 0.35rem; }
+.tenant-public-form-card .tenant-public-form-rich-text a { color: var(--tenant-form-link); font-weight: 500; text-decoration: underline; }
+@media (max-width: 639px) {
+  .tenant-public-form-footer { height: calc(var(--tenant-form-footer-height) + 1rem); }
+  .tenant-public-form-content { padding: calc(var(--tenant-form-header-height) + 0.75rem) 0.75rem calc(var(--tenant-form-footer-height) + 1.75rem); }
+  .tenant-public-form-card { padding: 1rem; }
+}
+/* End:: Public marketing form theme */
 
 /* Giorni prenotabili nei form marketing pubblici */
 .flatpickr-day.marketing-bookable-day:not(.selected) {

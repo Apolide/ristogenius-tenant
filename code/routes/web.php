@@ -17,6 +17,7 @@ use App\Livewire\Customers\CustomerShow;
 use App\Livewire\Marketing\Forms\FormCreate as MarketingFormCreate;
 use App\Livewire\Marketing\Forms\FormEdit as MarketingFormEdit;
 use App\Livewire\Marketing\Forms\FormIndex as MarketingFormIndex;
+use App\Livewire\Marketing\Forms\FormStyleEdit as MarketingFormStyleEdit;
 use App\Livewire\Marketing\Forms\PublicForm as MarketingPublicForm;
 use App\Livewire\Marketing\Forms\SubmissionIndex as MarketingSubmissionIndex;
 use App\Livewire\Personnel\PersonnelCreate;
@@ -108,6 +109,7 @@ Route::domain(env('DOMAIN'))->group(function () {
                 Route::get('/create', MarketingFormCreate::class)->name('create');
                 Route::get('/responses', MarketingSubmissionIndex::class)->name('submissions');
                 Route::get('/{form}/edit', MarketingFormEdit::class)->name('edit');
+                Route::get('/{form}/edit/style', MarketingFormStyleEdit::class)->name('style');
             });
         });
 

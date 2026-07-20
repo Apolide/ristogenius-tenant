@@ -4,6 +4,7 @@ namespace Tests\Feature\Marketing;
 
 use App\Livewire\Marketing\Forms\FormCreate;
 use App\Livewire\Marketing\Forms\FormEdit;
+use App\Livewire\Marketing\Forms\FormStyleEdit;
 use App\Livewire\Marketing\Forms\PublicForm;
 use App\Models\Booking;
 use App\Models\Customer;
@@ -15,6 +16,9 @@ use Database\Seeders\CateringOrderFormSeeder;
 use Database\Seeders\JobApplicationFormSeeder;
 use Database\Seeders\MarketingBookingFormSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Permission;
@@ -55,6 +59,44 @@ class MarketingFormsTest extends TestCase
             ->assertSeeHtml("x-show=\"activeLanguage === 'it'\"")
             ->assertSeeHtml("x-show=\"activeLanguage === 'en'\"")
             ->assertSeeHtml("x-show=\"activeLanguage === 'de'\"");
+    }
+
+    public function test_form_style_can_override_tenant_defaults_and_validates_background_dimensions(): void
+    {
+        Storage::fake('local');
+        config()->set('tenant.slug', 'ristorante-test');
+        File::deleteDirectory(public_path('marketing-assets/ristorante-test'));
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'generic', 'slug' => 'styled-form',
+            'translations' => ['it' => ['title' => 'Form stilato']],
+            'enabled_languages' => ['it'], 'is_active' => true,
+        ]);
+
+        Livewire::test(FormStyleEdit::class, ['form' => $form])
+            ->set('style.link', '#ff0000')
+            ->set('style.background_overlay', 45)
+            ->set('backgroundImage', UploadedFile::fake()->image('small.jpg', 800, 600))
+            ->call('save')
+            ->assertHasErrors(['backgroundImage'])
+            ->set('backgroundImage', UploadedFile::fake()->image('background.jpg', 1920, 1080))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $form->refresh();
+        $this->assertSame('#ff0000', $form->style_settings['link']);
+        $this->assertSame(45, $form->style_settings['background_overlay']);
+        Storage::disk('local')->assertExists($form->image_path);
+        $publicBackground = public_path("marketing-assets/ristorante-test/forms/{$form->id}/background.jpg");
+        $this->assertFileExists($publicBackground);
+
+        $this->get(route('marketing.forms.public', ['language' => 'it', 'form' => $form->slug]))
+            ->assertOk()
+            ->assertSee('--tenant-form-link: #ff0000', false)
+            ->assertSee("/marketing-assets/ristorante-test/forms/{$form->id}/background.jpg", false)
+            ->assertSee('tenant-public-form-header', false)
+            ->assertSee('tenant-public-form-footer', false);
+
+        File::deleteDirectory(public_path('marketing-assets/ristorante-test'));
     }
 
     public function test_event_form_schedule_can_define_dates_guest_limits_and_slot_capacity(): void

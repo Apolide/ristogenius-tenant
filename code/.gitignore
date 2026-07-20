@@ -2,6 +2,7 @@
 /node_modules
 /public/hot
 /public/storage
+/public/marketing-assets
 /storage/*.key
 /storage/data/*.sqlite3
 /storage/data/*.sqlite

@@ -7,6 +7,8 @@ use App\Rules\ValidPhoneNumber;
 use App\Services\BookingService;
 use App\Services\CustomerLanguageService;
 use App\Services\MarketingForms\EventScheduleService;
+use App\Services\MarketingForms\FormPublicAssetService;
+use App\Services\MarketingForms\FormStyleService;
 use App\Services\MarketingForms\PublicFormSubmissionService;
 use App\Services\PhoneCountryService;
 use App\Services\PhoneNumberService;
@@ -117,7 +119,7 @@ class PublicForm extends Component
         $this->answers = [];
     }
 
-    public function render(TenantBrandingService $branding, CustomerLanguageService $languages)
+    public function render(TenantBrandingService $branding, CustomerLanguageService $languages, FormStyleService $styles, FormPublicAssetService $assets)
     {
         app()->setLocale($this->language);
 
@@ -127,7 +129,10 @@ class PublicForm extends Component
             'languages' => collect($languages->enabled())->only($this->form->enabled_languages)->all(),
             'bookingSlots' => $this->bookingSlots(),
             'countries' => app(PhoneCountryService::class)->countries(),
-        ])->layout('layouts.customer-booking', ['title' => $this->form->translations[$this->language]['title']]);
+            'formStyle' => $styles->for($this->form),
+            'formStyleVariables' => $styles->cssVariables($styles->for($this->form)),
+            'backgroundUrl' => $assets->backgroundUrl($this->form),
+        ])->layout('layouts.customer-booking', ['title' => $this->form->translations[$this->language]['title'], 'fullWidth' => true]);
     }
 
     private function bookingSlots(): array
