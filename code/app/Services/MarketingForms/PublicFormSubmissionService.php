@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class PublicFormSubmissionService
 {
-    public function __construct(private BookingService $bookings) {}
+    public function __construct(private BookingService $bookings, private EventScheduleService $eventSchedules) {}
 
     public function submit(MarketingForm $form, array $payload, string $language): Booking|\App\Models\MarketingFormSubmission
     {
@@ -24,7 +24,11 @@ class PublicFormSubmissionService
         }
 
         return DB::transaction(function () use ($form, $payload, $language): Booking {
-            $this->bookings->ensureCapacity($payload['date'], $payload['time'], (int) $payload['guests']);
+            if ($form->type === 'event' && ($form->schedule['mode'] ?? null) !== 'standard') {
+                $this->eventSchedules->ensureAvailable($form, $payload['date'], $payload['time'], (int) $payload['guests']);
+            } else {
+                $this->bookings->ensureCapacity($payload['date'], $payload['time'], (int) $payload['guests']);
+            }
             $customer = $this->customer($payload, $language);
 
             $booking = Booking::create([

@@ -62,6 +62,83 @@
             <div class="box-footer"><button type="submit" class="ti-btn ti-btn-success">Salva contenuto</button></div>
         </form>
 
+        @if ($form->type === 'event')
+            <form wire:submit="saveEventSchedule" class="box">
+                <div class="box-header"><div class="box-title">Disponibilità prenotazione evento</div></div>
+                <div class="box-body space-y-6">
+                    <div>
+                        <label for="event-mode" class="block mb-2 font-medium">Date disponibili</label>
+                        <select id="event-mode" wire:model.live="eventSchedule.mode" class="form-control">
+                            <option value="standard">Disponibilità standard configurata nelle Impostazioni</option>
+                            <option value="single">Un singolo giorno</option>
+                            <option value="dates">Più giorni specifici</option>
+                            <option value="range">Intervallo di giorni</option>
+                        </select>
+                        @error('eventSchedule.mode') <span class="text-danger">{{ $message }}</span> @enderror
+                    </div>
+
+                    @if (($eventSchedule['mode'] ?? 'single') === 'standard')
+                        <div class="alert alert-info">
+                            Il form utilizzerà automaticamente i giorni di apertura, gli orari e la capienza per slot configurati nelle Impostazioni delle prenotazioni.
+                        </div>
+                    @elseif (($eventSchedule['mode'] ?? 'single') === 'single')
+                        <div>
+                            <label for="event-single-date" class="block mb-2 font-medium">Giorno dell’evento</label>
+                            <input id="event-single-date" type="date" wire:model="eventSchedule.single_date" min="{{ now()->toDateString() }}" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">
+                            @error('eventSchedule.single_date') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+                    @elseif (($eventSchedule['mode'] ?? '') === 'dates')
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-3"><span class="font-medium">Giorni dell’evento</span><button type="button" wire:click="addEventDate" class="ti-btn ti-btn-light ti-btn-sm">Aggiungi giorno</button></div>
+                            @foreach (($eventSchedule['dates'] ?? []) as $index => $date)
+                                <div wire:key="event-date-{{ $index }}" class="flex items-start gap-2">
+                                    <div class="grow"><input type="date" wire:model="eventSchedule.dates.{{ $index }}" min="{{ now()->toDateString() }}" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.dates.'.$index)<span class="text-danger">{{ $message }}</span>@enderror</div>
+                                    <button type="button" wire:click="removeEventDate({{ $index }})" class="ti-btn ti-btn-danger ti-btn-sm" aria-label="Rimuovi giorno">Rimuovi</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div><label for="event-range-start" class="block mb-2 font-medium">Dal giorno</label><input id="event-range-start" type="date" wire:model="eventSchedule.range_start" min="{{ now()->toDateString() }}" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.range_start')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                            <div><label for="event-range-end" class="block mb-2 font-medium">Al giorno</label><input id="event-range-end" type="date" wire:model="eventSchedule.range_end" min="{{ $eventSchedule['range_start'] ?: now()->toDateString() }}" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.range_end')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                        </div>
+                    @endif
+
+                    @if (($eventSchedule['mode'] ?? 'single') !== 'standard')
+                    <div>
+                        <label for="event-slot-mode" class="block mb-2 font-medium">Gestione degli slot orari</label>
+                        <select id="event-slot-mode" wire:model.live="eventSchedule.slot_mode" class="form-control">
+                            <option value="standard">Usa gli slot standard configurati nelle Impostazioni</option>
+                            <option value="custom">Usa slot personalizzati per questo evento</option>
+                        </select>
+                        @error('eventSchedule.slot_mode') <span class="text-danger">{{ $message }}</span> @enderror
+                    </div>
+
+                    @if (($eventSchedule['slot_mode'] ?? 'standard') === 'custom')
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div><label for="event-min-guests" class="block mb-2 font-medium">Numero minimo di persone</label><input id="event-min-guests" type="number" min="1" wire:model="eventSchedule.min_guests" class="form-control">@error('eventSchedule.min_guests')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                        <div><label for="event-max-guests" class="block mb-2 font-medium">Numero massimo di persone per prenotazione</label><input id="event-max-guests" type="number" min="1" wire:model="eventSchedule.max_guests" class="form-control">@error('eventSchedule.max_guests')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-3"><div><div class="font-medium">Slot orari</div><p class="text-xs text-textmuted">La capienza indica il totale di persone prenotabili nello slot.</p></div><button type="button" wire:click="addEventSlot" class="ti-btn ti-btn-light ti-btn-sm">Aggiungi slot</button></div>
+                        @foreach (($eventSchedule['slots'] ?? []) as $index => $slot)
+                            <div wire:key="event-slot-{{ $index }}" class="grid items-start gap-3 rounded border border-defaultborder p-3 sm:grid-cols-[1fr_1fr_auto]">
+                                <div><label class="block mb-2 text-sm">Orario</label><input type="time" wire:model="eventSchedule.slots.{{ $index }}.time" class="form-control cursor-pointer dark:[color-scheme:dark]" onclick="if (this.showPicker) this.showPicker()">@error('eventSchedule.slots.'.$index.'.time')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                                <div><label class="block mb-2 text-sm">Capienza persone</label><input type="number" min="1" wire:model="eventSchedule.slots.{{ $index }}.capacity" class="form-control">@error('eventSchedule.slots.'.$index.'.capacity')<span class="text-danger">{{ $message }}</span>@enderror</div>
+                                <button type="button" wire:click="removeEventSlot({{ $index }})" class="ti-btn ti-btn-danger ti-btn-sm sm:mt-7" aria-label="Rimuovi slot">Rimuovi</button>
+                            </div>
+                        @endforeach
+                        @error('eventSchedule.slots') <span class="text-danger">{{ $message }}</span> @enderror
+                    </div>
+                    @else
+                        <div class="alert alert-info">Per le date selezionate verranno utilizzati gli orari e la capienza per slot configurati nelle Impostazioni delle prenotazioni.</div>
+                    @endif
+                    @endif
+                </div>
+                <div class="box-footer"><button type="submit" class="ti-btn ti-btn-success">Salva disponibilità evento</button></div>
+            </form>
+        @endif
+
         <div class="box">
             <div class="box-header"><div class="box-title">Campi Base</div></div>
             <div class="box-body">

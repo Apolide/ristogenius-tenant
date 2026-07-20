@@ -5,6 +5,7 @@ namespace App\Livewire\Marketing\Forms;
 use App\Models\MarketingForm;
 use App\Services\BookingService;
 use App\Services\CustomerLanguageService;
+use App\Services\MarketingForms\EventScheduleService;
 use App\Services\MarketingForms\PublicFormSubmissionService;
 use App\Services\TenantBrandingService;
 use Illuminate\Validation\Rule;
@@ -75,8 +76,8 @@ class PublicForm extends Component
             }
             $typeRules = match ($f->type) {
                 'email' => ['email'],
-                'number' => ['integer', 'min:1'],
-                'date' => $f->key === 'date' ? ['date', 'after_or_equal:today'] : ['date'],
+                'number' => $this->numberRules($f->key),
+                'date' => $this->dateRules($f->key),
                 'time' => in_array($this->form->type, ['booking', 'event'], true)
                     ? ['date_format:H:i', Rule::in(array_keys($bookingSlots))]
                     : ['date_format:H:i'],
@@ -117,9 +118,51 @@ class PublicForm extends Component
             return [];
         }
 
+        if ($this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
+            return app(EventScheduleService::class)->availableSlots(
+                $this->form,
+                (string) ($this->answers['date'] ?? ''),
+                (int) ($this->answers['guests'] ?? 1),
+            );
+        }
+
         return app(BookingService::class)->availableSlots(
             (string) ($this->answers['date'] ?? ''),
             (int) ($this->answers['guests'] ?? 1),
         );
+    }
+
+    private function dateRules(string $key): array
+    {
+        $rules = $key === 'date' ? ['date', 'after_or_equal:today'] : ['date'];
+        if ($key === 'date' && $this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
+            $rules[] = function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! app(EventScheduleService::class)->dateIsAvailable($this->form, (string) $value)) {
+                    $fail('La data selezionata non è disponibile per questo evento.');
+                }
+            };
+        }
+
+        return $rules;
+    }
+
+    private function numberRules(string $key): array
+    {
+        if ($key !== 'guests' || $this->form->type !== 'event' || ! $this->eventUsesCustomSlots()) {
+            return ['integer', 'min:1'];
+        }
+
+        $minimum = max(1, (int) ($this->form->schedule['min_guests'] ?? 1));
+        $maximum = max($minimum, (int) ($this->form->schedule['max_guests'] ?? $minimum));
+
+        return ['integer', "between:{$minimum},{$maximum}"];
+    }
+
+    private function eventUsesCustomSlots(): bool
+    {
+        $schedule = $this->form->schedule ?? [];
+
+        return ($schedule['mode'] ?? null) !== 'standard'
+            && ($schedule['slot_mode'] ?? (array_key_exists('slots', $schedule) ? 'custom' : 'standard')) === 'custom';
     }
 }

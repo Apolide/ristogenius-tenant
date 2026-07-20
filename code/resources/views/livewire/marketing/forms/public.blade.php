@@ -42,7 +42,9 @@
             @else
                 <form wire:submit="submit" class="space-y-5">
                     @foreach ($fields as $field)
-                        @php($fieldId = 'form-field-'.$field->id)
+                        @php
+                            $fieldId = 'form-field-'.$field->id;
+                        @endphp
                         <div>
                             <label for="{{ $fieldId }}" class="block mb-2 font-medium">
                                 {{ $field->label[$language] ?? $field->key }}
@@ -82,13 +84,31 @@
                                     @endforeach
                                 </select>
                             @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'date')
+                                @php
+                                    $eventSchedule = $form->type === 'event' ? ($form->schedule ?? []) : [];
+                                    $eventMode = $eventSchedule['mode'] ?? null;
+                                    $minimumDate = $eventMode === 'single' ? ($eventSchedule['single_date'] ?? now()->toDateString()) : ($eventMode === 'range' ? ($eventSchedule['range_start'] ?? now()->toDateString()) : now()->toDateString());
+                                    $maximumDate = $eventMode === 'single' ? ($eventSchedule['single_date'] ?? null) : ($eventMode === 'range' ? ($eventSchedule['range_end'] ?? null) : null);
+                                @endphp
                                 <input id="{{ $fieldId }}" type="date" wire:model.live="answers.date"
                                        class="form-control cursor-pointer dark:[color-scheme:dark]"
                                        onclick="if (this.showPicker) this.showPicker()"
-                                       min="{{ now()->toDateString() }}" @required($field->required)>
+                                       min="{{ $minimumDate }}" @if($maximumDate) max="{{ $maximumDate }}" @endif @required($field->required)>
+                                @if ($eventMode === 'dates')
+                                    <p class="mt-1 text-xs text-textmuted">Date disponibili: {{ implode(', ', $eventSchedule['dates'] ?? []) }}</p>
+                                @endif
                             @elseif (in_array($form->type, ['booking', 'event'], true) && $field->key === 'guests')
+                                @php
+                                    $guestSchedule = $form->schedule ?? [];
+                                    $customEventSlots = $form->type === 'event'
+                                        && ($guestSchedule['mode'] ?? null) !== 'standard'
+                                        && ($guestSchedule['slot_mode'] ?? (array_key_exists('slots', $guestSchedule) ? 'custom' : 'standard')) === 'custom';
+                                @endphp
                                 <input id="{{ $fieldId }}" type="number" wire:model.live.debounce.300ms="answers.guests"
-                                       class="form-control" min="1" @required($field->required)>
+                                       class="form-control"
+                                       min="{{ $customEventSlots ? max(1, (int) ($guestSchedule['min_guests'] ?? 1)) : 1 }}"
+                                       @if($customEventSlots) max="{{ max(1, (int) ($guestSchedule['max_guests'] ?? 1)) }}" @endif
+                                       @required($field->required)>
                             @else
                                 <input id="{{ $fieldId }}"
                                        type="{{ in_array($field->type, ['email', 'number', 'date', 'time', 'tel'], true) ? $field->type : 'text' }}"

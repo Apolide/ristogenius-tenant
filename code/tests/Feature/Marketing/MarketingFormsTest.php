@@ -3,6 +3,7 @@
 namespace Tests\Feature\Marketing;
 
 use App\Livewire\Marketing\Forms\FormCreate;
+use App\Livewire\Marketing\Forms\FormEdit;
 use App\Livewire\Marketing\Forms\PublicForm;
 use App\Models\Booking;
 use App\Models\Customer;
@@ -54,6 +55,109 @@ class MarketingFormsTest extends TestCase
             ->assertSeeHtml("x-show=\"activeLanguage === 'it'\"")
             ->assertSeeHtml("x-show=\"activeLanguage === 'en'\"")
             ->assertSeeHtml("x-show=\"activeLanguage === 'de'\"");
+    }
+
+    public function test_event_form_schedule_can_define_dates_guest_limits_and_slot_capacity(): void
+    {
+        $date = now()->addWeek()->toDateString();
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'event',
+            'slug' => 'special-event',
+            'translations' => ['it' => ['title' => 'Evento speciale']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+
+        Livewire::test(FormEdit::class, ['form' => $form])
+            ->set('eventSchedule.mode', 'dates')
+            ->set('eventSchedule.slot_mode', 'custom')
+            ->set('eventSchedule.dates', [$date])
+            ->set('eventSchedule.min_guests', 2)
+            ->set('eventSchedule.max_guests', 6)
+            ->set('eventSchedule.slots', [['time' => '20:30', 'capacity' => 8]])
+            ->call('saveEventSchedule')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('marketing_forms', ['id' => $form->id]);
+        $this->assertSame([
+            'mode' => 'dates',
+            'slot_mode' => 'custom',
+            'single_date' => '',
+            'dates' => [$date],
+            'range_start' => '',
+            'range_end' => '',
+            'min_guests' => 2,
+            'max_guests' => 6,
+            'slots' => [['time' => '20:30', 'capacity' => 8]],
+        ], $form->fresh()->schedule);
+
+        Livewire::test(PublicForm::class, ['form' => $form->fresh(), 'language' => 'it'])
+            ->set('answers.date', $date)
+            ->set('answers.guests', 2)
+            ->assertSeeHtml('<option value="20:30">20:30</option>');
+    }
+
+    public function test_event_form_can_use_standard_booking_availability(): void
+    {
+        $date = now()->addWeek()->toDateString();
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'event',
+            'slug' => 'standard-event',
+            'translations' => ['it' => ['title' => 'Evento con orari standard']],
+            'enabled_languages' => ['it'],
+            'is_active' => true,
+        ]);
+
+        Livewire::test(FormEdit::class, ['form' => $form])
+            ->set('eventSchedule.mode', 'standard')
+            ->call('saveEventSchedule')
+            ->assertHasNoErrors();
+
+        $this->assertSame('standard', $form->fresh()->schedule['mode']);
+
+        $this->mock(\App\Services\BookingService::class, function ($mock): void {
+            $mock->shouldReceive('availableSlots')->zeroOrMoreTimes()->andReturn([
+                '20:30' => ['label' => '20:30', 'meal' => 'cena'],
+            ]);
+        });
+
+        Livewire::test(PublicForm::class, ['form' => $form->fresh(), 'language' => 'it'])
+            ->set('answers.date', $date)
+            ->set('answers.guests', 2)
+            ->assertSeeHtml('<option value="20:30">20:30</option>');
+    }
+
+    public function test_event_with_custom_dates_uses_standard_slots_by_default(): void
+    {
+        $date = now()->addWeek()->toDateString();
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'event',
+            'slug' => 'custom-date-standard-slots',
+            'translations' => ['it' => ['title' => 'Evento']],
+            'enabled_languages' => ['it'],
+            'schedule' => [
+                'mode' => 'dates',
+                'slot_mode' => 'standard',
+                'dates' => [$date],
+                'min_guests' => 1,
+                'max_guests' => 10,
+            ],
+            'is_active' => true,
+        ]);
+
+        $this->mock(\App\Services\BookingService::class, function ($mock): void {
+            $mock->shouldReceive('availableSlots')->zeroOrMoreTimes()->andReturn([
+                '19:30' => ['label' => '19:30', 'meal' => 'cena'],
+            ]);
+        });
+
+        Livewire::test(PublicForm::class, ['form' => $form, 'language' => 'it'])
+            ->set('answers.date', $date)
+            ->set('answers.guests', 2)
+            ->assertSeeHtml('<option value="19:30">19:30</option>')
+            ->assertDontSeeHtml('max="10"')
+            ->set('answers.date', now()->addWeeks(2)->toDateString())
+            ->assertDontSeeHtml('<option value="19:30">19:30</option>');
     }
 
     public function test_locked_standard_field_cannot_be_hidden(): void

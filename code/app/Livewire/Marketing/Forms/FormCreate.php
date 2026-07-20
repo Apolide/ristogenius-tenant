@@ -45,6 +45,9 @@ class FormCreate extends Component
             $rules['translations.'.$code.'.title'] = ['required', 'string', 'max:255'];
             $rules['translations.'.$code.'.description'] = ['nullable', 'string'];
         }
+        if ($this->type === 'event') {
+            $rules['event_mode'] = ['required', 'in:standard,single,dates,range'];
+        }
         $this->validate($rules);
         $title = $this->translations[$enabled[0]]['title'];
         $form = $blueprints->create(['type' => $this->type, 'slug' => Str::slug($title).'-'.Str::lower(Str::random(6)), 'translations' => array_intersect_key($this->translations, array_flip($enabled)), 'enabled_languages' => $enabled, 'schedule' => $this->type === 'event' ? ($this->schedule + ['mode' => $this->event_mode]) : null, 'is_active' => $this->is_active, 'accepts_coupons' => $this->accepts_coupons, 'notify_user_ids' => $this->notify_user_ids]);

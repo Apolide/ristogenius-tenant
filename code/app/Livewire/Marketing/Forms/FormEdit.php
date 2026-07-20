@@ -25,9 +25,96 @@ class FormEdit extends Component
 
     public array $editField = [];
 
+    public array $eventSchedule = [];
+
     public function mount(): void
     {
         $this->translations = $this->form->translations;
+        $storedSchedule = $this->form->schedule ?? [];
+        $this->eventSchedule = array_replace([
+            'mode' => 'single',
+            'slot_mode' => array_key_exists('slots', $storedSchedule) ? 'custom' : 'standard',
+            'single_date' => '',
+            'dates' => [''],
+            'range_start' => '',
+            'range_end' => '',
+            'min_guests' => 1,
+            'max_guests' => 1,
+            'slots' => [['time' => '', 'capacity' => 1]],
+        ], $storedSchedule);
+    }
+
+    public function addEventDate(): void
+    {
+        $this->eventSchedule['dates'][] = '';
+    }
+
+    public function removeEventDate(int $index): void
+    {
+        unset($this->eventSchedule['dates'][$index]);
+        $this->eventSchedule['dates'] = array_values($this->eventSchedule['dates']);
+    }
+
+    public function addEventSlot(): void
+    {
+        $this->eventSchedule['slots'][] = ['time' => '', 'capacity' => max(1, (int) ($this->eventSchedule['max_guests'] ?? 1))];
+    }
+
+    public function removeEventSlot(int $index): void
+    {
+        unset($this->eventSchedule['slots'][$index]);
+        $this->eventSchedule['slots'] = array_values($this->eventSchedule['slots']);
+    }
+
+    public function saveEventSchedule(): void
+    {
+        abort_unless($this->form->type === 'event', 404);
+
+        $rules = ['eventSchedule.mode' => ['required', Rule::in(['standard', 'single', 'dates', 'range'])]];
+
+        if (($this->eventSchedule['mode'] ?? null) !== 'standard') {
+            $rules['eventSchedule.slot_mode'] = ['required', Rule::in(['standard', 'custom'])];
+            if (($this->eventSchedule['slot_mode'] ?? null) === 'custom') {
+                $rules += [
+                    'eventSchedule.min_guests' => ['required', 'integer', 'min:1'],
+                    'eventSchedule.max_guests' => ['required', 'integer', 'gte:eventSchedule.min_guests'],
+                    'eventSchedule.slots' => ['required', 'array', 'min:1'],
+                    'eventSchedule.slots.*.time' => ['required', 'date_format:H:i', 'distinct'],
+                    'eventSchedule.slots.*.capacity' => ['required', 'integer', 'min:1'],
+                ];
+            }
+        }
+
+        match ($this->eventSchedule['mode'] ?? null) {
+            'single' => $rules['eventSchedule.single_date'] = ['required', 'date', 'after_or_equal:today'],
+            'dates' => $rules['eventSchedule.dates.*'] = ['required', 'date', 'after_or_equal:today', 'distinct'],
+            'range' => $rules += [
+                'eventSchedule.range_start' => ['required', 'date', 'after_or_equal:today'],
+                'eventSchedule.range_end' => ['required', 'date', 'after_or_equal:eventSchedule.range_start'],
+            ],
+            'standard' => null,
+            default => null,
+        };
+
+        if (($this->eventSchedule['mode'] ?? null) === 'dates') {
+            $rules['eventSchedule.dates'] = ['required', 'array', 'min:1'];
+        }
+
+        $this->validate($rules);
+        $schedule = $this->eventSchedule;
+        $schedule['dates'] = collect($schedule['dates'] ?? [])->filter()->unique()->sort()->values()->all();
+        $schedule['slots'] = collect($schedule['slots'] ?? [])->sortBy('time')->values()->all();
+        $schedule['min_guests'] = (int) $schedule['min_guests'];
+        $schedule['max_guests'] = (int) $schedule['max_guests'];
+        $schedule['slots'] = collect($schedule['slots'])->map(fn (array $slot): array => [
+            'time' => $slot['time'],
+            'capacity' => (int) $slot['capacity'],
+        ])->all();
+
+        $this->form->update(['schedule' => $schedule]);
+        $this->form->refresh();
+        $this->eventSchedule = $schedule;
+        session()->flash('success', 'Disponibilità dell’evento aggiornata.');
     }
 
     public function saveDetails(): void
