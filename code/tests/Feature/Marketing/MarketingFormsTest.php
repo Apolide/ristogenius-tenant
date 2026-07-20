@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Marketing;
 
+use App\Livewire\Marketing\Forms\FormCreate;
 use App\Livewire\Marketing\Forms\PublicForm;
 use App\Models\Booking;
 use App\Models\Customer;
@@ -40,6 +41,19 @@ class MarketingFormsTest extends TestCase
     public static function types(): array
     {
         return [['booking', 9], ['event', 9], ['generic', 4]];
+    }
+
+    public function test_create_form_enables_configured_customer_languages_by_default_and_renders_tabbed_panels(): void
+    {
+        Livewire::test(FormCreate::class)
+            ->assertSet('multilingual', true)
+            ->assertSet('translations.it', ['title' => '', 'description' => ''])
+            ->assertSet('translations.en', ['title' => '', 'description' => ''])
+            ->assertSet('translations.de', ['title' => '', 'description' => ''])
+            ->assertSeeHtml('role="tablist"')
+            ->assertSeeHtml("x-show=\"activeLanguage === 'it'\"")
+            ->assertSeeHtml("x-show=\"activeLanguage === 'en'\"")
+            ->assertSeeHtml("x-show=\"activeLanguage === 'de'\"");
     }
 
     public function test_locked_standard_field_cannot_be_hidden(): void

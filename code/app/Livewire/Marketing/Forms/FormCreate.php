@@ -28,7 +28,10 @@ class FormCreate extends Component
 
     public function mount(CustomerLanguageService $languages): void
     {
-        foreach ($languages->enabled() as $code => $meta) {
+        $enabledLanguages = $languages->enabled();
+        $this->multilingual = count($enabledLanguages) > 1;
+
+        foreach ($enabledLanguages as $code => $meta) {
             $this->translations[$code] = ['title' => '', 'description' => ''];
         }
     }
