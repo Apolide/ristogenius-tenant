@@ -40,6 +40,10 @@ use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\RoomTables\RoomTableIndex;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
+use App\Livewire\Menu\IngredientIndex;
+use App\Livewire\Menu\MenuIndex;
+use App\Livewire\Menu\ProductIndex;
+use App\Livewire\Menu\PublicMenu;
 use App\Services\Personnel\PersonnelPermissionsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +81,7 @@ Route::domain(env('DOMAIN'))->group(function () {
     })->name('privacy-policy');
 
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
+    Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
 
     /*
     |--------------------------------------------------------------------------
@@ -129,6 +134,9 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
         Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
+            Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
+            Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');
             Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
             Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
             Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');
