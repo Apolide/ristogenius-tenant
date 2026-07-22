@@ -6,7 +6,10 @@ const plugin = require("tailwindcss/plugin");
 module.exports = {
   darkMode: "class",
   content: [
-    "./resources/**/*.{html,js,scss,css}",
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.css",
+    "./resources/**/*.scss",
     "node_modules/preline/dist/*.js",
   ],
   theme: {

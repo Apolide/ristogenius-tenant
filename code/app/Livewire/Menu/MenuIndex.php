@@ -5,12 +5,18 @@ namespace App\Livewire\Menu;
 use App\Models\DigitalMenu;
 use App\Models\DigitalMenuCategory;
 use App\Models\DigitalMenuProduct;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class MenuIndex extends Component
 {
+    use WithPagination;
+
     public string $search = '';
+
+    public string $catalogSearch = '';
 
     public string $mode = 'list';
 
@@ -81,6 +87,12 @@ class MenuIndex extends Component
         $this->menuId = $id;
         $this->mode = 'editor';
         $this->selectedCategoryId = DigitalMenu::findOrFail($id)->categories()->value('id');
+        $this->resetPage('catalogPage');
+    }
+
+    public function updatingCatalogSearch(): void
+    {
+        $this->resetPage('catalogPage');
     }
 
     public function back(): void
@@ -96,6 +108,44 @@ class MenuIndex extends Component
         $category = DigitalMenuCategory::create(['digital_menu_id' => $this->menuId, 'name' => array_filter(['it' => $this->newCategoryIt, 'en' => $this->newCategoryEn, 'de' => $this->newCategoryDe]), 'position' => DigitalMenuCategory::where('digital_menu_id', $this->menuId)->max('position') + 1]);
         $this->selectedCategoryId = $category->id;
         $this->reset(['newCategoryIt', 'newCategoryEn', 'newCategoryDe']);
+    }
+
+    public function moveCategory(string $categoryId, string $direction): void
+    {
+        abort_unless(in_array($direction, ['up', 'down'], true), 422);
+
+        $categories = DigitalMenuCategory::query()
+            ->where('digital_menu_id', $this->menuId)
+            ->orderBy('position')
+            ->orderBy('id')
+            ->get();
+        $currentIndex = $categories->search(fn (DigitalMenuCategory $category) => $category->id === $categoryId);
+        $targetIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+
+        if ($currentIndex === false || ! isset($categories[$targetIndex])) {
+            return;
+        }
+
+        $categories->splice($targetIndex, 0, [$categories->splice($currentIndex, 1)->first()]);
+        $this->persistCategoryOrder($categories->pluck('id')->all());
+    }
+
+    public function setCategoryPosition(string $categoryId, int $position): void
+    {
+        $categories = DigitalMenuCategory::query()
+            ->where('digital_menu_id', $this->menuId)
+            ->orderBy('position')
+            ->orderBy('id')
+            ->get();
+        $currentIndex = $categories->search(fn (DigitalMenuCategory $category) => $category->id === $categoryId);
+
+        if ($currentIndex === false) {
+            return;
+        }
+
+        $targetIndex = max(0, min(((int) $position) - 1, $categories->count() - 1));
+        $categories->splice($targetIndex, 0, [$categories->splice($currentIndex, 1)->first()]);
+        $this->persistCategoryOrder($categories->pluck('id')->all());
     }
 
     public function addProduct(string $productId): void
@@ -143,10 +193,31 @@ class MenuIndex extends Component
         $this->isVisible = true;
     }
 
+    /** @param array<int, string> $categoryIds */
+    private function persistCategoryOrder(array $categoryIds): void
+    {
+        DB::transaction(function () use ($categoryIds): void {
+            foreach ($categoryIds as $position => $categoryId) {
+                DigitalMenuCategory::query()
+                    ->where('digital_menu_id', $this->menuId)
+                    ->whereKey($categoryId)
+                    ->update(['position' => $position]);
+            }
+        });
+    }
+
     public function render()
     {
         $menu = $this->menuId ? DigitalMenu::with(['categories.products.recommendations.recommendedProduct'])->find($this->menuId) : null;
 
-        return view('livewire.menu.menu-index', ['menus' => DigitalMenu::withCount(['categories'])->when($this->search, fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'))->orderBy('position')->get(), 'menu' => $menu, 'products' => DigitalMenuProduct::where('is_active', true)->orderBy('name')->get()])->title('Gestione menu');
+        return view('livewire.menu.menu-index', [
+            'menus' => DigitalMenu::withCount(['categories'])->when($this->search, fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'))->orderBy('position')->get(),
+            'menu' => $menu,
+            'products' => DigitalMenuProduct::query()
+                ->where('is_active', true)
+                ->when($this->catalogSearch, fn ($query) => $query->where('name', 'like', '%'.$this->catalogSearch.'%'))
+                ->orderBy('name')
+                ->paginate(20, pageName: 'catalogPage'),
+        ])->title('Gestione menu');
     }
 }

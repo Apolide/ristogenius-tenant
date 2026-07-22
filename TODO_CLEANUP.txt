@@ -149,3 +149,20 @@ HORIZO JOBS-WORKER MESSAGISTICA
 Dopo il deploy:
 docker compose exec ristopilot-tenant_php \
   php artisan horizon:terminate
+
+
+
+///// CSS ASSETS INSTALL
+In tailwindcss.config.js put:
+    content: [
+      "./resources/**/*.blade.php",
+
+in /code run:
+asdf local nodejs 22.10.0
+node --version
+npm --version
+npm install
+// during development run (build assets on the fly)
+npm run dev
+// for production assets
+npm run build

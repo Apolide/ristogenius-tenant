@@ -3,6 +3,8 @@
 namespace App\Livewire\Menu;
 
 use App\Models\DigitalMenu;
+use App\Services\CustomerLanguageService;
+use App\Services\TenantBrandingService;
 use Livewire\Component;
 
 class PublicMenu extends Component
@@ -18,10 +20,13 @@ class PublicMenu extends Component
         app()->setLocale($language);
     }
 
-    public function render()
+    public function render(TenantBrandingService $branding, CustomerLanguageService $languageService)
     {
         $this->menu->load(['categories' => fn ($q) => $q->where('is_enabled', true)->with(['products' => fn ($q) => $q->wherePivot('is_visible', true)->where('is_active', true)->with(['recommendations' => fn ($q) => $q->where('is_active', true)->with('recommendedProduct')])])]);
 
-        return view('livewire.menu.public-menu')->layout('layouts.digital-menu')->title($this->menu->translatedName($this->language));
+        return view('livewire.menu.public-menu', [
+            'branding' => $branding->branding(),
+            'languages' => collect($this->menu->enabled_languages)->mapWithKeys(fn (string $code) => [$code => $languageService->meta($code)])->all(),
+        ])->layout('layouts.digital-menu')->title($this->menu->translatedName($this->language));
     }
 }

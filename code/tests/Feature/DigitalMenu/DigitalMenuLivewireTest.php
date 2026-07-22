@@ -124,6 +124,48 @@ class DigitalMenuLivewireTest extends TestCase
         $this->assertDatabaseMissing('digital_menu_category_product', ['menu_category_id' => $category->id, 'product_id' => $productA->id]);
     }
 
+    public function test_categories_can_be_ordered_with_arrows_or_a_selected_position(): void
+    {
+        $menu = $this->menu();
+        $starters = $menu->categories()->create(['name' => ['it' => 'Antipasti'], 'position' => 0]);
+        $mains = $menu->categories()->create(['name' => ['it' => 'Primi'], 'position' => 1]);
+        $desserts = $menu->categories()->create(['name' => ['it' => 'Dolci'], 'position' => 2]);
+
+        $component = Livewire::test(MenuIndex::class)
+            ->call('openEditor', $menu->id)
+            ->call('moveCategory', $desserts->id, 'up');
+
+        $this->assertSame(
+            [$starters->id, $desserts->id, $mains->id],
+            $menu->categories()->pluck('id')->all(),
+        );
+
+        $component
+            ->call('setCategoryPosition', $starters->id, 3)
+            ->call('editMenu', $menu->id)
+            ->assertSee('Ordine categorie');
+
+        $this->assertSame(
+            [$desserts->id, $mains->id, $starters->id],
+            $menu->categories()->pluck('id')->all(),
+        );
+        $this->assertSame([0, 1, 2], $menu->categories()->pluck('position')->all());
+    }
+
+    public function test_product_catalog_is_paginated_twenty_per_page_and_searchable(): void
+    {
+        foreach (range(1, 21) as $index) {
+            $this->product('Prodotto '.str_pad((string) $index, 2, '0', STR_PAD_LEFT), $index);
+        }
+        $this->product('Prodotto nascosto', 99)->update(['is_active' => false]);
+
+        Livewire::test(MenuIndex::class)
+            ->assertViewHas('products', fn ($products) => $products->perPage() === 20 && $products->total() === 21 && $products->count() === 20)
+            ->set('catalogSearch', 'Prodotto 21')
+            ->assertViewHas('products', fn ($products) => $products->total() === 1 && $products->first()->translatedName('it') === 'Prodotto 21')
+            ->assertSet('paginators.catalogPage', 1);
+    }
+
     public function test_admin_routes_require_authentication_and_admin_role(): void
     {
         $this->get(route('menu.products'))->assertRedirect();
@@ -149,7 +191,9 @@ class DigitalMenuLivewireTest extends TestCase
         $this->get(route('menu.public', ['language' => 'it', 'menu' => $menu]))
             ->assertOk()
             ->assertSee('Menu Mare')
-            ->assertSee('Pescato del giorno');
+            ->assertSee('Pescato del giorno')
+            ->assertSee('id="menu-language"', false)
+            ->assertSee(route('menu.public', ['language' => 'en', 'menu' => $menu]), false);
 
         $this->get(route('menu.public', ['language' => 'de', 'menu' => $menu]))->assertNotFound();
         $menu->update(['is_published' => false]);
