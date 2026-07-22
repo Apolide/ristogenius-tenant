@@ -17,6 +17,7 @@ class TenantSettingsService
         'waitlist_table_ready' => ['label' => 'Waitlist: table ready', 'required' => false, 'channels' => ['whatsapp', 'email', 'sms']],
         'booking_accepted' => ['label' => 'Booking accepted', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_canceled' => ['label' => 'Booking canceled', 'required' => false, 'channels' => ['whatsapp', 'telegram', 'email']],
+        'booking_canceled_from_customer' => ['label' => 'Booking canceled by customer', 'required' => false, 'audience' => 'staff', 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_denied' => ['label' => 'Booking denied', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_edited' => ['label' => 'Booking edited', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_edited_confirm_to_customer' => ['label' => 'Booking edited confirm to customer', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],

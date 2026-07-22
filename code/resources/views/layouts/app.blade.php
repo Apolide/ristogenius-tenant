@@ -19,7 +19,8 @@
     <script src="/assets/js/main.js"></script>
 
     @vite([
-      'resources/assets/css/style.css',
+      // 'resources/assets/css/style.css',
+      'resources/assets/scss/style.scss',
       'resources/assets/css/icons.css'
     ])
 

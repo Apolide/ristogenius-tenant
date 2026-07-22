@@ -10,6 +10,7 @@ use App\Services\TenantBrandingService;
 class BookingMessageService
 {
     private const STATUS_CASES = [
+        'booking_sent' => 'booking_sent',
         'accepted' => 'booking_accepted',
         'denied' => 'booking_denied',
         'canceled' => 'booking_canceled',
@@ -43,9 +44,19 @@ class BookingMessageService
         return $messageCase ? $this->record($booking, $messageCase, 'status-'.$booking->status.'-'.$booking->updated_at->getTimestamp()) : null;
     }
 
+    public function bookingProposal(Booking $booking): MessageOutbox
+    {
+        return $this->record($booking, 'booking_proposal', 'proposal-'.$booking->updated_at->getTimestamp());
+    }
+
     public function customerEdited(Booking $booking): MessageOutbox
     {
         return $this->record($booking, 'booking_edited_from_customer', 'customer-edit-'.$booking->updated_at->getTimestamp());
+    }
+
+    public function customerCanceled(Booking $booking): MessageOutbox
+    {
+        return $this->record($booking, 'booking_canceled_from_customer', 'customer-cancel-'.$booking->updated_at->getTimestamp());
     }
 
     public function record(Booking $booking, string $messageCase, string $event): MessageOutbox
@@ -91,6 +102,7 @@ class BookingMessageService
                         'booking_date' => $booking->booking_date->format('d/m/Y'),
                         'booking_time' => substr($booking->booking_time, 0, 5),
                         'pax' => $booking->pax,
+                        'restaurant_note' => $booking->restaurant_note,
                     ],
                     'deliveries' => $deliveries,
                 ],
@@ -116,7 +128,7 @@ class BookingMessageService
         $actions = [
             ['key' => 'view', 'label' => $this->actionLabel('view', $language), 'url' => $this->urls->view($booking, $language)],
         ];
-        if ($messageCase === 'booking_accepted') {
+        if (in_array($messageCase, ['booking_sent', 'booking_accepted'], true)) {
             array_unshift($actions, ['key' => 'edit', 'label' => $this->actionLabel('edit', $language), 'url' => $this->urls->edit($booking, $language)]);
         }
 

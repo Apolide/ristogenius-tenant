@@ -65,7 +65,7 @@
             <span class="side-menu__label">Cassa</span>
         </a>
     </li>
-
+--}}
 
     <li class="slide__category"><span class="category-name">Markekting</span></li>
 
@@ -86,7 +86,7 @@
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 624px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="/manage/forms" class="side-menu__item">Forms</a>
+                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">Forms</a>
             </li>
             <li class="slide">
                 <a href="/manage/marketing/campaigns" class="side-menu__item">Campagne</a>
@@ -103,14 +103,11 @@
             <li class="slide">
                 <a href="/manage/polls" class="side-menu__item">Sondaggi</a>
             </li>
-
-
-
         </ul>
 
     </li>
 
---}}
+
 
     <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.personnel') }}</span></li>
 
@@ -157,7 +154,7 @@
         </a>
     </li>
 {{--
-    <li class="slide has-sub">
+    <li class="slide has-sub {{ request()->routeIs('menu.*') && ! request()->routeIs('menu.public') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
                 <path d="M2 1h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v2h14V3a1 1 0 0 0-1-1zm13 4H1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"></path>
@@ -229,7 +226,7 @@
 
 
     </li>
-
+--}}
 
     <li class="slide has-sub">
         <a href="javascript:void(0);" class="side-menu__item">
@@ -247,13 +244,13 @@
                 <a href="javascript:void(0);">Prodotti</a>
             </li>
             <li class="slide">
-                <a href="/manage/products" class="side-menu__item">Elenco</a>
+                <a href="{{ route('menu.products') }}" class="side-menu__item {{ request()->routeIs('menu.products') ? 'active' : '' }}">Elenco</a>
             </li>
             <li class="slide">
-                <a href="/manage/ingredients" class="side-menu__item">Ingredienti</a>
+                <a href="{{ route('menu.ingredients') }}" class="side-menu__item {{ request()->routeIs('menu.ingredients') ? 'active' : '' }}">Ingredienti</a>
             </li>
             <li class="slide">
-                <a href="/manage/menus" class="side-menu__item">Menù</a>
+                <a href="{{ route('menu.menus') }}" class="side-menu__item {{ request()->routeIs('menu.menus') ? 'active' : '' }}">Menù</a>
             </li>
 
 
@@ -262,7 +259,7 @@
 
 
     </li>
-
+{{--
     <li class="slide has-sub">
         <a href="javascript:void(0);" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">

@@ -48,6 +48,20 @@ class BookingMessagePipelineTest extends TestCase
             && $job->queue === 'messages-whatsapp');
     }
 
+    public function test_dispatcher_skips_channels_not_enabled_for_both_tenant_and_message_case(): void
+    {
+        Queue::fake();
+        $outbox = $this->createOutbox(['email']);
+        $profile = TenantProfile::query()->firstOrFail();
+        $settings = $profile->settings;
+        $settings['reservations']['notification_channels'] = ['whatsapp'];
+        $profile->update(['settings' => $settings]);
+
+        app(MessageDispatcher::class)->dispatch($outbox);
+
+        Queue::assertNotPushed(SendMessageChannelJob::class);
+    }
+
     public function test_email_uses_the_language_stored_on_the_booking(): void
     {
         Mail::fake();

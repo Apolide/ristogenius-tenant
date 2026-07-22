@@ -28,7 +28,7 @@ class TenantSettingMessageTemplatesService
         ],
         'booking_proposal' => [
             'label' => 'Proposta modifica prenotazione',
-            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
+            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@', '@@restaurant_note@@'],
             'translations' => [
                 'it' => [
                     'subject' => '@@location_name@@ - Proposta modifica prenotazione',
@@ -96,6 +96,15 @@ class TenantSettingMessageTemplatesService
                     'additional_note' => '',
                     'sms' => 'Reservierung im @@location_name@@ storniert: @@booking_date@@ @@booking_time@@ für @@pax@@ Personen.',
                 ],
+            ],
+        ],
+        'booking_canceled_from_customer' => [
+            'label' => 'Prenotazione cancellata dal Cliente',
+            'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
+            'translations' => [
+                'it' => ['subject' => '@@location_name@@ - Prenotazione cancellata dal cliente', 'message' => '@@customer_name@@ ha cancellato la prenotazione per @@pax@@ persone del @@booking_date@@ alle @@booking_time@@.', 'additional_note' => '', 'sms' => 'Prenotazione cancellata da @@customer_name@@: @@booking_date@@ @@booking_time@@, @@pax@@ persone.'],
+                'en' => ['subject' => '@@location_name@@ - Booking canceled by customer', 'message' => '@@customer_name@@ canceled the booking for @@pax@@ people on @@booking_date@@ at @@booking_time@@.', 'additional_note' => '', 'sms' => 'Booking canceled by @@customer_name@@: @@booking_date@@ @@booking_time@@, @@pax@@ people.'],
+                'de' => ['subject' => '@@location_name@@ - Reservierung vom Kunden storniert', 'message' => '@@customer_name@@ hat die Reservierung für @@pax@@ Personen am @@booking_date@@ um @@booking_time@@ storniert.', 'additional_note' => '', 'sms' => 'Reservierung von @@customer_name@@ storniert: @@booking_date@@ @@booking_time@@, @@pax@@ Personen.'],
             ],
         ],
         'booking_denied' => [

@@ -14,6 +14,12 @@ use App\Livewire\Contacts\ContactIndex;
 use App\Livewire\Customers\CustomerEdit;
 use App\Livewire\Customers\CustomerIndex;
 use App\Livewire\Customers\CustomerShow;
+use App\Livewire\Marketing\Forms\FormCreate as MarketingFormCreate;
+use App\Livewire\Marketing\Forms\FormEdit as MarketingFormEdit;
+use App\Livewire\Marketing\Forms\FormIndex as MarketingFormIndex;
+use App\Livewire\Marketing\Forms\FormStyleEdit as MarketingFormStyleEdit;
+use App\Livewire\Marketing\Forms\PublicForm as MarketingPublicForm;
+use App\Livewire\Marketing\Forms\SubmissionIndex as MarketingSubmissionIndex;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -34,8 +40,14 @@ use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\RoomTables\RoomTableIndex;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
+use App\Livewire\Menu\IngredientIndex;
+use App\Livewire\Menu\MenuIndex;
+use App\Livewire\Menu\ProductIndex;
+use App\Livewire\Menu\PublicMenu;
 use App\Services\Personnel\PersonnelPermissionsService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\HtmlString;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +66,22 @@ Route::domain(env('DOMAIN'))->group(function () {
     });
 
     Route::get('/', fn () => view('welcome'));
+
+    Route::get('/privacy-policy', function (Request $request) {
+        $language = strtolower((string) $request->query('language', app()->getLocale()));
+        if (! in_array($language, ['it', 'en', 'de'], true)) {
+            $language = 'it';
+        }
+        app()->setLocale($language);
+
+        return view('layouts.legal', [
+            'title' => __('marketing_forms.privacy_policy'),
+            'slot' => new HtmlString(view("legal.privacy-policy-{$language}")->render()),
+        ]);
+    })->name('privacy-policy');
+
+    Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
+    Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
 
     /*
     |--------------------------------------------------------------------------
@@ -81,6 +109,13 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
             Route::get('/manage/contacts', ContactIndex::class);
             Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
+            Route::prefix('/manage/marketing/forms')->name('marketing.forms.')->group(function (): void {
+                Route::get('/', MarketingFormIndex::class)->name('index');
+                Route::get('/create', MarketingFormCreate::class)->name('create');
+                Route::get('/responses', MarketingSubmissionIndex::class)->name('submissions');
+                Route::get('/{form}/edit', MarketingFormEdit::class)->name('edit');
+                Route::get('/{form}/edit/style', MarketingFormStyleEdit::class)->name('style');
+            });
         });
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CUSTOMERS)->group(function () {
@@ -99,6 +134,9 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
         Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
+            Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
+            Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');
             Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
             Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
             Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');

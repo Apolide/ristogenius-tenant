@@ -35,14 +35,35 @@
                     @else <b>Walk In</b> @endif
                 </td></tr>
                 <tr><td class="font-bold">{{ __('bookings.booking_notes') }}</td><td>{{ $booking->note ?: '-' }}</td></tr>
+                @if($booking->restaurant_note)<tr><td class="font-bold">{{ __('bookings.form.restaurant_note') }}</td><td>{{ $booking->restaurant_note }}</td></tr>@endif
                 <tr><td class="font-bold">Origine</td><td><span class="badge bg-primary/10 text-primary">{{ ucfirst($booking->source) }}</span></td></tr>
                 <tr><td class="font-bold">Inserita il</td><td>{{ $booking->created_at?->format('d/m/Y H:i:s') }}</td></tr>
             </tbody></table></div>
 
+            @if($customFormFields->isNotEmpty())
+                <div class="mt-8">
+                    <h4 class="text-base font-semibold mb-3">Campi personalizzati del form</h4>
+                    @if($sourceForm)<p class="text-sm text-textmuted mb-3">Form: {{ $sourceForm->title($booking->language) }}</p>@endif
+                    <div class="table-responsive"><table class="table table-bordered min-w-full"><tbody>
+                        @foreach($customFormFields as $field)
+                            <tr><td class="font-bold w-1/3">{{ $field['label'] }}</td><td>
+                                @if(is_array($field['value']))
+                                    {{ $field['value'] !== [] ? implode(', ', $field['value']) : '-' }}
+                                @elseif(is_bool($field['value']))
+                                    {{ $field['value'] ? 'Sì' : 'No' }}
+                                @else
+                                    {{ filled($field['value']) ? $field['value'] : '-' }}
+                                @endif
+                            </td></tr>
+                        @endforeach
+                    </tbody></table></div>
+                </div>
+            @endif
+
             <div class="mt-8">
                 <h4 class="text-base font-semibold mb-3">{{ __('bookings.show.history') }}</h4>
                 <div class="table-responsive"><table class="table table-bordered min-w-full"><thead><tr><th>{{ __('bookings.show.date') }}</th><th>{{ __('bookings.show.event') }}</th><th>{{ __('bookings.show.author') }}</th><th>{{ __('bookings.show.details') }}</th></tr></thead><tbody>
-                    @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i:s') }}</td><td>{{ $history->event === 'booking_edited_from_customer' ? __('public_bookings.history.customer_edited') : __("bookings.show.events.{$history->event}") }}</td><td>{{ $history->actor ?: '-' }}</td><td>{{ $history->description ?: '-' }}
+                    @forelse($booking->histories as $history)<tr><td>{{ $history->created_at->format('d/m/Y H:i:s') }}</td><td>{{ $history->event === 'booking_edited_from_customer' ? __('public_bookings.history.customer_edited') : ($history->event === 'booking_proposal' ? __('message_channel_cases.cases.booking_proposal') : (in_array($history->event, ['booking_canceled', 'booking_canceled_from_customer'], true) ? __('bookings.show.events.booking_canceled') : __("bookings.show.events.{$history->event}"))) }}</td><td>{{ $history->actor ?: '-' }}</td><td>{{ $history->description ?: '-' }}
                         @if($history->changes)<div class="text-xs text-textmuted mt-1">@foreach($history->changes as $field => $change)<div><b>{{ $field }}</b>: {{ is_array($change['from'] ?? null) ? implode(', ', $change['from']) : ($change['from'] ?? '-') }} → {{ is_array($change['to'] ?? null) ? implode(', ', $change['to']) : ($change['to'] ?? '-') }}</div>@endforeach</div>@endif
                     </td></tr>@empty<tr><td colspan="4" class="text-center">{{ __('bookings.show.no_history') }}</td></tr>@endforelse
                 </tbody></table></div>

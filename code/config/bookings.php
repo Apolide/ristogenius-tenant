@@ -3,6 +3,7 @@
 return [
     'statuses' => [
         'pending' => ['label' => 'Inserita', 'color' => 'warning'],
+        'booking_sent' => ['label' => 'Inviata', 'color' => 'info'],
         'accepted' => ['label' => 'Accettata', 'color' => 'success'],
         'denied' => ['label' => 'Rifiutata', 'color' => 'danger'],
         'canceled' => ['label' => 'Cancellata', 'color' => 'danger'],

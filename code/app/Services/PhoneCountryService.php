@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use libphonenumber\PhoneNumberUtil;
 use Giggsey\Locale\Locale;
+use libphonenumber\PhoneNumberUtil;
 
 class PhoneCountryService
 {
@@ -11,6 +11,7 @@ class PhoneCountryService
     {
         $phone = PhoneNumberUtil::getInstance();
         $locale = app()->getLocale();
+
         return collect($phone->getSupportedRegions())->map(function (string $region) use ($phone, $locale): array {
             $name = Locale::getDisplayRegion('-'.$region, $locale)
                 ?: Locale::getDisplayRegion('-'.$region, 'en')

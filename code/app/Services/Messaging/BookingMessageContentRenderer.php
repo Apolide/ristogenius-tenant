@@ -31,10 +31,22 @@ class BookingMessageContentRenderer
             '@@pax@@' => (string) $booking->pax,
             '@@booking_date@@' => $booking->booking_date->format('d/m/Y'),
             '@@booking_time@@' => substr($booking->booking_time, 0, 5),
+            '@@restaurant_note@@' => (string) $booking->restaurant_note,
         ];
 
-        return collect($translation)->map(
+        $content = collect($translation)->map(
             fn (string $value): string => strtr($value, $replacements)
         )->all();
+
+        if ($messageCase === 'booking_proposal' && filled($booking->restaurant_note)) {
+            $label = match ($language) {
+                'en' => 'Restaurant notes',
+                'de' => 'Notizen des Restaurants',
+                default => 'Note del ristorante',
+            };
+            $content['additional_note'] = trim(($content['additional_note'] ?? '')."\n\n{$label}: {$booking->restaurant_note}");
+        }
+
+        return $content;
     }
 }

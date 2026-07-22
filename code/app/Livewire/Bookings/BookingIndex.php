@@ -4,22 +4,36 @@ namespace App\Livewire\Bookings;
 
 use App\Models\Booking;
 use App\Services\BookingService;
+use App\Services\Messaging\BookingMessageService;
 use App\Services\Settings\TenantSettingsService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class BookingIndex extends Component
 {
-    #[Url] public string $date = '';
-    #[Url] public string $meal = '';
-    #[Url] public string $search = '';
-    #[Url] public bool $showHistory = false;
+    #[Url]
+    public string $date = '';
+
+    #[Url]
+    public string $meal = '';
+
+    #[Url]
+    public string $search = '';
+
+    #[Url]
+    public bool $showHistory = false;
+
     public bool $timeslotAccordionOpen = false;
+
     public ?string $selectedBookingId = null;
+
     public array $tablePickerSelection = [];
+
     public string $searchTable = '';
+
     public ?string $modal = null;
 
     public function mount(TenantSettingsService $settings): void
@@ -31,10 +45,27 @@ class BookingIndex extends Component
             $this->meal = $this->defaultMeal($settings);
         }
     }
-    public function previousDay(): void { $this->date = Carbon::parse($this->date)->subDay()->toDateString(); }
-    public function nextDay(): void { $this->date = Carbon::parse($this->date)->addDay()->toDateString(); }
-    public function selectToday(): void { $this->date = now()->toDateString(); }
-    public function selectMeal(string $meal): void { $this->meal = $meal; }
+
+    public function previousDay(): void
+    {
+        $this->date = Carbon::parse($this->date)->subDay()->toDateString();
+    }
+
+    public function nextDay(): void
+    {
+        $this->date = Carbon::parse($this->date)->addDay()->toDateString();
+    }
+
+    public function selectToday(): void
+    {
+        $this->date = now()->toDateString();
+    }
+
+    public function selectMeal(string $meal): void
+    {
+        $this->meal = $meal;
+    }
+
     public function toggleShowAllToday(): void
     {
         $this->meal = 'all';
@@ -44,24 +75,40 @@ class BookingIndex extends Component
     public function openAction(string $action, string $id): void
     {
         $booking = Booking::with('tables')->findOrFail($id);
-        $this->selectedBookingId = $id; $this->modal = $action;
+        $this->selectedBookingId = $id;
+        $this->modal = $action;
         if ($action === 'tables') {
             $this->tablePickerSelection = $booking->tables->pluck('id')->all();
         }
     }
-    public function closeModal(): void { $this->modal = null; $this->selectedBookingId = null; $this->searchTable = ''; $this->tablePickerSelection = []; }
-    public function changeStatus(string $status): void
+
+    public function closeModal(): void
     {
-        $allowed = ['accepted', 'denied', 'no-show', 'seated', 'finalized'];
+        $this->modal = null;
+        $this->selectedBookingId = null;
+        $this->searchTable = '';
+        $this->tablePickerSelection = [];
+    }
+
+    public function changeStatus(string $status, BookingMessageService $messages): void
+    {
+        $allowed = ['booking_sent', 'accepted', 'denied', 'no-show', 'seated', 'finalized'];
         abort_unless(in_array($status, $allowed, true), 422);
         $booking = Booking::findOrFail($this->selectedBookingId);
         $extra = $status === 'seated' ? ['seated_at' => now()] : ($status === 'finalized' ? ['finalized_at' => now()] : []);
-        $booking->update(['status' => $status] + $extra); $this->closeModal();
+        DB::transaction(function () use ($booking, $status, $extra, $messages): void {
+            $booking->update(['status' => $status] + $extra);
+            $messages->bookingStatusChanged($booking->refresh());
+        });
+        $this->closeModal();
     }
+
     public function saveTables(): void
     {
-        Booking::findOrFail($this->selectedBookingId)->tables()->sync($this->tablePickerSelection); $this->closeModal();
+        Booking::findOrFail($this->selectedBookingId)->tables()->sync($this->tablePickerSelection);
+        $this->closeModal();
     }
+
     public function progress(Booking $booking, int $minutes): int
     {
         return $booking->seated_at ? min(100, max(0, (int) round($booking->seated_at->diffInMinutes(now()) / max(1, $minutes) * 100))) : 0;
@@ -70,7 +117,7 @@ class BookingIndex extends Component
     public function render(TenantSettingsService $settings, BookingService $bookingService)
     {
         $hours = $this->mealRange($settings);
-        $bookings = Booking::query()->with(['customer', 'tables.room'])->whereDate('booking_date', $this->date)
+        $bookings = Booking::query()->with(['customer', 'tables.room', 'eventFormSubmission.form'])->whereDate('booking_date', $this->date)
             ->when($this->meal !== 'all' && $hours, fn (Builder $q) => $q->whereTime('booking_time', '>=', $hours['start'])->whereTime('booking_time', '<', $hours['end']))
             ->when(! $this->showHistory, fn (Builder $q) => $q->whereNotIn('status', ['denied', 'canceled', 'no-show', 'finalized']))
             ->when(trim($this->search), fn (Builder $q) => $q->whereHas('customer', fn (Builder $c) => $c->where('display_name', 'like', '%'.$this->search.'%')->orWhere('firstname', 'like', '%'.$this->search.'%')->orWhere('lastname', 'like', '%'.$this->search.'%')))
@@ -85,6 +132,7 @@ class BookingIndex extends Component
         $tables = $selected
             ? $bookingService->availableTables($selected->booking_date->toDateString(), substr((string) $selected->booking_time, 0, 5), $selected->id, $this->searchTable)
             : collect();
+
         return view('livewire.bookings.booking-index', [
             'bookings' => $bookings,
             'tables' => $tables,
@@ -92,19 +140,33 @@ class BookingIndex extends Component
             'maxSitting' => (int) $settings->settings()['reservations']['table_stay_minutes'],
             'timeslotStats' => $timeslotStats,
             'totalPax' => $bookings->sum('pax'),
-            'arrivingPax' => $bookings->whereIn('status', ['pending', 'waiting', 'accepted'])->sum('pax'),
+            'arrivingPax' => $bookings->whereIn('status', ['pending', 'booking_sent', 'waiting', 'accepted'])->sum('pax'),
             'servingPax' => $bookings->where('status', 'seated')->sum('pax'),
         ])->title(__('bookings.title'));
     }
+
     private function defaultMeal(TenantSettingsService $settings): string
     {
         $ranges = $settings->settings()['reservations']['opening_hours']['weekly'][$this->dayKey()] ?? [];
         $now = now()->format('H:i');
-        foreach (['pranzo', 'cena'] as $meal) if (($ranges[$meal]['open'] ?? false) && $now < ($ranges[$meal]['end'] ?? '00:00')) return $meal;
+        foreach (['pranzo', 'cena'] as $meal) {
+            if (($ranges[$meal]['open'] ?? false) && $now < ($ranges[$meal]['end'] ?? '00:00')) {
+                return $meal;
+            }
+        }
+
         return 'all';
     }
-    private function mealRange(TenantSettingsService $settings): ?array { return $settings->settings()['reservations']['opening_hours']['weekly'][$this->dayKey()][$this->meal] ?? null; }
-    private function dayKey(): string { return array_keys(TenantSettingsService::DAYS)[Carbon::parse($this->date)->dayOfWeekIso - 1]; }
+
+    private function mealRange(TenantSettingsService $settings): ?array
+    {
+        return $settings->settings()['reservations']['opening_hours']['weekly'][$this->dayKey()][$this->meal] ?? null;
+    }
+
+    private function dayKey(): string
+    {
+        return array_keys(TenantSettingsService::DAYS)[Carbon::parse($this->date)->dayOfWeekIso - 1];
+    }
 
     private function timeslotStats(TenantSettingsService $settings, $bookings): array
     {

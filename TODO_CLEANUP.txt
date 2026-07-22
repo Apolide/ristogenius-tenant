@@ -51,11 +51,25 @@ php artisan cache:clear
 php artisan config:clear
 php artisan view:clear
 
+
+CACHE CLEAR:
+docker compose -f docker-compose-dev.yml exec ristopilot-tenant_php \
+sh -lc 'php artisan cache:clear && php artisan config:clear && php artisan view:clear'
+
 /////////////// PROBLEMA PERMESSI
 
-docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && find /var/www/html/storage /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \; && find /var/www/html/storage /var/www/html/bootstrap/cache -type f -exec chmod 664 {} \; && su www-data -s /bin/sh -c 'php /var/www/html/artisan log:clear 2>/dev/null || php /var/www/html/artisan about >/dev/null' && ls -l /var/www/html/storage/logs/laravel.log"
+docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc \
+"chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache &&
+find /var/www/html/storage /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \; &&
+find /var/www/html/storage /var/www/html/bootstrap/cache -type f -exec chmod 664 {} \; &&
+su www-data -s /bin/sh -c 'mkdir -p /var/www/html/storage/logs && : > /var/www/html/storage/logs/laravel.log' &&
+chmod 664 /var/www/html/storage/logs/laravel.log &&
+ls -l /var/www/html/storage/logs/laravel.log"
+
 
 docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/public/tenant-assets && find /var/www/html/public/tenant-assets -type d -exec chmod 775 {} \; && find /var/www/html/public/tenant-assets -type f -exec chmod 664 {} \;"
+
+docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/public/marketing-assets && find /var/www/html/public/marketing-assets -type d -exec chmod 775 {} \; && find /var/www/html/public/marketing-assets -type f -exec chmod 664 {} \;"
 
 /////////////// TESTING
 
@@ -135,3 +149,20 @@ HORIZO JOBS-WORKER MESSAGISTICA
 Dopo il deploy:
 docker compose exec ristopilot-tenant_php \
   php artisan horizon:terminate
+
+
+
+///// CSS ASSETS INSTALL
+In tailwindcss.config.js put:
+    content: [
+      "./resources/**/*.blade.php",
+
+in /code run:
+asdf local nodejs 22.10.0
+node --version
+npm --version
+npm install
+// during development run (build assets on the fly)
+npm run dev
+// for production assets
+npm run build

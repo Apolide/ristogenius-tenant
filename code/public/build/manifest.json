@@ -4,11 +4,6 @@
     "src": "resources/assets/css/icons.css",
     "isEntry": true
   },
-  "resources/assets/css/style.css": {
-    "file": "assets/style-BrC14oX6.css",
-    "src": "resources/assets/css/style.css",
-    "isEntry": true
-  },
   "resources/assets/iconfonts/RemixIcons/fonts/remixicon.eot": {
     "file": "assets/remixicon-DUK49BtM.eot",
     "src": "resources/assets/iconfonts/RemixIcons/fonts/remixicon.eot"
@@ -332,6 +327,11 @@
   "resources/assets/images/menu-bg-images/transparent.png": {
     "file": "assets/transparent-Cw3yjmVa.png",
     "src": "resources/assets/images/menu-bg-images/transparent.png"
+  },
+  "resources/assets/scss/style.scss": {
+    "file": "assets/style-Cqz5IeR0.css",
+    "src": "resources/assets/scss/style.scss",
+    "isEntry": true
   },
   "resources/js/app.js": {
     "file": "assets/app-D-FaURHc.js",

@@ -15,6 +15,8 @@ use Livewire\Component;
 
 class PublicBookingEdit extends Component
 {
+    private const CUSTOMER_CANCELABLE_STATUSES = ['pending', 'booking_sent', 'accepted', 'waiting'];
+
     public Booking $booking;
 
     public Customer $customer;
@@ -36,10 +38,35 @@ class PublicBookingEdit extends Component
         $this->booking_time = '';
     }
 
+    public function updatedPax(): void
+    {
+        if ($this->booking_time === '') {
+            return;
+        }
+
+        $slots = app(BookingService::class)->availableSlots(
+            $this->booking_date,
+            $this->pax,
+            $this->booking->id,
+        );
+        if (! isset($slots[$this->booking_time])) {
+            $this->booking_time = '';
+        }
+    }
+
+    public function hydrate(): void
+    {
+        app()->setLocale($this->language);
+    }
+
     public function mount(Customer $customer, Booking $booking, string $language): void
     {
         abort_unless($booking->customer_id === $customer->id && ! $booking->isWalkIn(), 404);
-        abort_if(in_array($booking->status, ['denied', 'canceled', 'finalized', 'no-show'], true), 403);
+        if (in_array($booking->status, ['denied', 'canceled', 'finalized', 'no-show'], true)) {
+            $this->redirect(app(BookingPublicUrlService::class)->view($booking, $language));
+
+            return;
+        }
         $this->customer = $customer;
         $this->booking = $booking;
         $this->language = $language;
@@ -72,11 +99,42 @@ class PublicBookingEdit extends Component
             $changes = collect($data + ['status' => 'pending'])->mapWithKeys(fn ($value, $field) => [
                 $field => ['from' => $before[$field] instanceof \DateTimeInterface ? $before[$field]->format('Y-m-d') : $before[$field], 'to' => $value],
             ])->filter(fn ($change) => $change['from'] != $change['to'])->all();
-            $this->booking->recordHistory('booking_edited_from_customer', __('public_bookings.history.customer_edited'), $changes, __('public_bookings.customer'));
+            $this->booking->recordHistory(
+                'booking_edited_from_customer',
+                trans('public_bookings.history.customer_edited', [], $this->language),
+                $changes,
+                trans('public_bookings.customer', [], $this->language),
+            );
             $messages->customerEdited($this->booking->refresh());
         });
 
         session()->flash('success', __('public_bookings.updated'));
+
+        return redirect()->to(app(BookingPublicUrlService::class)->view($this->booking, $this->language));
+    }
+
+    public function cancelBooking(BookingMessageService $messages)
+    {
+        $freshBooking = Booking::query()->whereKey($this->booking->id)->where('customer_id', $this->customer->id)->firstOrFail();
+        if ($freshBooking->updated_at->toISOString() !== $this->originalUpdatedAt) {
+            throw ValidationException::withMessages(['booking' => __('public_bookings.concurrent_update')]);
+        }
+        abort_unless(in_array($freshBooking->status, self::CUSTOMER_CANCELABLE_STATUSES, true), 422);
+        $this->booking = $freshBooking;
+        $previousStatus = $this->booking->status;
+
+        DB::transaction(function () use ($messages, $previousStatus): void {
+            Booking::withoutEvents(fn () => $this->booking->update(['status' => 'canceled']));
+            $this->booking->recordHistory(
+                'booking_canceled',
+                trans('public_bookings.history.customer_canceled', [], $this->language),
+                ['status' => ['from' => $previousStatus, 'to' => 'canceled']],
+                trans('public_bookings.customer', [], $this->language),
+            );
+            $messages->customerCanceled($this->booking->refresh());
+        });
+
+        session()->flash('success', __('public_bookings.canceled'));
 
         return redirect()->to(app(BookingPublicUrlService::class)->view($this->booking, $this->language));
     }
@@ -88,7 +146,8 @@ class PublicBookingEdit extends Component
             'languages' => $languages->enabled(),
             'languageUrls' => collect($languages->enabled())->mapWithKeys(fn (array $meta, string $language) => [$language => $urls->edit($this->booking, $language)])->all(),
             'viewUrl' => $urls->view($this->booking, $this->language),
-            'slots' => $bookings->slots($this->booking_date),
+            'slots' => $bookings->availableSlots($this->booking_date, $this->pax, $this->booking->id),
+            'canCancel' => in_array($this->booking->status, self::CUSTOMER_CANCELABLE_STATUSES, true),
         ])->layout('layouts.customer-booking', ['title' => __('public_bookings.edit_title')]);
     }
 }
