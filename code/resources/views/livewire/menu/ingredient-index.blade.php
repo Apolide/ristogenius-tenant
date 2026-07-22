@@ -8,8 +8,8 @@
     @empty<tr><td colspan="6" class="text-center text-textmuted py-10">Nessun ingrediente. Creane uno per iniziare.</td></tr>@endforelse
    </tbody></table></div><div class="mt-4">{{ $ingredients->links() }}</div></div></div>
   @if($showForm)
-      <div class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/50 p-3 sm:p-4" wire:click.self="$set('showForm', false)">
-          <div x-data="{ activeLanguage: 'it' }" class="box my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-5xl flex-col overflow-hidden !mb-0 sm:my-4 sm:max-h-[calc(100dvh-2rem)]">
+      <div class="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-black/50 px-3 pb-3 pt-20 sm:px-4 sm:pb-4" wire:click.self="$set('showForm', false)">
+          <div x-data="{ activeLanguage: 'it' }" class="box flex max-h-[calc(100dvh-6rem)] w-full max-w-5xl flex-col overflow-hidden !mb-0">
               <div class="box-header z-10 flex shrink-0 items-center justify-between gap-4 border-b border-defaultborder bg-white dark:bg-bodybg">
                   <h3 class="box-title !mb-0">{{ $editingId ? 'Modifica ingrediente' : 'Nuovo ingrediente' }}</h3>
                   <button type="button" wire:click="$set('showForm', false)" class="ti-btn ti-btn-icon ti-btn-light ms-auto shrink-0 !mb-0" aria-label="Chiudi">

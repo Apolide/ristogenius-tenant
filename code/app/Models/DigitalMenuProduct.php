@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SearchesTranslatedName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DigitalMenuProduct extends Model
 {
-    use HasUuids;
+    use HasUuids, SearchesTranslatedName;
 
     protected $table = 'digital_menu_products';
 

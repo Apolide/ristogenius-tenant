@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SearchesTranslatedName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DigitalMenu extends Model
 {
-    use HasUuids;
+    use HasUuids, SearchesTranslatedName;
 
     protected $table = 'digital_menu_menus';
 
-    protected $fillable = ['slug', 'name', 'description', 'disclaimer', 'enabled_languages', 'theme', 'service_charge', 'position', 'is_published', 'is_visible'];
+    protected $fillable = ['slug', 'name', 'description', 'disclaimer', 'enabled_languages', 'theme', 'image_path', 'service_charge', 'position', 'is_published', 'is_visible'];
 
     protected $casts = ['name' => 'array', 'description' => 'array', 'disclaimer' => 'array', 'enabled_languages' => 'array', 'theme' => 'array', 'service_charge' => 'decimal:2', 'is_published' => 'boolean', 'is_visible' => 'boolean'];
 

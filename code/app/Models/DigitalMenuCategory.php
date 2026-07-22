@@ -13,7 +13,7 @@ class DigitalMenuCategory extends Model
 
     protected $table = 'digital_menu_categories';
 
-    protected $fillable = ['digital_menu_id', 'name', 'description', 'position', 'is_enabled'];
+    protected $fillable = ['digital_menu_id', 'name', 'description', 'image_path', 'position', 'is_enabled'];
 
     protected $casts = ['name' => 'array', 'description' => 'array', 'is_enabled' => 'boolean'];
 

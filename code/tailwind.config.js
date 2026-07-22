@@ -252,7 +252,7 @@ module.exports = {
   },
   variants: {},
   plugins: [
-    require("tailwindcss"),
+    // require("tailwindcss"),
     require("@tailwindcss/forms"),
     // require("tailwind-clip-path"),
     require("preline/plugin"),

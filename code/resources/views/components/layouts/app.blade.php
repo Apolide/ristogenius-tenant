@@ -19,7 +19,11 @@
     <script src="/assets/js/main.js"></script>
 
     <!-- Style Css -->
-    <link rel="stylesheet" href="/assets/css/style.css">
+    {{-- <link rel="stylesheet" href="/assets/css/style.css"> --}}
+    @vite([
+        'resources/assets/scss/style.scss',
+    'resources/assets/css/icons.css',
+    ])
 
     <!-- Simplebar Css -->
     <link rel="stylesheet" href="/assets/libs/simplebar/simplebar.min.css">

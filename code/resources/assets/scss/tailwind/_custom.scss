@@ -477,7 +477,8 @@ small {
 }
 
 .main-content {
-  @apply ps-[1px] -mt-[10px];
+  // @apply ps-[1px] -mt-[10px];
+  @apply ps-[1px] mt-0 pt-4;
 }
 
 .content {

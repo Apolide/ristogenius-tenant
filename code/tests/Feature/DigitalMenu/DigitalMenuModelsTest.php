@@ -83,6 +83,18 @@ class DigitalMenuModelsTest extends TestCase
         $this->assertSame($crossSell->id, $recommendations->firstWhere('type', 'cross_sell')->recommendedProduct->id);
     }
 
+    public function test_translated_name_search_is_case_insensitive_in_every_language(): void
+    {
+        $menu = $this->menu();
+        $product = $this->product();
+        $ingredient = $this->ingredient();
+
+        $this->assertTrue(DigitalMenu::whereTranslatedNameContains('dINNER MENU')->whereKey($menu->id)->exists());
+        $this->assertTrue(DigitalMenuProduct::whereTranslatedNameContains('gRILLED OCTOPUS')->whereKey($product->id)->exists());
+        $this->assertTrue(DigitalMenuIngredient::whereTranslatedNameContains('oCTOPUS')->whereKey($ingredient->id)->exists());
+        $this->assertFalse(DigitalMenuProduct::whereTranslatedNameContains('inesistente')->exists());
+    }
+
     public function test_deleting_a_menu_cascades_categories_and_pivots(): void
     {
         $menu = $this->menu();

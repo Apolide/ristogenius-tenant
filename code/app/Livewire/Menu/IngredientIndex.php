@@ -95,6 +95,6 @@ class IngredientIndex extends Component
 
     public function render()
     {
-        return view('livewire.menu.ingredient-index', ['ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'))->latest()->paginate(15)])->title('Ingredienti');
+        return view('livewire.menu.ingredient-index', ['ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->latest()->paginate(15)])->title('Ingredienti');
     }
 }

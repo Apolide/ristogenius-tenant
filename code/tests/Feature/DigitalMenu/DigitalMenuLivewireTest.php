@@ -13,6 +13,8 @@ use App\Models\DigitalMenuProduct;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -43,7 +45,7 @@ class DigitalMenuLivewireTest extends TestCase
             ->set('removePrice', -1)
             ->call('save')
             ->assertHasNoErrors()
-            ->set('search', 'Burrata')
+            ->set('search', 'bURRATA')
             ->assertSee('Burrata pugliese')
             ->call('delete', $ingredient->id);
 
@@ -88,6 +90,73 @@ class DigitalMenuLivewireTest extends TestCase
             ->set('price', -1)
             ->call('save')
             ->assertHasErrors(['nameIt' => 'required', 'price' => 'min']);
+    }
+
+    public function test_images_can_be_uploaded_for_products_menus_and_categories(): void
+    {
+        Storage::fake('public');
+
+        Livewire::test(ProductIndex::class)
+            ->call('create')
+            ->set('nameIt', 'Frittura di mare')
+            ->set('price', 18)
+            ->set('image', UploadedFile::fake()->image('frittura.jpg', 1200, 900))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $product = DigitalMenuProduct::where('name->it', 'Frittura di mare')->firstOrFail();
+        Storage::disk('public')->assertExists($product->image_path);
+
+        $component = Livewire::test(MenuIndex::class)
+            ->call('create')
+            ->set('nameIt', 'Menu Tramonto')
+            ->set('menuImage', UploadedFile::fake()->image('tramonto.jpg', 1600, 900))
+            ->call('saveMenu')
+            ->assertHasNoErrors()
+            ->set('newCategoryIt', 'Dal mare')
+            ->set('newCategoryImage', UploadedFile::fake()->image('mare.jpg', 1200, 600))
+            ->call('createCategory')
+            ->assertHasNoErrors();
+
+        $menu = DigitalMenu::where('name->it', 'Menu Tramonto')->firstOrFail();
+        $category = $menu->categories()->firstOrFail();
+        Storage::disk('public')->assertExists($menu->image_path);
+        Storage::disk('public')->assertExists($category->image_path);
+
+        $component
+            ->call('editCategory', $category->id)
+            ->assertSet('showCategoryForm', true)
+            ->set('categoryNameEn', 'From the sea')
+            ->set('categoryDescriptionIt', 'Il pescato della costa')
+            ->set('categoryIsEnabled', false)
+            ->set('categoryImage', UploadedFile::fake()->image('mare-nuovo.jpg', 1200, 600))
+            ->call('saveCategory')
+            ->assertHasNoErrors()
+            ->assertSet('showCategoryForm', false);
+
+        $category->refresh();
+        Storage::disk('public')->assertExists($category->image_path);
+        $this->assertSame('From the sea', $category->name['en']);
+        $this->assertSame('Il pescato della costa', $category->description['it']);
+        $this->assertFalse($category->is_enabled);
+    }
+
+    public function test_category_can_be_deleted_from_its_edit_modal(): void
+    {
+        $menu = $this->menu();
+        $first = $menu->categories()->create(['name' => ['it' => 'Antipasti'], 'position' => 0]);
+        $second = $menu->categories()->create(['name' => ['it' => 'Primi'], 'position' => 1]);
+
+        Livewire::test(MenuIndex::class)
+            ->call('openEditor', $menu->id)
+            ->call('editCategory', $first->id)
+            ->assertSee('Modifica categoria')
+            ->call('deleteCategory')
+            ->assertSet('showCategoryForm', false)
+            ->assertSet('selectedCategoryId', $second->id);
+
+        $this->assertDatabaseMissing('digital_menu_categories', ['id' => $first->id]);
+        $this->assertSame(0, $second->fresh()->position);
     }
 
     public function test_menu_can_be_created_and_products_managed_in_a_category(): void
@@ -141,9 +210,7 @@ class DigitalMenuLivewireTest extends TestCase
         );
 
         $component
-            ->call('setCategoryPosition', $starters->id, 3)
-            ->call('editMenu', $menu->id)
-            ->assertSee('Ordine categorie');
+            ->call('setCategoryPosition', $starters->id, 3);
 
         $this->assertSame(
             [$desserts->id, $mains->id, $starters->id],
@@ -161,7 +228,7 @@ class DigitalMenuLivewireTest extends TestCase
 
         Livewire::test(MenuIndex::class)
             ->assertViewHas('products', fn ($products) => $products->perPage() === 20 && $products->total() === 21 && $products->count() === 20)
-            ->set('catalogSearch', 'Prodotto 21')
+            ->set('catalogSearch', 'pRODOTTO 21')
             ->assertViewHas('products', fn ($products) => $products->total() === 1 && $products->first()->translatedName('it') === 'Prodotto 21')
             ->assertSet('paginators.catalogPage', 1);
     }
@@ -193,6 +260,8 @@ class DigitalMenuLivewireTest extends TestCase
             ->assertSee('Menu Mare')
             ->assertSee('Pescato del giorno')
             ->assertSee('id="menu-language"', false)
+            ->assertSee('dm-product-card', false)
+            ->assertSee('dm-nav', false)
             ->assertSee(route('menu.public', ['language' => 'en', 'menu' => $menu]), false);
 
         $this->get(route('menu.public', ['language' => 'de', 'menu' => $menu]))->assertNotFound();
