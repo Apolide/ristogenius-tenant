@@ -7,6 +7,7 @@ use App\Livewire\Bookings\BookingCreate;
 // Livewire
 use App\Livewire\Bookings\BookingEdit;
 use App\Livewire\Bookings\BookingIndex;
+use App\Livewire\Bookings\BookingRoomIndex;
 use App\Livewire\Bookings\BookingShow;
 use App\Livewire\Bookings\BookingWaitlistIndex;
 use App\Livewire\Bookings\BookingWalkIn;
@@ -126,6 +127,7 @@ Route::domain(env('DOMAIN'))->group(function () {
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)->group(function () {
             Route::get('/manage/bookings', BookingIndex::class)->name('bookings.index');
+            Route::get('/manage/bookings/rooms', BookingRoomIndex::class)->name('bookings.rooms');
             Route::get('/manage/bookings/create', BookingCreate::class)->name('bookings.create');
             Route::get('/manage/bookings/walkin', BookingWalkIn::class)->name('bookings.walk-in');
             Route::get('/manage/bookings/waitlist', BookingWaitlistIndex::class)->name('bookings.waitlist');

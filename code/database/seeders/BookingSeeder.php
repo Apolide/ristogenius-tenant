@@ -5,18 +5,20 @@ namespace Database\Seeders;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\RoomTable;
+use App\Services\CustomerLanguageService;
 use Illuminate\Database\Seeder;
 
 class BookingSeeder extends Seeder
 {
     /**
-     * Create five demo bookings per day from two days ago through two days ahead.
+     * Create 80 demo bookings across ten consecutive days.
      * Existing demo bookings are updated, making the seeder safe to run repeatedly.
      */
     public function run(): void
     {
         $customers = Customer::query()->orderBy('email')->get();
         $tables = RoomTable::query()->orderBy('name')->get();
+        $languages = array_keys(app(CustomerLanguageService::class)->enabled());
 
         if ($customers->isEmpty()) {
             $this->command?->warn('BookingSeeder skipped: no customers are available.');
@@ -24,17 +26,19 @@ class BookingSeeder extends Seeder
             return;
         }
 
-        $times = ['12:00', '13:00', '14:00', '19:30', '20:30'];
-        $pax = [2, 3, 4, 2, 5];
-        $firstDate = today()->subDays(2)->toDateString();
-        $lastDate = today()->addDays(2)->toDateString();
+        $languages = $languages ?: ['it'];
+        $times = ['12:00', '12:30', '13:00', '14:00', '19:30', '20:30', '21:30', '22:00'];
+        $pax = [2, 3, 4, 2, 5, 3, 2, 4];
+        $dayOffsets = range(-4, 5);
+        $firstDate = today()->addDays(min($dayOffsets))->toDateString();
+        $lastDate = today()->addDays(max($dayOffsets))->toDateString();
 
         Booking::query()
             ->where('source', 'seed')
             ->where(fn ($query) => $query->whereDate('booking_date', '<', $firstDate)->orWhereDate('booking_date', '>', $lastDate))
             ->delete();
 
-        foreach (range(-2, 2) as $dayOffset) {
+        foreach ($dayOffsets as $dayOffset) {
             $date = today()->addDays($dayOffset);
 
             foreach ($times as $index => $time) {
@@ -60,8 +64,8 @@ class BookingSeeder extends Seeder
                         'customer_id' => $customer->id,
                         'pax' => $pax[$index],
                         'status' => $status,
-                        'language' => $customer->lang ?: 'it',
-                        'note' => $index === 4 ? 'Prenotazione demo: preferenza per un tavolo tranquillo.' : null,
+                        'language' => $languages[($index + $dayOffset + 20) % count($languages)],
+                        'note' => $index === 7 ? 'Prenotazione demo: preferenza per un tavolo tranquillo.' : null,
                         'seated_at' => $seatedAt,
                         'finalized_at' => $finalizedAt,
                     ]
@@ -75,19 +79,19 @@ class BookingSeeder extends Seeder
             }
         }
 
-        $this->command?->info('Seeded 25 bookings across the last two and next two days.');
+        $this->command?->info('Seeded 80 bookings across the last four and next five days in '.implode(', ', $languages).'.');
     }
 
     private function statusFor(int $dayOffset, int $index): string
     {
         if ($dayOffset < 0) {
-            return $index === 3 ? 'no-show' : 'finalized';
+            return in_array($index, [3, 7], true) ? 'no-show' : 'finalized';
         }
 
         if ($dayOffset === 0) {
-            return ['finalized', 'seated', 'accepted', 'pending', 'accepted'][$index];
+            return ['finalized', 'seated', 'accepted', 'pending', 'accepted', 'waiting', 'accepted', 'pending'][$index];
         }
 
-        return $index === 3 ? 'pending' : 'accepted';
+        return in_array($index, [3, 5, 7], true) ? 'pending' : 'accepted';
     }
 }

@@ -12,6 +12,18 @@
             <span class="side-menu__label">{{ __('sidebar.bookings') }}</span>
         </a>
     </li>
+    <li class="slide">
+        <a href="/manage/bookings/rooms" class="side-menu__item">
+
+
+            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0V0z" fill="none"></path>
+                <path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"></path>
+                <path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"></path>
+            </svg>
+            <span class="side-menu__label">Sala</span>
+        </a>
+    </li>
 
     {{-- 
     <li class="slide">
@@ -25,18 +37,7 @@
             <span class="side-menu__label">Asporto</span>
         </a>
     </li>
-    <li class="slide">
-        <a href="/rooms-map" class="side-menu__item">
 
-
-            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24">
-                <path d="M0 0h24v24H0V0z" fill="none"></path>
-                <path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"></path>
-                <path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"></path>
-            </svg>
-            <span class="side-menu__label">Sala</span>
-        </a>
-    </li>
 
     <li class="slide">
         <a href="/comande/rooms-map" class="side-menu__item">
@@ -67,77 +68,7 @@
     </li>
 --}}
 
-    <li class="slide__category"><span class="category-name">Markekting</span></li>
 
-    <li class="slide has-sub mb-10">
-        <a href="javascript:void(0);" class="side-menu__item">
-            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M2 2h2v2H2z"></path>
-                <path d="M6 0v6H0V0zM5 1H1v4h4zM4 12H2v2h2z"></path>
-                <path d="M6 10v6H0v-6zm-5 1v4h4v-4zm11-9h2v2h-2z"></path>
-                <path
-                      d="M10 0v6h6V0zm5 1v4h-4V1zM8 1V0h1v2H8v2H7V1zm0 5V4h1v2zM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8zm0 0v1H2V8H1v1H0V7h3v1zm10 1h-1V7h1zm-1 0h-1v2h2v-1h-1zm-4 0h2v1h-1v1h-1zm2 3v-1h-1v1h-1v1H9v1h3v-2zm0 0h3v1h-2v1h-1zm-4-1v1h1v-2H7v1z">
-                </path>
-                <path d="M7 12h1v3h4v1H7zm9 2v2h-3v-1h2v-1z"></path>
-            </svg>
-            <span class="side-menu__label">Marketing</span>
-            <i class="fe fe-chevron-right side-menu__angle"></i>
-        </a>
-        <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 624px, 0px);" data-popper-reference-hidden=""
-            data-popper-escaped="">
-            <li class="slide">
-                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">Forms</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/marketing/campaigns" class="side-menu__item">Campagne</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/coupons" class="side-menu__item">Coupons</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/fidelity" class="side-menu__item">Fidelity</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/giftcard" class="side-menu__item">Gift Card</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/polls" class="side-menu__item">Sondaggi</a>
-            </li>
-        </ul>
-
-    </li>
-
-
-
-    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.personnel') }}</span></li>
-
-    <li class="slide has-sub mb-10">
-        <a href="javascript:void(0);" class="side-menu__item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
-                <path d="M8 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5M3.5 7A2 2 0 1 0 3.5 3a2 2 0 0 0 0 4m9 0A2 2 0 1 0 12.5 3a2 2 0 0 0 0 4"></path>
-                <path d="M8 9c-2.761 0-5 1.567-5 3.5V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1.5C13 10.567 10.761 9 8 9"></path>
-                <path d="M1.5 14v-1c0-1.115.91-2.062 2.188-2.43A3.9 3.9 0 0 0 2.5 13v1zm13 0v-1a3.9 3.9 0 0 0-1.188-2.43C14.59 10.938 15.5 11.885 15.5 13v1z"></path>
-            </svg>
-            <span class="side-menu__label">{{ __('sidebar.personnel') }}</span>
-            <i class="fe fe-chevron-right side-menu__angle"></i>
-        </a>
-        <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 720px, 0px);" data-popper-reference-hidden=""
-            data-popper-escaped="">
-            <li class="slide">
-                <a href="/manage/personnel" class="side-menu__item">{{ __('sidebar.list') }}</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/personnel/permissions" class="side-menu__item">{{ __('sidebar.permissions') }}</a>
-            </li>
-            <li class="slide">
-                <a href="/manage/users/calendar" class="side-menu__item">{{ __('sidebar.shifts') }}</a>
-            </li>
-            <li class="slide">
-                <a href="/admin/calendar" class="side-menu__item">{{ __('sidebar.timesheet') }}</a>
-            </li>
-
-        </ul>
-    </li>
 
 
 
@@ -325,7 +256,77 @@
         </ul>
     </li>
 
+    <li class="slide__category"><span class="category-name">Markekting</span></li>
 
+    <li class="slide has-sub mb-10">
+        <a href="javascript:void(0);" class="side-menu__item">
+            <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2 2h2v2H2z"></path>
+                <path d="M6 0v6H0V0zM5 1H1v4h4zM4 12H2v2h2z"></path>
+                <path d="M6 10v6H0v-6zm-5 1v4h4v-4zm11-9h2v2h-2z"></path>
+                <path
+                      d="M10 0v6h6V0zm5 1v4h-4V1zM8 1V0h1v2H8v2H7V1zm0 5V4h1v2zM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8zm0 0v1H2V8H1v1H0V7h3v1zm10 1h-1V7h1zm-1 0h-1v2h2v-1h-1zm-4 0h2v1h-1v1h-1zm2 3v-1h-1v1h-1v1H9v1h3v-2zm0 0h3v1h-2v1h-1zm-4-1v1h1v-2H7v1z">
+                </path>
+                <path d="M7 12h1v3h4v1H7zm9 2v2h-3v-1h2v-1z"></path>
+            </svg>
+            <span class="side-menu__label">Marketing</span>
+            <i class="fe fe-chevron-right side-menu__angle"></i>
+        </a>
+        <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 624px, 0px);" data-popper-reference-hidden=""
+            data-popper-escaped="">
+            <li class="slide">
+                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">Forms</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/marketing/campaigns" class="side-menu__item">Campagne</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/coupons" class="side-menu__item">Coupons</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/fidelity" class="side-menu__item">Fidelity</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/giftcard" class="side-menu__item">Gift Card</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/polls" class="side-menu__item">Sondaggi</a>
+            </li>
+        </ul>
+
+    </li>
+
+
+
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.personnel') }}</span></li>
+
+    <li class="slide has-sub mb-10">
+        <a href="javascript:void(0);" class="side-menu__item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
+                <path d="M8 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5M3.5 7A2 2 0 1 0 3.5 3a2 2 0 0 0 0 4m9 0A2 2 0 1 0 12.5 3a2 2 0 0 0 0 4"></path>
+                <path d="M8 9c-2.761 0-5 1.567-5 3.5V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1.5C13 10.567 10.761 9 8 9"></path>
+                <path d="M1.5 14v-1c0-1.115.91-2.062 2.188-2.43A3.9 3.9 0 0 0 2.5 13v1zm13 0v-1a3.9 3.9 0 0 0-1.188-2.43C14.59 10.938 15.5 11.885 15.5 13v1z"></path>
+            </svg>
+            <span class="side-menu__label">{{ __('sidebar.personnel') }}</span>
+            <i class="fe fe-chevron-right side-menu__angle"></i>
+        </a>
+        <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 720px, 0px);" data-popper-reference-hidden=""
+            data-popper-escaped="">
+            <li class="slide">
+                <a href="/manage/personnel" class="side-menu__item">{{ __('sidebar.list') }}</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/personnel/permissions" class="side-menu__item">{{ __('sidebar.permissions') }}</a>
+            </li>
+            <li class="slide">
+                <a href="/manage/users/calendar" class="side-menu__item">{{ __('sidebar.shifts') }}</a>
+            </li>
+            <li class="slide">
+                <a href="/admin/calendar" class="side-menu__item">{{ __('sidebar.timesheet') }}</a>
+            </li>
+
+        </ul>
+    </li>
 
     <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.settings') }}</span></li>
 

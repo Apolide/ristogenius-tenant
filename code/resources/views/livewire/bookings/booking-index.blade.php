@@ -49,7 +49,7 @@
 
         <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
             <input wire:model.live.debounce.300ms="search" class="form-control md:col-span-1 col-span-5 h-12" placeholder="{{ __('bookings.search') }}">
-            <button disabled class="ti-btn ti-btn-primary col-span-1 h-12 opacity-60" title="Vista sala disponibile prossimamente">Sala</button>
+            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">Sala</a>
             <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">{{ __('bookings.all_day') }}</button>
             <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal === 'pranzo' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.lunch') }}</button>
             <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal === 'cena' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.dinner') }}</button>
