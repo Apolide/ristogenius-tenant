@@ -10,7 +10,7 @@ return [
     'defaults_restored' => 'Nachrichtenversandfälle erfolgreich zurückgesetzt.',
     'cases' => [
         'waitlist_table_ready' => 'Warteliste: Tisch bereit', 'booking_accepted' => 'Reservierung angenommen',
-        'booking_canceled' => 'Reservierung storniert', 'booking_denied' => 'Reservierung abgelehnt',
+        'booking_canceled' => 'Reservierung storniert', 'booking_canceled_from_customer' => 'Reservierung vom Kunden storniert', 'booking_denied' => 'Reservierung abgelehnt',
         'booking_edited' => 'Reservierung bearbeitet', 'booking_edited_confirm_to_customer' => 'Bestätigung der Reservierungsänderung an den Kunden',
         'booking_edited_from_customer' => 'Reservierung vom Kunden bearbeitet', 'booking_poll_send' => 'Reservierungsumfrage gesendet',
         'booking_proposal' => 'Reservierungsvorschlag', 'booking_received' => 'Reservierung erhalten',

@@ -195,14 +195,54 @@ return [
             'nice' => 0,
         ],
 
+        // Keep message orchestration isolated from application jobs. It only
+        // fans an outbox event out to the enabled channel queues.
+        'supervisor-messages-dispatch' => [
+            'connection' => 'redis',
+            'queue' => ['messages-dispatch'],
+            'balance' => 'simple',
+            'processes' => 1,
+            'memory' => 128,
+            'tries' => 3,
+            'timeout' => 60,
+        ],
+
+        // Email delivery uses Laravel Mail (MailerSend in production and
+        // MailHog locally). It gets its own supervisor so calls to the external
+        // service can scale independently without delaying dispatch.
+        'supervisor-messages-email' => [
+            'connection' => 'redis',
+            'queue' => ['messages-email'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'minProcesses' => 1,
+            'maxProcesses' => 3,
+            'memory' => 128,
+            'tries' => 5,
+            'timeout' => 90,
+        ],
+
+        // External channels keep distinct queues/retry policies but initially
+        // share one worker. Split this into one supervisor per queue when
+        // provider volume or rate limits require independent scaling.
+        'supervisor-messages-external' => [
+            'connection' => 'redis',
+            'queue' => ['messages-telegram', 'messages-whatsapp', 'messages-sms'],
+            'balance' => 'simple',
+            'processes' => 1,
+            'memory' => 128,
+            'tries' => 5,
+            'timeout' => 90,
+        ],
+
         'supervisor-long-running' => [
             'connection' => 'redis-long-processes',
             'queue' => 'long-running',
             'balance' => 'simple',
             'processes' => 1,
             'tries' => 1,
-            'timeout' => 60000 // should be shorter than retry_after out    
-        ]
+            'timeout' => 60000, // should be shorter than retry_after out
+        ],
     ],
 
     'environments' => [
@@ -213,13 +253,16 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
                 'tries' => 3,
-                'timeout' => 90
+                'timeout' => 90,
             ],
             'supervisor-long-running' => [
                 'processes' => 1,
                 'tries' => 1,
-                'timeout' => 60000 // should be shorter than retry_after out    
-            ]
+                'timeout' => 60000, // should be shorter than retry_after out
+            ],
+            'supervisor-messages-dispatch' => [],
+            'supervisor-messages-email' => [],
+            'supervisor-messages-external' => [],
         ],
 
         'local' => [
@@ -229,13 +272,16 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
                 'tries' => 3,
-                'timeout' => 90
+                'timeout' => 90,
             ],
             'supervisor-long-running' => [
                 'processes' => 1,
                 'tries' => 1,
-                'timeout' => 60000 // should be shorter than retry_after out    
-            ]
+                'timeout' => 60000, // should be shorter than retry_after out
+            ],
+            'supervisor-messages-dispatch' => [],
+            'supervisor-messages-email' => [],
+            'supervisor-messages-external' => [],
         ],
     ],
 ];

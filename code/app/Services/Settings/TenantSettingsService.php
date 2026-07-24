@@ -17,13 +17,14 @@ class TenantSettingsService
         'waitlist_table_ready' => ['label' => 'Waitlist: table ready', 'required' => false, 'channels' => ['whatsapp', 'email', 'sms']],
         'booking_accepted' => ['label' => 'Booking accepted', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_canceled' => ['label' => 'Booking canceled', 'required' => false, 'channels' => ['whatsapp', 'telegram', 'email']],
+        'booking_canceled_from_customer' => ['label' => 'Booking canceled by customer', 'required' => false, 'audience' => 'staff', 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_denied' => ['label' => 'Booking denied', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_edited' => ['label' => 'Booking edited', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_edited_confirm_to_customer' => ['label' => 'Booking edited confirm to customer', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
-        'booking_edited_from_customer' => ['label' => 'Booking edited from customer', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
+        'booking_edited_from_customer' => ['label' => 'Booking edited from customer', 'required' => true, 'audience' => 'staff', 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_poll_send' => ['label' => 'Booking poll send', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_proposal' => ['label' => 'Booking proposal', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
-        'booking_received' => ['label' => 'Booking received', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
+        'booking_received' => ['label' => 'Booking received', 'required' => true, 'audience' => 'staff', 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_remind' => ['label' => 'Booking remind', 'required' => false, 'channels' => ['whatsapp', 'telegram', 'email']],
         'booking_sent' => ['label' => 'Booking sent', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
         'calendar_reminder' => ['label' => 'Calendar reminder', 'required' => true, 'channels' => ['whatsapp', 'telegram', 'email']],
@@ -150,6 +151,16 @@ class TenantSettingsService
     public function messageChannelCaseChannels(string $key): array
     {
         return $this->messageChannelCase($key)['channels'] ?? [];
+    }
+
+    public function messageChannelCaseAudience(string $key): string
+    {
+        return self::MESSAGE_CHANNEL_CASES[$key]['audience'] ?? 'customer';
+    }
+
+    public function enabledMessageChannels(): array
+    {
+        return $this->normalizeMessageChannels($this->settings()['reservations']['notification_channels'] ?? []);
     }
 
     public function updateMessageChannelCases(array $cases): void

@@ -50,5 +50,9 @@ class TestDatabaseSeeder extends Seeder
             RoomSeeder::class,
             RoomTableSeeder::class,
         ]);
+
+        $this->call([
+            DigitalMenuSeeder::class,
+        ]);
     }
 }

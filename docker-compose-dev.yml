@@ -52,6 +52,7 @@ services:
     volumes:
       - ./code:/var/www/html
       - ./certificates:/var/www/html/certificates
+      - ./docker-files/supervisord/supervisord_jobs.ini:/etc/supervisord.d/supervisord.ini:ro
     networks:
       - ristopilot-tenant
 

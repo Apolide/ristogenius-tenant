@@ -15,8 +15,12 @@
     <script src="/assets/js/authentication-main.js"></script>
   
     <!-- Style Css -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-  
+    {{-- <link rel="stylesheet" href="/assets/css/style.css"> --}}
+    @vite([
+        'resources/assets/scss/style.scss',
+        'resources/assets/css/icons.css',
+    ])
+
     <!-- Simplebar Css -->
     <link id="style" href="/assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
   

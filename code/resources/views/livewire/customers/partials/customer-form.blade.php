@@ -21,8 +21,14 @@
 
     <div class="w-full mb-5">
         <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('customers.form.phone') }}</label>
-        <input required wire:model="phone" type="tel" name="phone" id="phone" class="form-control" placeholder="{{ __('customers.form.phone') }}">
+        <div class="flex gap-2">
+            <select wire:model="phone_region" class="form-control max-w-[260px]" autocomplete="tel-country-code" required>
+                @foreach($countries as $country)<option value="{{ $country['region'] }}">{{ $country['flag'] }} {{ $country['name'] }} {{ $country['prefix'] }}</option>@endforeach
+            </select>
+            <input required wire:model="phone" type="tel" name="phone" id="phone" class="form-control" inputmode="tel" autocomplete="tel-national" maxlength="25" placeholder="{{ __('customers.form.phone') }}">
+        </div>
         @error('phone') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
+        @error('phone_region') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
     </div>
 </div>
 

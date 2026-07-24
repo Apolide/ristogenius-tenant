@@ -21,14 +21,26 @@ class BookingWaitlistTest extends TestCase
     {
         Livewire::test(BookingWaitlistIndex::class)
             ->set('firstname', 'Mario')->set('lastname', 'Rossi')
-            ->set('email', 'mario@example.com')->set('pax', 3)
+            ->set('email', 'mario@example.com')->set('phone_region', 'DE')->set('phone', '030 901820')->set('pax', 3)
             ->call('createWaitlistBooking')->assertHasNoErrors();
 
         $entry = BookingWaitlistEntry::with('customer')->firstOrFail();
         $this->assertSame('Mario Rossi', $entry->customer->display_name);
         $this->assertSame(3, $entry->pax);
         $this->assertSame('waiting', $entry->status);
+        $this->assertSame('+4930901820', $entry->customer->phone);
         $this->assertTrue($entry->waitlist_date->isToday());
+    }
+
+    public function test_it_rejects_an_invalid_waitlist_phone_number(): void
+    {
+        Livewire::test(BookingWaitlistIndex::class)
+            ->set('firstname', 'Mario')->set('email', '')
+            ->set('phone_region', 'IT')->set('phone', 'telefono abc')->set('pax', 2)
+            ->call('createWaitlistBooking')
+            ->assertHasErrors(['phone']);
+
+        $this->assertSame(0, BookingWaitlistEntry::count());
     }
 
     public function test_it_requires_at_least_one_contact_method(): void

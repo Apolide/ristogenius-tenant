@@ -17,6 +17,7 @@ services:
     volumes:
       - ./code:/var/www/html
       - ./certificates:/var/www/html/certificates
+      - ./docker-files/supervisord/supervisord_jobs.ini:/etc/supervisord.d/supervisord.ini:ro
       #- /home/application/.ssh/private.pem:/home/www-data/private.pem
       # - ./code/.env:/var/www/html/.env
       # - ./code/app:/var/www/html/app

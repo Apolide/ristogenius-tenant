@@ -10,7 +10,7 @@ return [
     'defaults_restored' => 'Message delivery cases reset successfully.',
     'cases' => [
         'waitlist_table_ready' => 'Waitlist: table ready', 'booking_accepted' => 'Booking accepted',
-        'booking_canceled' => 'Booking canceled', 'booking_denied' => 'Booking denied',
+        'booking_canceled' => 'Booking canceled', 'booking_canceled_from_customer' => 'Booking canceled by customer', 'booking_denied' => 'Booking denied',
         'booking_edited' => 'Booking edited', 'booking_edited_confirm_to_customer' => 'Booking edit confirmation to customer',
         'booking_edited_from_customer' => 'Booking edited by customer', 'booking_poll_send' => 'Booking survey sent',
         'booking_proposal' => 'Booking proposal', 'booking_received' => 'Booking received',

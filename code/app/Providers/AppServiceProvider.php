@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
+use App\Contracts\Messaging\MessageTransport;
+use App\Services\Messaging\Transports\RedisQueueMessageTransport;
 use App\Services\Notification\NotificationService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,8 +18,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(MessageTransport::class, function ($app) {
+            return match (config('messaging.transport')) {
+                'redis' => $app->make(RedisQueueMessageTransport::class),
+                default => throw new \RuntimeException('Unsupported message transport ['.config('messaging.transport').'].')
+            };
+        });
+
         $this->app->singleton(NotificationService::class, function ($app) {
-            return new NotificationService();
+            return new NotificationService;
         });
     }
 

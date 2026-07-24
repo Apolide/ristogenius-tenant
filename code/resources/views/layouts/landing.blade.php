@@ -30,7 +30,8 @@
 
 
         @vite([
-        'resources/assets/css/style.css',
+        // 'resources/assets/css/style.css',
+        'resources/assets/scss/style.scss',
         'resources/assets/css/icons.css'
         ])
 
@@ -160,4 +161,3 @@
 </body>
 
 </html>
-
