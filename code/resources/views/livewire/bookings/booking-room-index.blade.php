@@ -102,7 +102,7 @@
                 <h2 class="text-xl font-bold mb-3">Note prenotazione</h2><p class="whitespace-pre-wrap">{{ $modalBooking?->note }}</p>
             @else
                 <h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione di <strong>{{ $modalBooking?->customer?->display_name ?: 'Walk In' }}</strong>?</p>
-                <button wire:click="changeStatus('{{ ['accept'=>'booking_sent','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>
+                <button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>
             @endif
             <button wire:click="closeModal" class="ti-btn ti-btn-secondary">Chiudi</button>
         </div></div>

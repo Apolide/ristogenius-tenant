@@ -116,7 +116,7 @@ class BookingRoomIndex extends Component
 
     public function changeStatus(string $status, BookingMessageService $messages): void
     {
-        abort_unless(in_array($status, ['booking_sent', 'denied', 'no-show', 'seated', 'finalized'], true), 422);
+        abort_unless(in_array($status, ['accepted', 'denied', 'no-show', 'seated', 'finalized'], true), 422);
         abort_unless($this->selectedBookingId, 422);
         $booking = $this->bookingForSelectedDate($this->selectedBookingId);
         $extra = $status === 'seated' ? ['seated_at' => now()] : ($status === 'finalized' ? ['finalized_at' => now()] : []);
@@ -214,7 +214,7 @@ class BookingRoomIndex extends Component
             'statuses' => config('bookings.statuses'),
             'timeslotStats' => $this->timeslotStats($bookings),
             'totalPax' => $bookings->sum('pax'),
-            'arrivingPax' => $bookings->whereIn('status', ['pending', 'booking_sent', 'waiting', 'accepted'])->sum('pax'),
+            'arrivingPax' => $bookings->whereIn('status', ['pending', 'waiting', 'accepted'])->sum('pax'),
             'servingPax' => $bookings->where('status', 'seated')->sum('pax'),
             'maxSitting' => (int) $settings->settings()['reservations']['table_stay_minutes'],
         ])->title('Sala e prenotazioni');

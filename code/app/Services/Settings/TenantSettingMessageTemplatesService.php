@@ -112,7 +112,7 @@ class TenantSettingMessageTemplatesService
             'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
             'translations' => [
                 'it' => [
-                    'subject' => '@@location_name@@ - Ci dispiace, la tua prenotazione non e stata accettata',
+                    'subject' => '@@location_name@@ - Ci dispiace, la tua prenotazione non è stata accettata',
                     'message' => 'purtroppo non possiamo accettare la tua prenotazione da @@location_name@@ per @@pax@@ persone il @@booking_date@@ @@booking_time@@.',
                     'additional_note' => '',
                     'sms' => 'Prenotazione da @@location_name@@ rifiutata: @@booking_date@@ per @@pax@@ persone.',
@@ -136,7 +136,7 @@ class TenantSettingMessageTemplatesService
             'wildcards' => ['@@location_name@@', '@@customer_name@@', '@@pax@@', '@@booking_date@@', '@@booking_time@@'],
             'translations' => [
                 'it' => [
-                    'subject' => '@@location_name@@ - La tua prenotazione e stata accettata',
+                    'subject' => '@@location_name@@ - La tua prenotazione è stata accettata',
                     'message' => 'la tua prenotazione da @@location_name@@ per @@pax@@ persone e confermata il giorno @@booking_date@@ alle @@booking_time@@. Ti ricordiamo che puoi modificare o disdire in autonomia la tua prenotazione utilizzando il bottone Modifica prenotazione.',
                     'additional_note' => 'Ti ricordiamo che il sabato sera il tempo di permanenza massima al tavolo e di 90 minuti e che non possiamo garantire che il tavolo resti disponibile in caso di ritardo maggiore di 15 minuti.',
                     'sms' => 'Prenotazione da @@location_name@@ confermata per @@pax@@ persone il @@booking_date@@ alle @@booking_time@@',

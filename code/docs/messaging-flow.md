@@ -8,7 +8,8 @@ Questo documento descrive l'impianto di messaggistica asincrona del tenant e il 
 flowchart TD
     A[Booking creata o modificata] --> B{Origine evento}
     B -->|backoffice: sempre accepted| C[booking_accepted solo al cliente]
-    B -.->|futuro form cliente: pending| D[booking_received allo staff]
+    B -->|form cliente: pending| D[booking_sent al cliente]
+    B -->|form cliente: pending| DB[booking_received allo staff]
     B -->|cliente da URL firmata| E[Booking torna pending]
     E --> F[Storico: booking_edited_from_customer]
     F --> G[booking_edited_from_customer allo staff]
@@ -16,6 +17,7 @@ flowchart TD
 
     C --> I[BookingMessageService]
     D --> I
+    DB --> I
     G --> I
     H --> I
     I --> J[Snapshot autosufficiente + deliveries + URL APP_URL]
@@ -51,7 +53,9 @@ flowchart TD
 9. Il cliente può aprire “Vedi prenotazione” oppure “Modifica prenotazione”. La modifica consente solo data, ora, numero persone e note, registra lo storico e riporta lo stato a `pending`.
 10. Admin e operatori abilitati ricevono “Prenotazione modificata da cliente” con “Gestisci prenotazione”. In stato `pending` la pagina admin mostra Accetta/Rifiuta; dopo l'accettazione torna disponibile Assegna tavoli.
 
-Il futuro form pubblico di prenotazione seguirà un ramo distinto: creerà la booking in `pending` e solo in quel caso produrrà `booking_received` per admin e personale autorizzato, che potranno aprire l'applicativo e accettarla o rifiutarla.
+Il form pubblico di prenotazione segue un ramo distinto: crea la booking in `pending`, produce `booking_sent` per confermare la ricezione al cliente e `booking_received` per admin e personale autorizzato, che possono aprire l'applicativo e accettarla o rifiutarla. Entrambi gli intenti vengono scritti nell'outbox nella stessa transazione della booking.
+
+`booking_sent` è esclusivamente un caso di messaggistica e non uno stato della booking. Gli stati coinvolti in questo ramo sono `pending` prima della decisione del tenant e `accepted` oppure `denied` dopo la decisione.
 
 -- test booking pipeline
 docker compose exec \
@@ -100,7 +104,7 @@ La firma relativa permette di verificare l'integrità del path e della query ind
 
 1. Il gestore compila `/manage/bookings/create`. Il backend valida i dati della prenotazione e richiede almeno uno tra email e telefono.
 2. Booking e customer vengono creati o aggiornati dentro una transazione database; per una creazione backoffice lo stato viene imposto a `accepted` anche se la richiesta è stata manipolata lato client.
-3. `BookingMessageService` registra soltanto `booking_accepted` verso il cliente. Il caso staff `booking_received` è riservato al futuro form pubblico.
+3. Per il backoffice `BookingMessageService` registra soltanto `booking_accepted` verso il cliente. Per il form pubblico registra invece `booking_sent` verso il cliente e `booking_received` verso lo staff.
 4. Nella stessa transazione viene inserito un record `message_outboxes`. In questa fase non vengono contattati Redis né servizi esterni di consegna.
 5. Il commit rende persistenti insieme booking e intento di messaggistica. Se la transazione fallisce, non rimane nessun messaggio orfano.
 6. Ogni minuto lo scheduler esegue `messages:publish-outbox`.
