@@ -6,12 +6,17 @@ use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\MarketingForm;
 use App\Services\BookingService;
+use App\Services\Messaging\BookingMessageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PublicFormSubmissionService
 {
-    public function __construct(private BookingService $bookings, private EventScheduleService $eventSchedules) {}
+    public function __construct(
+        private BookingService $bookings,
+        private EventScheduleService $eventSchedules,
+        private BookingMessageService $messages,
+    ) {}
 
     public function submit(MarketingForm $form, array $payload, string $language): Booking|\App\Models\MarketingFormSubmission
     {
@@ -48,6 +53,10 @@ class PublicFormSubmissionService
                 'field_snapshot' => $this->fieldSnapshot($form),
                 'payload' => $payload,
             ]);
+
+            // Transactional outbox: booking, submission and both notification
+            // intents are committed or rolled back together.
+            $this->messages->customerBookingCreated($booking);
 
             return $booking;
         });

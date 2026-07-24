@@ -15,7 +15,7 @@ use Livewire\Component;
 
 class PublicBookingEdit extends Component
 {
-    private const CUSTOMER_CANCELABLE_STATUSES = ['pending', 'booking_sent', 'accepted', 'waiting'];
+    private const CUSTOMER_CANCELABLE_STATUSES = ['pending', 'accepted', 'waiting'];
 
     public Booking $booking;
 

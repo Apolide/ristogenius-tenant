@@ -6,7 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('app.name') }}</title>
     {{-- <link rel="stylesheet" href="{{ rtrim(config('app.url'), '/') }}/assets/css/style.css"> --}}
-    @vite('resources/assets/scss/style.scss')
+    @vite([
+        'resources/assets/scss/style.scss',
+        'resources/assets/scss/tenant-public-form.scss',
+    ])
 
     @stack('styles')
     @livewireStyles

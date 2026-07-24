@@ -329,8 +329,13 @@
     "src": "resources/assets/images/menu-bg-images/transparent.png"
   },
   "resources/assets/scss/style.scss": {
-    "file": "assets/style-Cqz5IeR0.css",
+    "file": "assets/style-Bm0pIOlG.css",
     "src": "resources/assets/scss/style.scss",
+    "isEntry": true
+  },
+  "resources/assets/scss/tenant-public-form.scss": {
+    "file": "assets/tenant-public-form-BBZHTC75.css",
+    "src": "resources/assets/scss/tenant-public-form.scss",
     "isEntry": true
   },
   "resources/js/app.js": {

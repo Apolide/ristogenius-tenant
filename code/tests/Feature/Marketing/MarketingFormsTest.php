@@ -9,8 +9,10 @@ use App\Livewire\Marketing\Forms\PublicForm;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\MarketingForm;
+use App\Models\MessageOutbox;
 use App\Models\User;
 use App\Services\MarketingForms\FormBlueprintService;
+use App\Services\Personnel\PersonnelPermissionsService;
 use App\Services\Settings\TenantSettingsService;
 use Database\Seeders\CateringOrderFormSeeder;
 use Database\Seeders\JobApplicationFormSeeder;
@@ -366,6 +368,15 @@ class MarketingFormsTest extends TestCase
 
     public function test_public_booking_form_creates_pending_booking_instead_of_generic_submission(): void
     {
+        $bookingPermission = Permission::findOrCreate(PersonnelPermissionsService::BOOKINGS, 'web');
+        $operator = User::factory()->create([
+            'name' => 'Booking Manager',
+            'email' => 'booking-manager@example.test',
+            'lang' => 'en',
+            'enabled' => true,
+        ]);
+        $operator->givePermissionTo($bookingPermission);
+
         $form = app(FormBlueprintService::class)->create([
             'type' => 'booking',
             'slug' => 'booking',
@@ -412,6 +423,25 @@ class MarketingFormsTest extends TestCase
         $submission = $form->submissions()->firstOrFail();
         $this->assertSame('Compleanno', $submission->payload['occasion']);
         $this->assertContains('occasion', collect($submission->field_snapshot)->pluck('key'));
+
+        $outboxes = MessageOutbox::query()->get()->keyBy(
+            fn (MessageOutbox $outbox): string => $outbox->payload['message_case']
+        );
+        $this->assertCount(2, $outboxes);
+
+        $customerOutbox = $outboxes->get('booking_sent');
+        $this->assertNotNull($customerOutbox);
+        $this->assertSame(MessageOutbox::STATUS_PENDING, $customerOutbox->status);
+        $this->assertSame('customer', $customerOutbox->payload['audience']);
+        $this->assertSame('mario@example.test', $customerOutbox->payload['deliveries'][0]['recipient']['email']);
+        $this->assertSame('it', $customerOutbox->payload['deliveries'][0]['language']);
+
+        $staffOutbox = $outboxes->get('booking_received');
+        $this->assertNotNull($staffOutbox);
+        $this->assertSame(MessageOutbox::STATUS_PENDING, $staffOutbox->status);
+        $this->assertSame('staff', $staffOutbox->payload['audience']);
+        $this->assertSame('booking-manager@example.test', $staffOutbox->payload['deliveries'][0]['recipient']['email']);
+        $this->assertSame('en', $staffOutbox->payload['deliveries'][0]['language']);
     }
 
     public function test_public_booking_form_only_lists_slots_with_enough_remaining_capacity(): void

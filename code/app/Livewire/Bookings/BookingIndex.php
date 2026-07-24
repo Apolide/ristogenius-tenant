@@ -92,7 +92,7 @@ class BookingIndex extends Component
 
     public function changeStatus(string $status, BookingMessageService $messages): void
     {
-        $allowed = ['booking_sent', 'accepted', 'denied', 'no-show', 'seated', 'finalized'];
+        $allowed = ['accepted', 'denied', 'no-show', 'seated', 'finalized'];
         abort_unless(in_array($status, $allowed, true), 422);
         $booking = Booking::findOrFail($this->selectedBookingId);
         $extra = $status === 'seated' ? ['seated_at' => now()] : ($status === 'finalized' ? ['finalized_at' => now()] : []);
@@ -140,7 +140,7 @@ class BookingIndex extends Component
             'maxSitting' => (int) $settings->settings()['reservations']['table_stay_minutes'],
             'timeslotStats' => $timeslotStats,
             'totalPax' => $bookings->sum('pax'),
-            'arrivingPax' => $bookings->whereIn('status', ['pending', 'booking_sent', 'waiting', 'accepted'])->sum('pax'),
+            'arrivingPax' => $bookings->whereIn('status', ['pending', 'waiting', 'accepted'])->sum('pax'),
             'servingPax' => $bookings->where('status', 'seated')->sum('pax'),
         ])->title(__('bookings.title'));
     }

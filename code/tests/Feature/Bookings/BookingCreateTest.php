@@ -162,7 +162,7 @@ class BookingCreateTest extends TestCase
         $this->assertSame('booking_accepted', MessageOutbox::firstOrFail()->payload['message_case']);
     }
 
-    public function test_accepting_a_pending_booking_marks_it_as_sent_and_queues_booking_sent(): void
+    public function test_accepting_a_pending_booking_marks_it_as_accepted_and_queues_booking_accepted(): void
     {
         $booking = $this->existingBooking('pending');
 
@@ -170,13 +170,13 @@ class BookingCreateTest extends TestCase
             ->call('accept')
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'booking_sent']);
-        $this->assertSame('booking_sent', MessageOutbox::firstOrFail()->payload['message_case']);
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'accepted']);
+        $this->assertSame('booking_accepted', MessageOutbox::firstOrFail()->payload['message_case']);
     }
 
     public function test_edit_page_cannot_change_customer_or_booking_status(): void
     {
-        $booking = $this->existingBooking('booking_sent');
+        $booking = $this->existingBooking('accepted');
 
         Livewire::test(BookingEdit::class, ['booking' => $booking])
             ->assertSee(__('bookings.form.send_proposal'))
@@ -190,14 +190,14 @@ class BookingCreateTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'booking_sent', 'language' => 'it']);
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => 'accepted', 'language' => 'it']);
         $this->assertDatabaseHas('customers', ['id' => $booking->customer_id, 'firstname' => 'Giulia', 'email' => 'giulia@example.test']);
         $this->assertSame(0, MessageOutbox::count());
     }
 
     public function test_booking_proposal_requires_a_change_and_includes_restaurant_notes(): void
     {
-        $booking = $this->existingBooking('booking_sent');
+        $booking = $this->existingBooking('accepted');
         $component = Livewire::test(BookingEdit::class, ['booking' => $booking])
             ->set('send_booking_proposal', true)
             ->set('restaurant_note', 'Possiamo ospitarvi mezz’ora più tardi.')

@@ -10,7 +10,6 @@ use App\Services\TenantBrandingService;
 class BookingMessageService
 {
     private const STATUS_CASES = [
-        'booking_sent' => 'booking_sent',
         'accepted' => 'booking_accepted',
         'denied' => 'booking_denied',
         'canceled' => 'booking_canceled',
@@ -31,10 +30,17 @@ class BookingMessageService
         return $messageCase ? $this->record($booking, $messageCase, 'created') : null;
     }
 
-    /** Reserved for bookings submitted by the future public customer form. */
-    public function customerBookingCreated(Booking $booking): MessageOutbox
+    /**
+     * Record both sides of a booking submitted through a public customer form.
+     *
+     * @return array{customer: MessageOutbox, staff: MessageOutbox}
+     */
+    public function customerBookingCreated(Booking $booking): array
     {
-        return $this->record($booking, 'booking_received', 'customer-created');
+        return [
+            'customer' => $this->record($booking, 'booking_sent', 'customer-created'),
+            'staff' => $this->record($booking, 'booking_received', 'customer-created'),
+        ];
     }
 
     public function bookingStatusChanged(Booking $booking): ?MessageOutbox

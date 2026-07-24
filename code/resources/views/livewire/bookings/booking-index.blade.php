@@ -13,7 +13,7 @@
         <div class="grid grid-cols-3 gap-3">
             <div class="flex justify-start"><button wire:click="previousDay" class="ti-btn ti-btn-primary me-[0.375rem]"><i class="las la-arrow-left text-3xl"></i><span class="hidden md:block">{{ __('bookings.back') }}</span></button></div>
             <div class="flex justify-center gap-2">
-                <input type="date" wire:model.live="date" id="selectedDate" class="form-control" style="min-width:150px; max-width:260px" onchange="this.blur()">
+                <input type="date" wire:model.live="date" id="selectedDate" class="form-control" style="max-width:190px" onchange="this.blur()">
                 <button type="button" wire:click="selectToday" class="ti-btn ti-btn-primary" title="{{ __('bookings.today') }}">{{ __('bookings.today') }}</button>
             </div>
             <div class="flex justify-end"><button wire:click="nextDay" class="ti-btn ti-btn-primary me-[0.375rem]"><span class="hidden md:block">{{ __('bookings.next') }}</span><i class="las la-arrow-right text-3xl"></i></button></div>
@@ -49,7 +49,7 @@
 
         <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
             <input wire:model.live.debounce.300ms="search" class="form-control md:col-span-1 col-span-5 h-12" placeholder="{{ __('bookings.search') }}">
-            <button disabled class="ti-btn ti-btn-primary col-span-1 h-12 opacity-60" title="Vista sala disponibile prossimamente">Sala</button>
+            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">Sala</a>
             <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">{{ __('bookings.all_day') }}</button>
             <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal === 'pranzo' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.lunch') }}</button>
             <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal === 'cena' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.dinner') }}</button>
@@ -81,6 +81,6 @@
         @include('livewire.bookings.partials.table-picker-modal', ['saveAction' => 'saveTables', 'closeAction' => 'closeModal'])
     @elseif($modal)<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"><div class="bg-white rounded p-5 w-[500px] max-w-[95vw]">
         @if($modal === 'note')<h2 class="text-xl font-bold mb-3">Note prenotazione</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
-        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'booking_sent','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
+        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
         <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">Chiudi</button></div></div>@endif
 </div></div>
