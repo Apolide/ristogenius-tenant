@@ -13,7 +13,7 @@
         <div class="grid grid-cols-3 gap-3">
             <div class="flex justify-start"><button wire:click="previousDay" class="ti-btn ti-btn-primary me-[0.375rem]"><i class="las la-arrow-left text-3xl"></i><span class="hidden md:block">{{ __('bookings.back') }}</span></button></div>
             <div class="flex justify-center gap-2">
-                <input type="date" wire:model.live="date" id="selectedDate" class="form-control" style="min-width:150px; max-width:260px" onchange="this.blur()">
+                <input type="date" wire:model.live="date" id="selectedDate" class="form-control" style="max-width:190px" onchange="this.blur()">
                 <button type="button" wire:click="selectToday" class="ti-btn ti-btn-primary" title="{{ __('bookings.today') }}">{{ __('bookings.today') }}</button>
             </div>
             <div class="flex justify-end"><button wire:click="nextDay" class="ti-btn ti-btn-primary me-[0.375rem]"><span class="hidden md:block">{{ __('bookings.next') }}</span><i class="las la-arrow-right text-3xl"></i></button></div>
