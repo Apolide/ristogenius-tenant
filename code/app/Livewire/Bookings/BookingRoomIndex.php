@@ -91,6 +91,7 @@ class BookingRoomIndex extends Component
     public function detachBookingFromTable(string $bookingId, string $tableId): void
     {
         $booking = $this->bookingForSelectedDate($bookingId);
+        abort_unless(in_array($booking->status, ['pending', 'waiting', 'accepted'], true), 422);
         $this->tableInSelectedRoom($tableId);
         $booking->tables()->detach($tableId);
     }
@@ -185,6 +186,7 @@ class BookingRoomIndex extends Component
                     'customer' => $this->customerName($booking),
                     'pax' => $booking->pax,
                     'status' => $booking->status,
+                    'canDetach' => in_array($booking->status, ['pending', 'waiting', 'accepted'], true),
                     'arrivalTimestamp' => Carbon::parse($booking->booking_date->toDateString().' '.substr((string) $booking->booking_time, 0, 5))->timestamp * 1000,
                 ])->values()->all(),
                 'allBookings' => collect($allAssignedByTable->get($table->id, []))
@@ -199,6 +201,7 @@ class BookingRoomIndex extends Component
                             'pax' => $booking->pax,
                             'status' => $booking->status,
                             'statusLabel' => __('bookings.statuses.'.$booking->status),
+                            'canDetach' => in_array($booking->status, ['pending', 'waiting', 'accepted'], true),
                             'arrivalTimestamp' => Carbon::parse($booking->booking_date->toDateString().' '.substr((string) $booking->booking_time, 0, 5))->timestamp * 1000,
                             'isPast' => Carbon::parse($booking->booking_date->toDateString().' '.substr((string) $booking->booking_time, 0, 5))->isPast(),
                         ];
@@ -211,6 +214,7 @@ class BookingRoomIndex extends Component
                 'pax' => $booking->pax,
                 'status' => $booking->status,
                 'statusLabel' => __('bookings.statuses.'.$booking->status),
+                'canDetach' => in_array($booking->status, ['pending', 'waiting', 'accepted'], true),
                 'arrivalTimestamp' => Carbon::parse($booking->booking_date->toDateString().' '.substr((string) $booking->booking_time, 0, 5))->timestamp * 1000,
                 'tableIds' => $booking->tables->pluck('id')->values()->all(),
             ])->values()->all(),
