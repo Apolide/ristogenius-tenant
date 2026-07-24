@@ -1,9 +1,22 @@
-<div class="content booking-room-page"><div class="main-content booking-room-main">
+<div class="content booking-room-page"><div wire:poll.30s class="main-content booking-room-main">
     <style>
         [x-cloak]{display:none!important}.rooms-tabs{display:flex;gap:.5rem;overflow-x:auto;border-bottom:1px solid #e5e7eb;padding:0 .25rem}.rooms-tab{padding:.8rem 1.15rem;border-bottom:3px solid transparent;white-space:nowrap;font-weight:600;color:#64748b}.rooms-tab.active{color:#2563eb;border-color:#2563eb}.room-workspace{display:flex;gap:1rem;min-height:560px}.booking-sidebar{width:330px;flex:0 0 330px;transition:width .2s,opacity .2s}.booking-sidebar.hidden-panel{width:0;flex-basis:0;opacity:0;overflow:hidden}.booking-scroll-wrap{position:relative}.booking-scroll-shadow{position:absolute;left:0;right:.25rem;height:24px;z-index:30;pointer-events:none;transition:opacity .15s ease}.booking-scroll-shadow-top{top:0;background:linear-gradient(to bottom,rgba(15,23,42,.25),rgba(15,23,42,.08) 38%,transparent)}.booking-scroll-shadow-bottom{bottom:0;background:linear-gradient(to top,rgba(15,23,42,.25),rgba(15,23,42,.08) 38%,transparent)}.booking-card{border:1px solid #e5e7eb;border-radius:.65rem;padding:.75rem;margin-bottom:.6rem;background:#fff;transition:.2s;cursor:grab;touch-action:none;user-select:none}.booking-card:active{cursor:grabbing}.booking-card.is-drag-origin{opacity:.4}.booking-card.highlighted{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2);background:#eff6ff}.room-layout{position:relative;flex:1;min-width:0;overflow:auto;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:.75rem}.room-inner{position:relative;margin:1rem;min-width:700px;min-height:520px;background-size:20px 20px;background-image:linear-gradient(to right,rgba(148,163,184,.18) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,.18) 1px,transparent 1px)}.table-item{position:absolute;user-select:none;touch-action:none;border:2px solid #475569;background:#99c08c;cursor:pointer;box-sizing:border-box;overflow:visible;border-radius:.5rem;transition:background-color .2s,border-color .2s,box-shadow .2s}.table-circle{border-radius:9999px}.table-free{background:#99c08c;border-color:#3e4552}.table-arriving{background:#fef08a;border-color:#ca8a04}.table-due{background:#fdba74;border-color:#c2410c}.table-seated{background:#fca5a5;border-color:#b91c1c}.table-drop-hover{box-shadow:0 0 0 4px rgba(59,130,246,.45)}.table-add-mode-target{box-shadow:0 0 0 4px rgba(245,158,11,.45)}.table-header{position:absolute;top:5px;left:7px;right:5px;display:flex;justify-content:center;gap:5px;align-items:center;color:#111;z-index:20;white-space:nowrap}.table-countdown{position:absolute;right:0;padding:2px 4px;border-radius:999px;background:rgba(255,255,255,.82);font-size:10px;font-weight:700}.table-number{font-size:15px}.table-capacity{font-size:11px}.table-bookings{position:absolute;top:28px;left:5px;right:5px;display:flex;flex-direction:column;gap:3px;z-index:10}.table-booking-row{width:100%;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,.95);box-shadow:0 1px 3px rgba(0,0,0,.16);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:none}.table-booking-row.is-drag-origin{opacity:.35}.booking-drag-preview{position:fixed;z-index:80;pointer-events:none;padding:6px 9px;border-radius:6px;background:#111827;color:#fff;font-size:12px}.booking-context-menu{position:fixed;z-index:90;transform:translate(-50%,-100%);display:flex;gap:6px;padding:6px;border:1px solid #d1d5db;border-radius:999px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.2)}.booking-menu-btn{width:32px;height:32px;border:0;border-radius:999px;font-weight:700;cursor:pointer}.booking-menu-btn-remove{background:#fee2e2;color:#b91c1c}.booking-menu-btn-add{background:#dcfce7;color:#15803d}.room-floating-hint{position:fixed;z-index:85;left:50%;bottom:18px;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:#111827;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25)}.modal-tab{padding:.6rem .8rem;border-bottom:2px solid transparent}.modal-tab.active{color:#2563eb;border-color:#2563eb}@media(max-width:900px){.room-workspace{display:block}.booking-sidebar{width:100%;margin-bottom:1rem}.booking-sidebar.hidden-panel{display:none}.room-layout{min-height:500px}}
+        .booking-room-controls-box{margin-bottom:0;border-bottom-right-radius:0;border-bottom-left-radius:0;box-shadow:none!important}
+        .booking-room-map-box{border-top:0;border-top-left-radius:0;border-top-right-radius:0}
+        .booking-room-widget:fullscreen,.booking-room-widget:-webkit-full-screen{display:flex;width:100%;height:100%;min-height:0;flex-direction:column;overflow:hidden;background:#f8fafc;padding:1rem}
+        :is(.dark .booking-room-widget:fullscreen),:is(.dark .booking-room-widget:-webkit-full-screen){background:rgb(var(--body-bg))}
+        .booking-room-widget:fullscreen .booking-room-map-box,.booking-room-widget:-webkit-full-screen .booking-room-map-box{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden;margin-bottom:0}
+        .booking-room-widget:fullscreen .booking-room-map-body,.booking-room-widget:-webkit-full-screen .booking-room-map-body{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+        .booking-room-widget:fullscreen .room-workspace,.booking-room-widget:-webkit-full-screen .room-workspace{display:flex;min-height:0;flex:1;align-items:stretch}
+        .booking-room-widget:fullscreen .booking-sidebar,.booking-room-widget:-webkit-full-screen .booking-sidebar{display:flex;height:100%;min-height:0;flex-direction:column}
+        .booking-room-widget:fullscreen .booking-sidebar.hidden-panel,.booking-room-widget:-webkit-full-screen .booking-sidebar.hidden-panel{display:flex}
+        .booking-room-widget:fullscreen .booking-scroll-wrap,.booking-room-widget:-webkit-full-screen .booking-scroll-wrap{min-height:0;flex:1}
+        .booking-room-widget:fullscreen .booking-list-scroller,.booking-room-widget:-webkit-full-screen .booking-list-scroller{height:100%;max-height:none}
+        .booking-room-widget:fullscreen .room-layout,.booking-room-widget:-webkit-full-screen .room-layout{height:100%;min-height:0}
         @media(min-width:901px){
             .booking-room-page{height:calc(100dvh - 4rem);overflow:hidden}
             .booking-room-main{display:flex;height:100%;min-height:0;flex-direction:column;padding-bottom:1rem}
+            .booking-room-widget{display:flex;min-height:0;flex:1;flex-direction:column}
             .booking-room-map-box{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden;margin-bottom:0}
             .booking-room-map-body{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden}
             .booking-room-map-body>.room-workspace{min-height:0;flex:1;align-items:stretch}
@@ -24,20 +37,61 @@
         </div>
     </div>
 
-    <div class="box" x-data="{ controlsOpen: false }"><div class="box-body">
+    <div
+        wire:key="booking-room-widget"
+        x-ref="fullscreenWidget"
+        x-data="{
+            controlsOpen: false,
+            isFullscreen: false,
+            async toggleFullscreen() {
+                try {
+                    const active = document.fullscreenElement || document.webkitFullscreenElement;
+                    if (active) {
+                        if (document.exitFullscreen) await document.exitFullscreen();
+                        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                    } else if (this.$refs.fullscreenWidget.requestFullscreen) {
+                        await this.$refs.fullscreenWidget.requestFullscreen();
+                    } else if (this.$refs.fullscreenWidget.webkitRequestFullscreen) {
+                        this.$refs.fullscreenWidget.webkitRequestFullscreen();
+                    }
+                } catch (error) {
+                    console.warn('Fullscreen non disponibile', error);
+                }
+            },
+            syncFullscreen() {
+                this.isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === this.$refs.fullscreenWidget;
+            }
+        }"
+        @fullscreenchange.document="syncFullscreen()"
+        @webkitfullscreenchange.document="syncFullscreen()"
+        class="booking-room-widget"
+    >
+    <div class="box booking-room-controls-box"><div class="box-body">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex flex-wrap gap-4 py-2 text-sm">
                 <strong><i class="las la-users"></i> Pax: {{ $totalPax }}</strong>
                 <strong>{{ __('bookings.arriving') }}: {{ $arrivingPax }}</strong>
                 <strong>{{ __('bookings.serving') }}: {{ $servingPax }}</strong>
             </div>
-            <button type="button" class="inline-flex items-center gap-2 text-primary font-semibold hover:text-success transition" @click="controlsOpen = !controlsOpen" :aria-expanded="controlsOpen.toString()" aria-controls="booking-room-controls">
-                <span>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
-                <span aria-hidden="true">—</span>
-                <span x-text="controlsOpen ? @js(__('bookings.collapse')) : @js(__('bookings.expand'))"></span>
-                <svg x-show="!controlsOpen" class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <svg x-show="controlsOpen" x-cloak class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 11L8.16086 5.31305C8.35239 5.13625 8.64761 5.13625 8.83914 5.31305L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
+            <div class="inline-flex items-center gap-3">
+                <button type="button" class="inline-flex items-center gap-2 text-primary font-semibold hover:text-success transition" @click="controlsOpen = !controlsOpen" :aria-expanded="controlsOpen.toString()" aria-controls="booking-room-controls">
+                    <span>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
+                    <span aria-hidden="true">—</span>
+                    <span x-text="controlsOpen ? @js(__('bookings.collapse')) : @js(__('bookings.expand'))"></span>
+                    <svg x-show="!controlsOpen" class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg x-show="controlsOpen" x-cloak class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 11L8.16086 5.31305C8.35239 5.13625 8.64761 5.13625 8.83914 5.31305L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <button
+                    type="button"
+                    class="ti-btn ti-btn-light ti-btn-icon !m-0"
+                    @click="toggleFullscreen()"
+                    :aria-pressed="isFullscreen.toString()"
+                    :title="isFullscreen ? @js(__('bookings.exit_fullscreen')) : @js(__('bookings.fullscreen'))"
+                >
+                    <i class="las text-xl" :class="isFullscreen ? 'la-compress' : 'la-expand'" aria-hidden="true"></i>
+                    <span class="sr-only" x-text="isFullscreen ? @js(__('bookings.exit_fullscreen')) : @js(__('bookings.fullscreen'))"></span>
+                </button>
+            </div>
         </div>
 
         <div id="booking-room-controls" x-show="controlsOpen" x-transition x-cloak class="pt-4 mt-2 border-t dark:border-white/10">
@@ -75,7 +129,12 @@
     <div class="box booking-room-map-box"><div class="rooms-tabs">
         @forelse($rooms as $room)<button wire:key="room-tab-{{ $room->id }}" wire:click="selectRoom('{{ $room->id }}')" class="rooms-tab {{ $roomId===$room->id?'active':'' }}">{{ $room->name }}</button>@empty<span class="p-4 text-textmuted">Configura almeno una sala attiva.</span>@endforelse
     </div>
-    <div class="box-body booking-room-map-body" x-data="roomBookingDnD({tables:@js($roomTables),bookings:@js($roomBookings)})" wire:key="room-map-{{ $roomId }}-{{ $date }}-{{ $meal }}" @keydown.escape.window="cancelInteractiveModes()">
+    <div
+        class="box-body booking-room-map-body"
+        x-data="roomBookingDnD({tables:@js($roomTables),bookings:@js($roomBookings),sidebarOpen:$wire.entangle('sidebarOpen')})"
+        wire:key="room-map-{{ $roomId }}-{{ $date }}-{{ $meal }}"
+        @keydown.escape.window="cancelInteractiveModes()"
+    >
         <div class="flex flex-col items-start gap-3 mb-3 md:flex-row md:items-center md:justify-between">
             <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen?'Nascondi prenotazioni':'Mostra prenotazioni'"></span></button>
             <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> Libero</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> Arrivo entro 60 min</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> Orario raggiunto</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> Seduti</span></div>
@@ -132,11 +191,26 @@
         <div x-show="tableModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center"><div class="absolute inset-0 bg-black/50" @click="closeTableModal()"></div><div class="relative z-10 bg-white dark:bg-bodybg rounded-xl shadow-2xl p-6 w-full max-w-xl" @click.stop>
             <div class="flex justify-between"><h2 class="text-xl font-bold" x-text="selectedTable?`Tavolo ${selectedTable.number}`:'Tavolo'"></h2><button @click="closeTableModal()">✕</button></div>
             <div class="flex border-b mt-4"><button class="modal-tab" :class="{active:tableModalTab==='assign'}" @click="tableModalTab='assign'">Assegna tavoli</button><button class="modal-tab" :class="{active:tableModalTab==='create'}" @click="tableModalTab='create'">Nuova prenotazione</button><button class="modal-tab" :class="{active:tableModalTab==='bookings'}" @click="tableModalTab='bookings'">Prenotazioni del tavolo</button></div>
-            <template x-if="selectedTable"><div class="py-4">
-                <div x-show="tableModalTab==='assign'"><input x-model="modalSearch" class="form-control mb-3" placeholder="Cerca per nome cliente…"><div class="max-h-72 overflow-y-auto space-y-2"><template x-for="booking in assignableBookings()" :key="booking.id"><button class="block w-full text-left border rounded p-2 hover:border-primary" @click="assignFromModal(booking)" x-text="`${booking.time} · ${booking.customer} · ${booking.pax} pax`"></button></template><p x-show="!assignableBookings().length" class="text-textmuted">Nessuna prenotazione da assegnare.</p></div></div>
+            <div x-show="selectedTable" class="py-4">
+                <div x-show="tableModalTab==='assign'">
+                    <input x-model="modalSearch" class="form-control mb-3" placeholder="Cerca per nome cliente…">
+                    <div class="max-h-72 overflow-y-auto space-y-2">
+                        @php $unassignedRoomBookings = collect($roomBookings)->filter(fn (array $booking): bool => empty($booking['tableIds'])); @endphp
+                        @forelse($unassignedRoomBookings as $assignableBooking)
+                            <button
+                                wire:key="assignable-booking-{{ $assignableBooking['id'] }}"
+                                x-show="@js(mb_strtolower($assignableBooking['customer'])).includes(modalSearch.toLocaleLowerCase())"
+                                class="block w-full text-left border rounded p-2 hover:border-primary"
+                                @click="assignFromModal(@js($assignableBooking))"
+                            >{{ $assignableBooking['time'] }} · {{ $assignableBooking['customer'] }} · {{ $assignableBooking['pax'] }} pax</button>
+                        @empty
+                            <p class="text-textmuted">Nessuna prenotazione da assegnare.</p>
+                        @endforelse
+                    </div>
+                </div>
                 <div x-show="tableModalTab==='create'"><p class="mb-3">Crea una prenotazione per il {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} e assegnala al tavolo selezionato.</p><a href="{{ route('bookings.create', ['date'=>$date]) }}" class="ti-btn ti-btn-primary">Nuova prenotazione</a></div>
-                <div x-show="tableModalTab==='bookings'" class="space-y-2"><template x-for="booking in selectedTable.allBookings" :key="booking.id"><button class="block w-full text-left border rounded p-3" :class="booking.isPast?'opacity-70 bg-gray-50':''" @click="closeTableModal();onBookingRowClick(booking.id)"><span class="flex items-center justify-between gap-3"><span><strong x-text="booking.time"></strong> · <span x-text="booking.customer"></span> · <span x-text="`${booking.pax} pax`"></span></span><span class="badge bg-secondary/10 text-black" x-text="booking.statusLabel"></span></span></button></template><p x-show="!selectedTable.allBookings.length" class="text-textmuted">Nessuna prenotazione associata al tavolo per questa data.</p></div>
-            </div></template>
+                <div x-show="tableModalTab==='bookings'" class="space-y-2"><template x-for="booking in (selectedTable?.allBookings || [])" :key="booking.id"><button class="block w-full text-left border rounded p-3" :class="booking.isPast?'opacity-70 bg-gray-50':''" @click="closeTableModal();onBookingRowClick(booking.id)"><span class="flex items-center justify-between gap-3"><span><strong x-text="booking.time"></strong> · <span x-text="booking.customer"></span> · <span x-text="`${booking.pax} pax`"></span></span><span class="badge bg-secondary/10 text-black" x-text="booking.statusLabel"></span></span></button></template><p x-show="!(selectedTable?.allBookings || []).length" class="text-textmuted">Nessuna prenotazione associata al tavolo per questa data.</p></div>
+            </div>
         </div></div>
     </div></div>
     @if($modal)
@@ -151,24 +225,25 @@
             <button wire:click="closeModal" class="ti-btn ti-btn-secondary">Chiudi</button>
         </div></div>
     @endif
+    </div>
 </div></div>
 
 <script>
 window.roomBookingDnD = function(config) { config=config||{}; return {
-    tables:config.tables||[], bookings:config.bookings||[], layoutScale:1.35, sidebarOpen:true, highlightedBookingId:null, modalSearch:'', longPressDelay:450, dragThreshold:8,
+    tables:config.tables||[], bookings:config.bookings||[], layoutScale:1.35, sidebarOpen:config.sidebarOpen??false, highlightedBookingId:null, modalSearch:'', longPressDelay:450, dragThreshold:8,
     nowTimestamp:Date.now(), clockTimer:null, bookingScrollObserver:null, bookingScrollMutationObserver:null, bookingScrollHasAbove:false, bookingScrollHasBelow:false,
     dragging:null, pointerSession:null, pointerListeners:null, hoverTableId:null, suppressClicksUntil:0, dragPreview:{visible:false,x:0,y:0,label:''},
     bookingMenu:{open:false,x:0,y:0,bookingId:null,tableId:null,label:''}, addTableMode:{active:false,bookingId:null,fromTableId:null,label:''},
-    tableModalOpen:false, tableModalTab:'assign', selectedTable:null,
+    tableModalOpen:false, tableModalTab:'assign', selectedTableId:null,
+    get selectedTable(){return this.tables.find(t=>t.id===this.selectedTableId)||null},
     init(){this.clockTimer=window.setInterval(()=>{this.nowTimestamp=Date.now()},30000);this.$nextTick(()=>this.initBookingScrollShadows())},
     destroy(){if(this.clockTimer)window.clearInterval(this.clockTimer);this.bookingScrollObserver?.disconnect();this.bookingScrollMutationObserver?.disconnect()},
     initBookingScrollShadows(){let el=this.$refs.bookingScroller;if(!el)return;this.bookingScrollObserver=new ResizeObserver(()=>this.updateBookingScrollShadows());this.bookingScrollObserver.observe(el);this.bookingScrollMutationObserver=new MutationObserver(()=>this.updateBookingScrollShadows());this.bookingScrollMutationObserver.observe(el,{childList:true,subtree:true});this.updateBookingScrollShadows()},
     updateBookingScrollShadows(){let el=this.$refs.bookingScroller;if(!el||!this.sidebarOpen){this.bookingScrollHasAbove=false;this.bookingScrollHasBelow=false;return}let maxScroll=Math.max(0,el.scrollHeight-el.clientHeight),tolerance=1;this.bookingScrollHasAbove=maxScroll>tolerance&&el.scrollTop>tolerance;this.bookingScrollHasBelow=maxScroll>tolerance&&el.scrollTop<maxScroll-tolerance},
     onBookingRowClick(id){if(Date.now()<this.suppressClicksUntil)return;this.sidebarOpen=true;this.highlightedBookingId=id;this.$nextTick(()=>document.getElementById(`booking-list-${id}`)?.scrollIntoView({behavior:'smooth',block:'center'}))},
-    openTableModal(id){this.selectedTable=this.tables.find(t=>t.id===id);this.tableModalTab='assign';this.modalSearch='';this.tableModalOpen=!!this.selectedTable},closeTableModal(){this.tableModalOpen=false;this.selectedTable=null},
+    openTableModal(id){this.selectedTableId=id;this.tableModalTab='assign';this.modalSearch='';this.tableModalOpen=!!this.selectedTable},closeTableModal(){this.tableModalOpen=false;this.selectedTableId=null},
     allBookings(){let found=new Map();this.bookings.forEach(b=>found.set(b.id,b));this.tables.flatMap(t=>t.bookings).forEach(b=>found.set(b.id,b));return Array.from(found.values())},
-    assignableBookings(){if(!this.selectedTable)return[];let query=this.modalSearch.toLocaleLowerCase();return this.allBookings().filter(b=>!this.selectedTable.bookings.some(x=>x.id===b.id)&&b.customer.toLocaleLowerCase().includes(query))},
-    async assignFromModal(booking){let table=this.selectedTable,snapshot=JSON.stringify(this.tables);table.bookings.push({...booking});if(!table.allBookings.some(b=>b.id===booking.id))table.allBookings.push({...booking});try{await this.$wire.assignBookingToTable(booking.id,table.id)}catch(e){this.tables=JSON.parse(snapshot);throw e}},
+    async assignFromModal(booking){let table=this.selectedTable,snapshot=JSON.stringify({tables:this.tables,bookings:this.bookings});table.bookings.push({...booking});if(!table.allBookings.some(b=>b.id===booking.id))table.allBookings.push({...booking});booking.tableIds=[...(booking.tableIds||[]),table.id];try{await this.$wire.assignBookingToTable(booking.id,table.id)}catch(e){let state=JSON.parse(snapshot);this.tables=state.tables;this.bookings=state.bookings;throw e}},
     onListBookingPointerDown(bookingId,event){if(!event.isPrimary||this.addTableMode.active||event.target.closest('a,button'))return;let booking=this.bookings.find(b=>b.id===bookingId);if(!booking)return;let rowEl=event.currentTarget;this.pointerSession={pointerId:event.pointerId,fromTableId:null,bookingId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,dragStarted:false,menuOpened:false,rowEl,label:`${booking.time} ${booking.customer}`,longPressTimer:null};rowEl.setPointerCapture?.(event.pointerId);let move=e=>this.onGlobalPointerMove(e),up=e=>this.onGlobalPointerUp(e),cancel=e=>this.onGlobalPointerCancel(e);this.pointerListeners={move,up,cancel};window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel)},
     onBookingPointerDown(fromTableId,bookingId,event){if(!event.isPrimary||this.addTableMode.active)return;let table=this.tables.find(t=>t.id===fromTableId),booking=table?.bookings.find(b=>b.id===bookingId);if(!booking)return;this.closeBookingMenu();let rowEl=event.currentTarget;this.pointerSession={pointerId:event.pointerId,fromTableId,bookingId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,dragStarted:false,menuOpened:false,rowEl,label:`${booking.time} ${booking.customer}`,longPressTimer:window.setTimeout(()=>{let s=this.pointerSession;if(!s||s.pointerId!==event.pointerId||s.dragStarted)return;s.menuOpened=true;this.openBookingMenu(s,rowEl)},this.longPressDelay)};rowEl.setPointerCapture?.(event.pointerId);let move=e=>this.onGlobalPointerMove(e),up=e=>this.onGlobalPointerUp(e),cancel=e=>this.onGlobalPointerCancel(e);this.pointerListeners={move,up,cancel};window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel)},
     onGlobalPointerMove(event){let s=this.pointerSession;if(!s||event.pointerId!==s.pointerId||s.menuOpened)return;s.lastX=event.clientX;s.lastY=event.clientY;let distance=Math.hypot(event.clientX-s.startX,event.clientY-s.startY);if(!s.dragStarted&&distance<this.dragThreshold)return;this.clearLongPressTimer(s);if(!s.dragStarted){s.dragStarted=true;this.dragging={bookingId:s.bookingId,fromTableId:s.fromTableId};this.suppressClicksUntil=Date.now()+250;this.closeBookingMenu();this.cancelAddTableMode()}event.preventDefault();this.dragPreview={visible:true,x:event.clientX+14,y:event.clientY+14,label:s.label};this.hoverTableId=this.findDropTableIdAtPoint(event.clientX,event.clientY)},
@@ -178,11 +253,11 @@ window.roomBookingDnD = function(config) { config=config||{}; return {
     openBookingMenu(state,rowEl){this.clearLongPressTimer(state);let rect=rowEl.getBoundingClientRect();this.suppressClicksUntil=Date.now()+350;this.bookingMenu={open:true,x:rect.left+rect.width/2,y:rect.top-6,bookingId:state.bookingId,tableId:state.fromTableId,label:state.label}},closeBookingMenu(){this.bookingMenu.open=false},
     beginAddTableMode(){this.addTableMode={active:true,bookingId:this.bookingMenu.bookingId,fromTableId:this.bookingMenu.tableId,label:this.bookingMenu.label};this.closeBookingMenu()},cancelAddTableMode(){this.addTableMode={active:false,bookingId:null,fromTableId:null,label:''}},
     async onTableClick(id){if(!this.addTableMode.active)return;if(id===this.addTableMode.fromTableId)return;let m={...this.addTableMode};if(this.hasBookingOnTable(m.bookingId,id))return;this.cancelAddTableMode();await this.attachBooking(m.bookingId,m.fromTableId,id)},
-    async moveBooking(id,from,to){let snapshot=JSON.stringify(this.tables);this.moveLocal(id,from,to);try{await this.$wire.moveBookingToTable(id,from,to)}catch(e){this.tables=JSON.parse(snapshot);throw e}},
-    async assignListBooking(id,to){if(this.hasBookingOnTable(id,to))return;let snapshot=JSON.stringify(this.tables),booking=this.bookings.find(b=>b.id===id),table=this.tables.find(t=>t.id===to);if(!booking||!table)return;table.bookings.push({...booking});if(!table.allBookings.some(b=>b.id===id))table.allBookings.push({...booking});table.bookings.sort((a,b)=>a.time.localeCompare(b.time));try{await this.$wire.assignBookingToTable(id,to)}catch(e){this.tables=JSON.parse(snapshot);throw e}},
-    async attachBooking(id,from,to){let snapshot=JSON.stringify(this.tables),source=this.tables.find(t=>t.id===from),target=this.tables.find(t=>t.id===to),booking=source?.bookings.find(b=>b.id===id),fullBooking=source?.allBookings.find(b=>b.id===id)||booking;if(booking)target.bookings.push({...booking});if(fullBooking&&!target.allBookings.some(b=>b.id===id))target.allBookings.push({...fullBooking});try{await this.$wire.attachBookingToTable(id,from,to)}catch(e){this.tables=JSON.parse(snapshot);throw e}},
-    async detachBookingFromMenu(){let {bookingId:id,tableId}=this.bookingMenu;this.closeBookingMenu();let snapshot=JSON.stringify(this.tables),table=this.tables.find(t=>t.id===tableId);table.bookings=table.bookings.filter(b=>b.id!==id);table.allBookings=table.allBookings.filter(b=>b.id!==id);try{await this.$wire.detachBookingFromTable(id,tableId)}catch(e){this.tables=JSON.parse(snapshot);throw e}},
-    moveLocal(id,from,to){let a=this.tables.find(t=>t.id===from),b=this.tables.find(t=>t.id===to),i=a?.bookings.findIndex(x=>x.id===id),fullBooking=a?.allBookings.find(x=>x.id===id);if(i>=0){let [booking]=a.bookings.splice(i,1);if(!b.bookings.some(x=>x.id===id))b.bookings.push(booking)}if(fullBooking){a.allBookings=a.allBookings.filter(x=>x.id!==id);if(!b.allBookings.some(x=>x.id===id))b.allBookings.push(fullBooking)}},hasBookingOnTable(id,tableId){return this.tables.find(t=>t.id===tableId)?.bookings.some(b=>b.id===id)},
+    async moveBooking(id,from,to){let snapshot=JSON.stringify({tables:this.tables,bookings:this.bookings});this.moveLocal(id,from,to);try{await this.$wire.moveBookingToTable(id,from,to)}catch(e){let state=JSON.parse(snapshot);this.tables=state.tables;this.bookings=state.bookings;throw e}},
+    async assignListBooking(id,to){if(this.hasBookingOnTable(id,to))return;let snapshot=JSON.stringify({tables:this.tables,bookings:this.bookings}),booking=this.bookings.find(b=>b.id===id),table=this.tables.find(t=>t.id===to);if(!booking||!table)return;table.bookings.push({...booking});if(!table.allBookings.some(b=>b.id===id))table.allBookings.push({...booking});booking.tableIds=[...(booking.tableIds||[]),to];table.bookings.sort((a,b)=>a.time.localeCompare(b.time));try{await this.$wire.assignBookingToTable(id,to)}catch(e){let state=JSON.parse(snapshot);this.tables=state.tables;this.bookings=state.bookings;throw e}},
+    async attachBooking(id,from,to){let snapshot=JSON.stringify({tables:this.tables,bookings:this.bookings}),source=this.tables.find(t=>t.id===from),target=this.tables.find(t=>t.id===to),booking=source?.bookings.find(b=>b.id===id),fullBooking=source?.allBookings.find(b=>b.id===id)||booking,canonical=this.bookings.find(b=>b.id===id);if(booking)target.bookings.push({...booking});if(fullBooking&&!target.allBookings.some(b=>b.id===id))target.allBookings.push({...fullBooking});if(canonical&&!(canonical.tableIds||[]).includes(to))canonical.tableIds=[...(canonical.tableIds||[]),to];try{await this.$wire.attachBookingToTable(id,from,to)}catch(e){let state=JSON.parse(snapshot);this.tables=state.tables;this.bookings=state.bookings;throw e}},
+    async detachBookingFromMenu(){let {bookingId:id,tableId}=this.bookingMenu;this.closeBookingMenu();let snapshot=JSON.stringify({tables:this.tables,bookings:this.bookings}),table=this.tables.find(t=>t.id===tableId),canonical=this.bookings.find(b=>b.id===id);table.bookings=table.bookings.filter(b=>b.id!==id);table.allBookings=table.allBookings.filter(b=>b.id!==id);if(canonical)canonical.tableIds=(canonical.tableIds||[]).filter(value=>value!==tableId);try{await this.$wire.detachBookingFromTable(id,tableId)}catch(e){let state=JSON.parse(snapshot);this.tables=state.tables;this.bookings=state.bookings;throw e}},
+    moveLocal(id,from,to){let a=this.tables.find(t=>t.id===from),b=this.tables.find(t=>t.id===to),i=a?.bookings.findIndex(x=>x.id===id),fullBooking=a?.allBookings.find(x=>x.id===id),canonical=this.bookings.find(x=>x.id===id);if(i>=0){let [booking]=a.bookings.splice(i,1);if(!b.bookings.some(x=>x.id===id))b.bookings.push(booking)}if(fullBooking){a.allBookings=a.allBookings.filter(x=>x.id!==id);if(!b.allBookings.some(x=>x.id===id))b.allBookings.push(fullBooking)}if(canonical)canonical.tableIds=[...(canonical.tableIds||[]).filter(value=>value!==from),to]},hasBookingOnTable(id,tableId){return this.tables.find(t=>t.id===tableId)?.bookings.some(b=>b.id===id)},
     isDraggedBooking(table,id){return this.dragging?.fromTableId===table&&this.dragging?.bookingId===id},tableStyle(t){let s=this.layoutScale;return `width:${Math.round((t.w||64)*s)}px;height:${Math.round((t.h||64)*s)}px;transform:translate(${Math.round(t.x*s)}px,${Math.round(t.y*s)}px) rotate(${t.rotation||0}deg)`},
     roomInnerStyle(){let s=this.layoutScale,right=0,bottom=0;this.tables.forEach(t=>{right=Math.max(right,(t.x+(t.w||64))*s);bottom=Math.max(bottom,(t.y+(t.h||64))*s)});return `min-width:${Math.max(760,Math.ceil(right+150))}px;min-height:${Math.max(560,Math.ceil(bottom+100))}px`},
     relevantTableBookings(t){let ignored=['canceled','denied','no-show','finalized'];return (t.allBookings||[]).filter(b=>!ignored.includes(b.status))},

@@ -30,6 +30,8 @@ class BookingRoomIndex extends Component
 
     public bool $timeslotAccordionOpen = false;
 
+    public bool $sidebarOpen = false;
+
     public ?string $selectedBookingId = null;
 
     public ?string $modal = null;
@@ -210,6 +212,7 @@ class BookingRoomIndex extends Component
                 'status' => $booking->status,
                 'statusLabel' => __('bookings.statuses.'.$booking->status),
                 'arrivalTimestamp' => Carbon::parse($booking->booking_date->toDateString().' '.substr((string) $booking->booking_time, 0, 5))->timestamp * 1000,
+                'tableIds' => $booking->tables->pluck('id')->values()->all(),
             ])->values()->all(),
             'statuses' => config('bookings.statuses'),
             'timeslotStats' => $this->timeslotStats($bookings),
