@@ -1,6 +1,17 @@
-<div class="content"><div class="main-content">
+<div class="content booking-room-page"><div class="main-content booking-room-main">
     <style>
         [x-cloak]{display:none!important}.rooms-tabs{display:flex;gap:.5rem;overflow-x:auto;border-bottom:1px solid #e5e7eb;padding:0 .25rem}.rooms-tab{padding:.8rem 1.15rem;border-bottom:3px solid transparent;white-space:nowrap;font-weight:600;color:#64748b}.rooms-tab.active{color:#2563eb;border-color:#2563eb}.room-workspace{display:flex;gap:1rem;min-height:560px}.booking-sidebar{width:330px;flex:0 0 330px;transition:width .2s,opacity .2s}.booking-sidebar.hidden-panel{width:0;flex-basis:0;opacity:0;overflow:hidden}.booking-scroll-wrap{position:relative}.booking-scroll-shadow{position:absolute;left:0;right:.25rem;height:24px;z-index:30;pointer-events:none;transition:opacity .15s ease}.booking-scroll-shadow-top{top:0;background:linear-gradient(to bottom,rgba(15,23,42,.25),rgba(15,23,42,.08) 38%,transparent)}.booking-scroll-shadow-bottom{bottom:0;background:linear-gradient(to top,rgba(15,23,42,.25),rgba(15,23,42,.08) 38%,transparent)}.booking-card{border:1px solid #e5e7eb;border-radius:.65rem;padding:.75rem;margin-bottom:.6rem;background:#fff;transition:.2s;cursor:grab;touch-action:none;user-select:none}.booking-card:active{cursor:grabbing}.booking-card.is-drag-origin{opacity:.4}.booking-card.highlighted{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2);background:#eff6ff}.room-layout{position:relative;flex:1;min-width:0;overflow:auto;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:.75rem}.room-inner{position:relative;margin:1rem;min-width:700px;min-height:520px;background-size:20px 20px;background-image:linear-gradient(to right,rgba(148,163,184,.18) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,.18) 1px,transparent 1px)}.table-item{position:absolute;user-select:none;touch-action:none;border:2px solid #475569;background:#99c08c;cursor:pointer;box-sizing:border-box;overflow:visible;border-radius:.5rem;transition:background-color .2s,border-color .2s,box-shadow .2s}.table-circle{border-radius:9999px}.table-free{background:#99c08c;border-color:#3e4552}.table-arriving{background:#fef08a;border-color:#ca8a04}.table-due{background:#fdba74;border-color:#c2410c}.table-seated{background:#fca5a5;border-color:#b91c1c}.table-drop-hover{box-shadow:0 0 0 4px rgba(59,130,246,.45)}.table-add-mode-target{box-shadow:0 0 0 4px rgba(245,158,11,.45)}.table-header{position:absolute;top:5px;left:7px;right:5px;display:flex;justify-content:center;gap:5px;align-items:center;color:#111;z-index:20;white-space:nowrap}.table-countdown{position:absolute;right:0;padding:2px 4px;border-radius:999px;background:rgba(255,255,255,.82);font-size:10px;font-weight:700}.table-number{font-size:15px}.table-capacity{font-size:11px}.table-bookings{position:absolute;top:28px;left:5px;right:5px;display:flex;flex-direction:column;gap:3px;z-index:10}.table-booking-row{width:100%;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,.95);box-shadow:0 1px 3px rgba(0,0,0,.16);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:none}.table-booking-row.is-drag-origin{opacity:.35}.booking-drag-preview{position:fixed;z-index:80;pointer-events:none;padding:6px 9px;border-radius:6px;background:#111827;color:#fff;font-size:12px}.booking-context-menu{position:fixed;z-index:90;transform:translate(-50%,-100%);display:flex;gap:6px;padding:6px;border:1px solid #d1d5db;border-radius:999px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.2)}.booking-menu-btn{width:32px;height:32px;border:0;border-radius:999px;font-weight:700;cursor:pointer}.booking-menu-btn-remove{background:#fee2e2;color:#b91c1c}.booking-menu-btn-add{background:#dcfce7;color:#15803d}.room-floating-hint{position:fixed;z-index:85;left:50%;bottom:18px;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:#111827;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25)}.modal-tab{padding:.6rem .8rem;border-bottom:2px solid transparent}.modal-tab.active{color:#2563eb;border-color:#2563eb}@media(max-width:900px){.room-workspace{display:block}.booking-sidebar{width:100%;margin-bottom:1rem}.booking-sidebar.hidden-panel{display:none}.room-layout{min-height:500px}}
+        @media(min-width:901px){
+            .booking-room-page{height:calc(100dvh - 4rem);overflow:hidden}
+            .booking-room-main{display:flex;height:100%;min-height:0;flex-direction:column;padding-bottom:1rem}
+            .booking-room-map-box{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden;margin-bottom:0}
+            .booking-room-map-body{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+            .booking-room-map-body>.room-workspace{min-height:0;flex:1;align-items:stretch}
+            .booking-room-map-body .booking-sidebar{display:flex;height:100%;min-height:0;flex-direction:column}
+            .booking-room-map-body .booking-scroll-wrap{min-height:0;flex:1}
+            .booking-room-map-body .booking-list-scroller{height:100%;max-height:none}
+            .booking-room-map-body .room-layout{height:100%;min-height:0}
+        }
     </style>
 
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
@@ -61,10 +72,10 @@
         </div>
     </div></div>
 
-    <div class="box"><div class="rooms-tabs">
+    <div class="box booking-room-map-box"><div class="rooms-tabs">
         @forelse($rooms as $room)<button wire:key="room-tab-{{ $room->id }}" wire:click="selectRoom('{{ $room->id }}')" class="rooms-tab {{ $roomId===$room->id?'active':'' }}">{{ $room->name }}</button>@empty<span class="p-4 text-textmuted">Configura almeno una sala attiva.</span>@endforelse
     </div>
-    <div class="box-body" x-data="roomBookingDnD({tables:@js($roomTables),bookings:@js($roomBookings)})" wire:key="room-map-{{ $roomId }}-{{ $date }}-{{ $meal }}" @keydown.escape.window="cancelInteractiveModes()">
+    <div class="box-body booking-room-map-body" x-data="roomBookingDnD({tables:@js($roomTables),bookings:@js($roomBookings)})" wire:key="room-map-{{ $roomId }}-{{ $date }}-{{ $meal }}" @keydown.escape.window="cancelInteractiveModes()">
         <div class="flex flex-col items-start gap-3 mb-3 md:flex-row md:items-center md:justify-between">
             <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen?'Nascondi prenotazioni':'Mostra prenotazioni'"></span></button>
             <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> Libero</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> Arrivo entro 60 min</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> Orario raggiunto</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> Seduti</span></div>
@@ -74,7 +85,7 @@
                 <div class="font-semibold mb-3">Prenotazioni ({{ $bookings->count() }})</div>
                 <div class="booking-scroll-wrap">
                     <div x-show="bookingScrollHasAbove" x-cloak class="booking-scroll-shadow booking-scroll-shadow-top" aria-hidden="true"></div>
-                    <div x-ref="bookingScroller" class="max-h-[540px] overflow-y-auto pr-1" @scroll.passive="updateBookingScrollShadows()" @resize.window.debounce.100ms="updateBookingScrollShadows()">
+                    <div x-ref="bookingScroller" class="booking-list-scroller max-h-[540px] overflow-y-auto pr-1" @scroll.passive="updateBookingScrollShadows()" @resize.window.debounce.100ms="updateBookingScrollShadows()">
                         @forelse($bookings as $booking)
                         @php
                             $name=$booking->customer?->display_name ?: trim(($booking->customer?->firstname??'').' '.($booking->customer?->lastname??'')) ?: 'Walk In';
