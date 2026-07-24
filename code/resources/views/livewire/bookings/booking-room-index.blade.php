@@ -13,43 +13,59 @@
         </div>
     </div>
 
-    <div class="box"><div class="box-body">
-        <div class="grid grid-cols-3 gap-3">
-            <div><button wire:click="previousDay" class="ti-btn ti-btn-primary"><i class="las la-arrow-left text-3xl"></i><span class="hidden md:block">Indietro</span></button></div>
-            <div class="flex justify-center gap-2"><input type="date" wire:model.live="date" class="form-control" style="max-width:190px" onchange="this.blur()"><button wire:click="selectToday" class="ti-btn ti-btn-primary">Oggi</button></div>
-            <div class="flex justify-end"><button wire:click="nextDay" class="ti-btn ti-btn-primary"><span class="hidden md:block">Avanti</span><i class="las la-arrow-right text-3xl"></i></button></div>
+    <div class="box" x-data="{ controlsOpen: false }"><div class="box-body">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-4 py-2 text-sm">
+                <strong><i class="las la-users"></i> Pax: {{ $totalPax }}</strong>
+                <strong>{{ __('bookings.arriving') }}: {{ $arrivingPax }}</strong>
+                <strong>{{ __('bookings.serving') }}: {{ $servingPax }}</strong>
+            </div>
+            <button type="button" class="inline-flex items-center gap-2 text-primary font-semibold hover:text-success transition" @click="controlsOpen = !controlsOpen" :aria-expanded="controlsOpen.toString()" aria-controls="booking-room-controls">
+                <span>{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</span>
+                <span aria-hidden="true">—</span>
+                <span x-text="controlsOpen ? @js(__('bookings.collapse')) : @js(__('bookings.expand'))"></span>
+                <svg x-show="!controlsOpen" class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg x-show="controlsOpen" x-cloak class="w-3 h-3" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 11L8.16086 5.31305C8.35239 5.13625 8.64761 5.13625 8.83914 5.31305L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
         </div>
-        <div x-data="{ open: $wire.entangle('timeslotAccordionOpen').live }" class="mb-1 mt-5">
-            <div class="overflow-hidden bg-white border -mt-px first:rounded-t-sm last:rounded-b-sm dark:bg-bodybg dark:border-white/10">
-                <button type="button" class="bg-primary/10 text-primary group py-4 px-5 inline-flex items-center justify-between gap-x-3 w-full text-start transition hover:text-success dark:text-gray-200 dark:hover:text-white/80" @click="open = !open" :aria-expanded="open.toString()">
-                    <span class="inline-flex items-center gap-2"><i class="las la-clock text-xl"></i> {{ __('bookings.timeslots') }}</span>
-                    <svg x-show="!open" class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    <svg x-show="open" x-cloak class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M2 11L8.16086 5.31305C8.35239 5.13625 8.64761 5.13625 8.83914 5.31305L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-                <div x-show="open" x-transition x-cloak class="w-full overflow-hidden">
-                    <div class="box-body"><div class="table-responsive"><table class="ti-custom-table w-full"><thead><tr><th>{{ __('bookings.slot') }}</th><th>{{ __('bookings.booked') }}</th><th>{{ __('bookings.title') }}</th></tr></thead><tbody>
-                        @forelse($timeslotStats as $slot)
-                            @if($slot['bookings'] !== 0)<tr><td>{{ $slot['time'] }}</td><td>{{ $slot['pax'] }}</td><td>{{ $slot['bookings'] }}</td></tr>@endif
-                        @empty<tr><td colspan="3" class="text-center">{{ __('bookings.closed') }}</td></tr>@endforelse
-                    </tbody></table></div></div>
+
+        <div id="booking-room-controls" x-show="controlsOpen" x-transition x-cloak class="pt-4 mt-2 border-t dark:border-white/10">
+            <div class="grid grid-cols-3 gap-3">
+                <div><button wire:click="previousDay" class="ti-btn ti-btn-primary"><i class="las la-arrow-left text-3xl"></i><span class="hidden md:block">{{ __('bookings.back') }}</span></button></div>
+                <div class="flex justify-center gap-2"><input type="date" wire:model.live="date" class="form-control" style="max-width:190px" onchange="this.blur()"><button wire:click="selectToday" class="ti-btn ti-btn-primary">{{ __('bookings.today') }}</button></div>
+                <div class="flex justify-end"><button wire:click="nextDay" class="ti-btn ti-btn-primary"><span class="hidden md:block">{{ __('bookings.next') }}</span><i class="las la-arrow-right text-3xl"></i></button></div>
+            </div>
+            <div x-data="{ open: $wire.entangle('timeslotAccordionOpen').live }" class="mb-1 mt-5">
+                <div class="overflow-hidden bg-white border -mt-px first:rounded-t-sm last:rounded-b-sm dark:bg-bodybg dark:border-white/10">
+                    <button type="button" class="bg-primary/10 text-primary group py-4 px-5 inline-flex items-center justify-between gap-x-3 w-full text-start transition hover:text-success dark:text-gray-200 dark:hover:text-white/80" @click="open = !open" :aria-expanded="open.toString()">
+                        <span class="inline-flex items-center gap-2"><i class="las la-clock text-xl"></i> {{ __('bookings.timeslots') }}</span>
+                        <svg x-show="!open" class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg x-show="open" x-cloak class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M2 11L8.16086 5.31305C8.35239 5.13625 8.64761 5.13625 8.83914 5.31305L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                    <div x-show="open" x-transition x-cloak class="w-full overflow-hidden">
+                        <div class="box-body"><div class="table-responsive"><table class="ti-custom-table w-full"><thead><tr><th>{{ __('bookings.slot') }}</th><th>{{ __('bookings.booked') }}</th><th>{{ __('bookings.title') }}</th></tr></thead><tbody>
+                            @forelse($timeslotStats as $slot)
+                                @if($slot['bookings'] !== 0)<tr><td>{{ $slot['time'] }}</td><td>{{ $slot['pax'] }}</td><td>{{ $slot['bookings'] }}</td></tr>@endif
+                            @empty<tr><td colspan="3" class="text-center">{{ __('bookings.closed') }}</td></tr>@endforelse
+                        </tbody></table></div></div>
+                    </div>
                 </div>
             </div>
+            <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
+                <input wire:model.live.debounce.300ms="search" class="form-control col-span-5 md:col-span-1 h-12" placeholder="{{ __('bookings.search') }}">
+                <a href="{{ route('bookings.index', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">{{ __('bookings.list') }}</a>
+                <button wire:click="selectMeal('all')" class="ti-btn h-12 {{ $meal==='all'?'ti-btn-primary':'ti-btn-light' }}">{{ __('bookings.all_day') }}</button>
+                <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal==='pranzo'?'ti-btn-primary':'ti-btn-light' }}">{{ __('bookings.lunch') }}</button>
+                <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal==='cena'?'ti-btn-primary':'ti-btn-light' }}">{{ __('bookings.dinner') }}</button>
+            </div>
         </div>
-        <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
-            <input wire:model.live.debounce.300ms="search" class="form-control col-span-5 md:col-span-1 h-12" placeholder="{{ __('bookings.search') }}">
-            <a href="{{ route('bookings.index', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">{{ __('bookings.list') }}</a>
-            <button wire:click="selectMeal('all')" class="ti-btn h-12 {{ $meal==='all'?'ti-btn-primary':'ti-btn-light' }}">Tutto il giorno</button>
-            <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal==='pranzo'?'ti-btn-primary':'ti-btn-light' }}">Pranzo</button>
-            <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal==='cena'?'ti-btn-primary':'ti-btn-light' }}">Cena</button>
-        </div>
-        <div class="flex gap-4 py-2 text-sm"><strong><i class="las la-users"></i> Pax: {{ $totalPax }}</strong><strong>In arrivo: {{ $arrivingPax }}</strong><strong>Servendo: {{ $servingPax }}</strong></div>
     </div></div>
 
     <div class="box"><div class="rooms-tabs">
         @forelse($rooms as $room)<button wire:key="room-tab-{{ $room->id }}" wire:click="selectRoom('{{ $room->id }}')" class="rooms-tab {{ $roomId===$room->id?'active':'' }}">{{ $room->name }}</button>@empty<span class="p-4 text-textmuted">Configura almeno una sala attiva.</span>@endforelse
     </div>
     <div class="box-body" x-data="roomBookingDnD({tables:@js($roomTables),bookings:@js($roomBookings)})" wire:key="room-map-{{ $roomId }}-{{ $date }}-{{ $meal }}" @keydown.escape.window="cancelInteractiveModes()">
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex flex-col items-start gap-3 mb-3 md:flex-row md:items-center md:justify-between">
             <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen?'Nascondi prenotazioni':'Mostra prenotazioni'"></span></button>
             <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> Libero</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> Arrivo entro 60 min</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> Orario raggiunto</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> Seduti</span></div>
         </div>
