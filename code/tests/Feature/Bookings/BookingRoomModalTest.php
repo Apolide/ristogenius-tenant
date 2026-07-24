@@ -162,6 +162,57 @@ class BookingRoomModalTest extends TestCase
         $this->assertFalse($tableBookings[$seated->id]['canDetach']);
     }
 
+    #[DataProvider('confirmationActions')]
+    public function test_each_booking_action_displays_its_specific_confirmation(
+        string $action,
+        string $translationKey,
+    ): void {
+        $booking = $this->createBooking('accepted')->load('customer');
+
+        Livewire::test(BookingRoomIndex::class)
+            ->set('date', $booking->booking_date->toDateString())
+            ->set('roomId', $this->room->id)
+            ->call('openAction', $action, $booking->id)
+            ->assertSet('modal', $action)
+            ->assertSet('selectedBookingId', $booking->id)
+            ->assertSee(__("bookings.actions.confirmations.{$translationKey}.title"))
+            ->assertSee(__("bookings.actions.confirmations.{$translationKey}.prompt"))
+            ->assertSee($booking->customer->display_name);
+    }
+
+    #[DataProvider('terminalStatusActions')]
+    public function test_terminal_status_removes_the_booking_from_active_room_data_and_changes_the_map_key(
+        string $action,
+        string $status,
+    ): void {
+        $booking = $this->createBooking('accepted');
+        $booking->tables()->attach($this->table);
+
+        $component = Livewire::test(BookingRoomIndex::class)
+            ->set('date', $booking->booking_date->toDateString())
+            ->set('roomId', $this->room->id);
+
+        $initialRoomBookings = collect($component->viewData('roomBookings'))->pluck('id');
+        $initialTable = collect($component->viewData('roomTables'))->firstWhere('id', $this->table->id);
+        $initialMapKey = $this->roomMapKey($component->html());
+
+        $this->assertContains($booking->id, $initialRoomBookings);
+        $this->assertContains($booking->id, collect($initialTable['bookings'])->pluck('id'));
+
+        $component
+            ->call('openAction', $action, $booking->id)
+            ->call('changeStatus', $status)
+            ->assertHasNoErrors();
+
+        $updatedRoomBookings = collect($component->viewData('roomBookings'))->pluck('id');
+        $updatedTable = collect($component->viewData('roomTables'))->firstWhere('id', $this->table->id);
+
+        $this->assertDatabaseHas('bookings', ['id' => $booking->id, 'status' => $status]);
+        $this->assertNotContains($booking->id, $updatedRoomBookings);
+        $this->assertNotContains($booking->id, collect($updatedTable['bookings'])->pluck('id'));
+        $this->assertNotSame($initialMapKey, $this->roomMapKey($component->html()));
+    }
+
     public static function detachableStatuses(): array
     {
         return [
@@ -179,6 +230,25 @@ class BookingRoomModalTest extends TestCase
             'denied' => ['denied'],
             'canceled' => ['canceled'],
             'no-show' => ['no-show'],
+        ];
+    }
+
+    public static function confirmationActions(): array
+    {
+        return [
+            'accept' => ['accept', 'accept'],
+            'deny' => ['deny', 'deny'],
+            'no-show' => ['no-show', 'no_show'],
+            'seat' => ['seat', 'seat'],
+            'finalize' => ['finalize', 'finalize'],
+        ];
+    }
+
+    public static function terminalStatusActions(): array
+    {
+        return [
+            'no-show' => ['no-show', 'no-show'],
+            'finalized' => ['finalize', 'finalized'],
         ];
     }
 
@@ -212,5 +282,14 @@ class BookingRoomModalTest extends TestCase
             'min_people' => 1,
             'max_people' => 4,
         ]);
+    }
+
+    private function roomMapKey(string $html): string
+    {
+        preg_match('/wire:key="(room-map-[^"]+)"/', $html, $matches);
+
+        $this->assertArrayHasKey(1, $matches, 'La chiave Livewire della mappa sala non è presente.');
+
+        return $matches[1];
     }
 }
