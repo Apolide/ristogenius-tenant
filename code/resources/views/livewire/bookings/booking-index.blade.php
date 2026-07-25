@@ -1,4 +1,5 @@
 <div class="content"><div class="main-content">
+    <style>:is(.dark .booking-table-badge){color:#f8fafc!important}</style>
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5></div>
         <div class="flex gap-3">
@@ -73,7 +74,7 @@
                 @if($booking->status === 'accepted')<button wire:click="openAction('tables','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-green-500 text-white"><i class="las la-chair text-2xl"></i></button>@if($booking->booking_date->isToday() || $booking->booking_date->isPast())<button wire:click="openAction('seat','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-green-500 text-white"><i class="las la-user-check text-2xl"></i></button><button wire:click="openAction('no-show','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-red-500 text-white"><i class="las la-user-slash text-2xl"></i></button>@endif @endif
                 @if($booking->status === 'seated')<button wire:click="openAction('finalize','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-green-500 text-white"><i class="las la-check-double text-2xl"></i></button>@endif
                 @unless($booking->isWalkIn())<a href="{{ route('bookings.edit',$booking) }}" class="ti-btn ti-btn-icon bg-orange-500 text-white"><i class="las la-edit text-2xl"></i></a>@endunless @if($booking->note)<button wire:click="openAction('note','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-info text-white"><i class="las la-comment text-2xl"></i></button>@endif</div></td>
-                <td>@foreach($booking->tables as $table)<span class="badge bg-secondary/10 text-black">{{ $table->name }}</span> @endforeach @if($booking->status === 'seated') @php $p = $this->progress($booking, $maxSitting); @endphp<div class="progress mt-3"><div class="progress-bar {{ $p < 60 ? '!bg-success' : ($p < 85 ? '!bg-warning' : '!bg-danger') }}" style="width:{{ $p }}%"></div></div><small>{{ $p }}%</small>@endif</td></tr>
+                <td>@foreach($booking->tables as $table)<span class="badge booking-table-badge bg-secondary/10 text-black">{{ $table->name }}</span> @endforeach @if($booking->status === 'seated') @php $p = $this->progress($booking, $maxSitting); @endphp<div class="progress mt-3"><div class="progress-bar {{ $p < 60 ? '!bg-success' : ($p < 85 ? '!bg-warning' : '!bg-danger') }}" style="width:{{ $p }}%"></div></div><small>{{ $p }}%</small>@endif</td></tr>
         @empty<tr><td colspan="2" class="text-center py-5">{{ __('bookings.empty') }}</td></tr>@endforelse
         </tbody></table></div>
     </div></div>
