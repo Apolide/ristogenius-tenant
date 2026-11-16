@@ -13,6 +13,9 @@
 @endif
 <p class="o-muted mt-4">Gli incassi effettuati durante un turno sono associati automaticamente. Gli incassi senza turno restano nello storico e sono esclusi dalla riconciliazione del cassetto. Le chiusure sono gestionali.</p>
 </div>
+@if($fiscalStores->count())<div class="o-panel mt-4"><h2 class="font-semibold">Chiusure fiscali · Sandbox</h2>
+<p class="o-muted">Separate dalla chiusura del turno gestionale. Il fornitore richiede una chiusura almeno ogni 24 ore per le sedi ONLINE.</p>
+@foreach($fiscalStores as $store)<div class="o-toolbar mt-3"><strong>{{ $store->label }}</strong><span>Ultima chiusura registrata: {{ $store->last_closed_at?->format('d/m/Y H:i') ?? 'Nessuna' }}</span><button class="ti-btn ti-btn-light" wire:click="closeFiscal('{{ $store->id }}')" wire:confirm="Eseguire la chiusura fiscale sandbox di questa sede?" wire:loading.attr="disabled">Chiudi sessione fiscale sandbox</button></div>@endforeach</div>@endif
 <div class="o-panel mt-4"><h2 class="font-semibold">Turni chiusi</h2><div style="overflow:auto"><table class="o-table"><thead><tr><th>Apertura</th><th>Chiusura</th><th>Attesi €</th><th>Contati €</th><th>Differenza €</th><th>Note</th></tr></thead><tbody>
 @forelse($shifts as $shift)<tr><td>{{ $shift->created_at->format('d/m/Y H:i') }}</td><td>{{ $shift->closed_at->format('d/m/Y H:i') }}</td><td>{{ number_format($shift->expected_cents/100,2,',','.') }}</td><td>{{ number_format($shift->counted_cents/100,2,',','.') }}</td><td>{{ number_format($shift->difference_cents/100,2,',','.') }}</td><td>{{ $shift->notes }}</td></tr>@empty<tr><td colspan="6">Nessun turno chiuso.</td></tr>@endforelse
 </tbody></table></div>{{ $shifts->links() }}</div>

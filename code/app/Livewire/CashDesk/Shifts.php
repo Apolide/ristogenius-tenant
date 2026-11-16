@@ -44,13 +44,19 @@ class Shifts extends Component
         session()->flash('order_notice', 'Turno chiuso e riconciliato.');
     }
 
+    public function closeFiscal(string $storeId): void
+    {
+        app(\App\Services\Fiscal\FiscalDocumentService::class)->close($storeId);
+        session()->flash('order_notice', 'Chiusura fiscale sandbox registrata.');
+    }
+
     public function render()
     {
         $active = CashShift::where('active_key', 'main')->first();
         $breakdown = $active?->payments()->selectRaw('method, SUM(amount_cents) as amount, SUM(tip_cents) as tips')->groupBy('method')->get();
 
         return view('livewire.cash-desk.shifts', [
-            'active' => $active, 'breakdown' => $breakdown,
+            'fiscalStores' => \App\Models\FiscalStore::where('active', true)->get(), 'active' => $active, 'breakdown' => $breakdown,
             'shifts' => CashShift::whereNotNull('closed_at')->latest('closed_at')->paginate(15),
         ])->title('Turni di cassa');
     }

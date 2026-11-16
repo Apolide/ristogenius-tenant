@@ -159,6 +159,8 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/cash-desk/shifts', \App\Livewire\CashDesk\Shifts::class)->name('cash-desk.shifts');
             Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
             Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
+            Route::get('/manage/cash-desk/orders/{order}/fiscal', \App\Livewire\CashDesk\FiscalDocuments::class)->name('cash-desk.fiscal');
+            Route::get('/manage/cash-desk/fiscal-documents/{document}/pdf', \App\Http\Controllers\FiscalDocumentPdfController::class)->name('cash-desk.fiscal-pdf');
             Route::get('/manage/cash-desk/orders/{order}/print', \App\Http\Controllers\OrderPrintController::class)->name('cash-desk.print');
         });
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::KDS)->group(function () {
@@ -180,6 +182,7 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
             Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
             Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
+            Route::get('/manage/settings/fiscal', \App\Livewire\Settings\Fiscal\Settings::class)->name('settings.fiscal');
             Route::get('/manage/settings/customers-orders', \App\Livewire\Settings\CustomerOrders\Settings::class)->name('settings.customer-orders');
             Route::get('/manage/settings/rooms/orders-tables-qr-codes', \App\Livewire\Settings\Rooms\OrderTableQrCodes::class)->name('settings.rooms.order-qr-codes');
             Route::get('/manage/settings/rooms/orders-tables-qr-codes/{table}/download', \App\Http\Controllers\OrderTableQrController::class)->name('settings.rooms.order-qr-download');

@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(\App\Contracts\Fiscal\FiscalProvider::class, \App\Services\Fiscal\OpenapiFiscalProvider::class);
+
         $this->app->bind(MessageTransport::class, function ($app) {
             return match (config('messaging.transport')) {
                 'redis' => $app->make(RedisQueueMessageTransport::class),

@@ -7,6 +7,7 @@
 <h1 class="o-title">{{ $order->fulfillment === 'dine_in' ? 'Tavolo '.$order->table_name : $order->reference.' · '.$order->fulfillmentLabel() }} <span class="o-muted">{{ $order->room_name }}</span>
 </h1>
 <span class="o-badge">{{ ['open'=>'Aperto','paid'=>'Pagato','cancelled'=>'Annullato'][$order->status] }}</span>
+<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.fiscal',$order) }}">Documenti commerciali · Sandbox</a>
 <a class="ti-btn ti-btn-light" href="{{ route('cash-desk.print',$order) }}" target="_blank" rel="noopener">Stampa preconto</a>
 </div>
 @include('orders.errors')

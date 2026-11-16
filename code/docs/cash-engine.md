@@ -29,7 +29,7 @@ Gli incassi serializzano l'ordine con `lockForUpdate`, verificano totale e resid
 
 L'isolamento segue il modello esistente del progetto: un database per tenant. Tutte le operazioni richiedono `personnel-manage-cash-register`. Non introdurre un database condiviso senza aggiungere lo scope tenant a conti, pagamenti e turni.
 
-Le fasi successive potranno consumare lo snapshot del conto da un servizio fiscale separato. Non sono ancora implementati documenti commerciali, fatture/SDI, conservazione, costi API/portafoglio tenant, gateway Stripe o riconciliazione bancaria/POS. Nessuna chiamata esterna o costo API viene generato in questa fase.
+La fase 2 sandbox è descritta in [fiscal-module.md](fiscal-module.md) e consuma lo snapshot del conto da un servizio fiscale separato. Il solo incasso gestionale non invia richieste fiscali. Emissione sandbox e relativo registro chiamate richiedono azioni esplicite nel modulo fiscale. Fatture/SDI, conservazione, addebiti al portafoglio tenant, gateway Stripe e riconciliazione bancaria/POS restano nelle fasi successive.
 
 ## Migrazione e verifica
 
