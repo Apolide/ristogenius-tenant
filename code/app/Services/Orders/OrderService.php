@@ -159,13 +159,26 @@ class OrderService
         });
     }
 
-    public function pay(string $orderId, string $method, int $expectedTotal): void
+    public function pay(string $orderId, string $method, int $expectedTotal, ?int $amount = null, int $tip = 0, ?string $key = null, ?string $payer = null, ?string $voucherIssuer = null, ?string $voucherReference = null, ?int $expectedBalance = null): void
     {
         $this->authorize(Permissions::CASH_REGISTER);
-        Validator::make(compact('method'), ['method' => 'required|in:manual,cash,card,voucher'])->validate();
-        DB::transaction(function () use ($orderId, $method, $expectedTotal) {
+        Validator::make(compact('method', 'amount', 'tip', 'key', 'payer', 'voucherIssuer', 'voucherReference'), [
+            'method' => 'required|in:manual,cash,card,voucher', 'amount' => 'nullable|integer|min:0|max:100000000',
+            'tip' => 'integer|min:0|max:10000000', 'key' => 'nullable|uuid', 'payer' => 'nullable|string|max:100',
+            'voucherIssuer' => 'nullable|string|max:100', 'voucherReference' => 'nullable|string|max:100',
+        ])->validate();
+        $this->check($method !== 'voucher' || $tip === 0, 'I buoni pasto non possono coprire le mance.');
+        DB::transaction(function () use ($orderId, $method, $expectedTotal, $amount, $tip, $key, $payer, $voucherIssuer, $voucherReference, $expectedBalance) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            if ($order->status === 'paid') {
+            if ($key && ($existing = \App\Models\OrderPayment::where('idempotency_key', $key)->first())) {
+                $this->check($existing->order_id === $orderId && $existing->method === $method
+                    && ($amount === null || (int) $existing->amount_cents === $amount) && (int) $existing->tip_cents === $tip
+                    && $existing->payer === $payer && $existing->voucher_issuer === $voucherIssuer && $existing->voucher_reference === $voucherReference,
+                    'Identificativo di pagamento già utilizzato per un’altra operazione.');
+
+                return;
+            }
+            if ($order->status === 'paid' && $amount === null) {
                 return;
             }
             $this->check($order->status === 'open', 'Ordine non aperto.');
@@ -173,13 +186,44 @@ class OrderService
             $this->check($order->fulfillment === 'dine_in' || ! in_array($order->fulfillment_status, ['received', 'rejected', 'cancelled']), 'L’ordine deve essere accettato prima di incassare.');
             $this->check($order->fulfillment !== 'dine_in' || ! $order->courses()->whereNull('sent_at')->whereNull('rejected_at')->whereHas('items')->exists(), 'Invia o rimuovi le righe ancora in bozza prima di incassare.');
             $this->check($order->totalCents() === $expectedTotal, 'Il totale è cambiato. Verifica il nuovo importo prima di confermare.');
-            $order->payments()->create(['user_id' => auth()->id(), 'amount_cents' => $expectedTotal, 'method' => $method]);
-            $order->update(['status' => 'paid', 'paid_at' => now()]);
-            DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
-            $this->event($order, 'paid', ['amount_cents' => $expectedTotal, 'method' => $method]);
-            if ($order->customer_email) {
-                app(\App\Services\PublicOrders\OrderNotifications::class)->status($order, 'paid');
+            $balance = $order->balanceCents();
+            $this->check($expectedBalance === null || $expectedBalance === $balance, 'Il residuo è cambiato. Verifica gli incassi prima di confermare.');
+            $amount ??= $balance;
+            $this->check($amount <= $balance && ($amount > 0 || $balance === 0), 'Importo superiore al residuo o non valido.');
+            $this->check($method !== 'voucher' || filled($voucherIssuer) || $key === null, 'Indica l’emittente dei buoni pasto.');
+            $shift = \App\Models\CashShift::where('active_key', 'main')->lockForUpdate()->first();
+            $order->update(['cash_snapshot' => app(CashTotalsService::class)->snapshot($order)]);
+            $order->payments()->create(['user_id' => auth()->id(), 'amount_cents' => $amount, 'method' => $method,
+                'tip_cents' => $tip, 'idempotency_key' => $key, 'cash_shift_id' => $shift?->id, 'payer' => $payer,
+                'voucher_issuer' => $voucherIssuer, 'voucher_reference' => $voucherReference]);
+            $this->event($order, 'payment_recorded', ['amount_cents' => $amount, 'method' => $method, 'tip_cents' => $tip, 'payer' => $payer]);
+            if ($amount === $balance) {
+                $order->update(['status' => 'paid', 'paid_at' => now()]);
+                DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
+                $this->event($order, 'paid', ['amount_cents' => $expectedTotal, 'method' => $method]);
+                if ($order->customer_email) {
+                    app(\App\Services\PublicOrders\OrderNotifications::class)->status($order, 'paid');
+                }
             }
+        });
+    }
+
+    public function discount(string $orderId, int $value, string $reason, int $expectedTotal, bool $percentage = false, int $auxiliaryVat = 10): void
+    {
+        $this->authorize(Permissions::CASH_REGISTER);
+        Validator::make(compact('value', 'reason', 'auxiliaryVat'), [
+            'value' => 'integer|min:0|max:100000000', 'reason' => 'required|string|max:255', 'auxiliaryVat' => 'integer|in:0,4,5,10,22',
+        ])->validate();
+        DB::transaction(function () use ($orderId, $value, $reason, $expectedTotal, $percentage, $auxiliaryVat) {
+            $order = $this->lockedOpen($orderId);
+            $this->check($order->totalCents() === $expectedTotal, 'Il totale è cambiato. Aggiorna il conto.');
+            $this->check(! $order->pendingProposal()->exists(), 'Ritira la proposta al cliente prima di modificare lo sconto.');
+            $gross = $order->grossCents();
+            $this->check(! $percentage || $value <= 10000, 'La percentuale deve essere fra 0 e 100.');
+            $discount = $percentage ? intdiv($gross * $value + 5000, 10000) : $value;
+            $this->check($discount <= $gross, 'Lo sconto supera il totale del conto.');
+            $order->update(['discount_cents' => $discount, 'discount_reason' => $reason, 'auxiliary_vat' => $auxiliaryVat]);
+            $this->event($order, 'discount_changed', ['amount_cents' => $discount, 'notes' => $reason, 'auxiliary_vat' => $auxiliaryVat]);
         });
     }
 
@@ -205,6 +249,7 @@ class OrderService
     {
         $order = Order::lockForUpdate()->findOrFail($id);
         $this->check($order->status === 'open', 'La comanda è chiusa.');
+        $this->check($order->cash_snapshot === null && ! $order->payments()->exists(), 'Conto bloccato dopo il primo incasso.');
 
         return $order;
     }

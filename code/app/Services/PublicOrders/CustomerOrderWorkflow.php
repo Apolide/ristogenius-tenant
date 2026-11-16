@@ -40,6 +40,7 @@ class CustomerOrderWorkflow
                 $this->check(! ProductionTicket::whereHas('course', fn ($q) => $q->where('order_id', $id))->whereNotIn('status', ['ready', 'served', 'cancelled'])->exists(), 'I reparti non hanno ancora completato la preparazione.');
             }
             if (in_array($next, ['rejected', 'cancelled'])) {
+                $this->check(! $order->payments()->exists(), 'Ordine con incassi registrati: annullamento bloccato.');
                 $order->status = 'cancelled';
             }
             if ($next === 'completed') {

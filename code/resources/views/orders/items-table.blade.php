@@ -37,6 +37,6 @@
 </table>
 </div>
 <div class="o-row mt-5">
-<strong>Totale ordine</strong>
+<strong>Totale ordine @if($order->discount_cents)<span class="o-muted">(sconto {{ number_format($order->effectiveDiscountCents()/100,2,',','.') }} € incluso)</span>@endif</strong>
 <strong class="text-xl">{{ number_format($order->totalCents()/100,2,',','.') }} €</strong>
 </div>

@@ -37,9 +37,11 @@ class OrderSummaryService
             'items' => $items, 'subtotal_cents' => array_sum(array_column($items, 'total_cents')),
             'covers' => (int) $order->covers, 'cover_price_cents' => (int) $order->cover_price_cents,
             'delivery_fee_cents' => (int) $order->delivery_fee_cents, 'service_fee_cents' => $order->serviceFeeCents(),
+            'discount_cents' => $order->effectiveDiscountCents(), 'discount_reason' => $order->discount_reason,
+            'tip_cents' => (int) $order->payments->sum('tip_cents'),
             'total_cents' => $order->totalCents(),
             'payment_method' => ['cash' => 'Contanti', 'card' => 'Carta', 'voucher' => 'Buono', 'manual' => 'Registrazione manuale'][$order->payment_method ?? $order->payments->last()?->method ?? 'manual'] ?? $order->payment_method,
-            'payment_status' => $order->status === 'paid' ? 'Pagato' : 'Non pagato',
+            'payment_status' => $order->status === 'paid' ? 'Pagato' : ($order->payments->sum('amount_cents') > 0 ? 'Parzialmente pagato' : 'Non pagato'),
             'paid_cents' => (int) $order->payments->sum('amount_cents'), 'paid_at' => $order->paid_at?->format('d/m/Y H:i'),
         ];
         if ($onlyCourse) {
@@ -54,6 +56,8 @@ class OrderSummaryService
             $summary['service_fee_cents'] = intdiv($summary['subtotal_cents'] * $onlyCourse->service_percentage_bps + 5000, 10000);
             $summary['total_cents'] = $summary['subtotal_cents'] + $summary['service_fee_cents'];
             $summary['paid_cents'] = 0;
+            $summary['discount_cents'] = 0;
+            $summary['tip_cents'] = 0;
         }
 
         return $summary;
@@ -75,6 +79,7 @@ class OrderSummaryService
         $summary['subtotal_cents'] = $quote['subtotal'];
         $summary['delivery_fee_cents'] = $quote['changes']['delivery_fee_cents'];
         $summary['neighborhood'] = $quote['changes']['delivery_neighborhood'];
+        $summary['discount_cents'] = min((int) $order->discount_cents, $quote['subtotal'] + $quote['changes']['delivery_fee_cents']);
         $summary['total_cents'] = $quote['total'];
 
         return $summary;

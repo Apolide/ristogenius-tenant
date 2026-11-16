@@ -54,6 +54,7 @@ class CheckoutService
             $fulfillment = [];
             if ($tableToken) {
                 $order = Order::lockForUpdate()->findOrFail($access->order_id);
+                $this->check($order->cash_snapshot === null && ! $order->payments()->exists(), 'Conto in fase di incasso: non è possibile aggiungere ordini.');
                 $this->check($order->status === 'open', 'Questo conto è stato chiuso. Scansiona nuovamente il QR.');
                 $table = RoomTable::with('room')->whereKey($access->room_table_id)->where('ordering_token', $tableToken)->firstOrFail();
                 $this->check($table->room->active, 'Sala non disponibile.');

@@ -156,6 +156,7 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CASH_REGISTER)->group(function () {
             Route::get('/manage/cash-desk/customers-orders', \App\Livewire\CashDesk\CustomerOrders::class)->name('cash-desk.customer-orders');
             Route::get('/manage/cash-desk', \App\Livewire\CashDesk\RoomMap::class)->name('cash-desk.index');
+            Route::get('/manage/cash-desk/shifts', \App\Livewire\CashDesk\Shifts::class)->name('cash-desk.shifts');
             Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
             Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
             Route::get('/manage/cash-desk/orders/{order}/print', \App\Http\Controllers\OrderPrintController::class)->name('cash-desk.print');

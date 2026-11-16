@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime'];
+    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime', 'cash_snapshot' => 'array'];
 
     public function proposals()
     {
@@ -84,7 +84,28 @@ class Order extends Model
         return ['received' => 'Da approvare', 'accepted' => 'Accettato', 'preparing' => 'In preparazione', 'ready' => 'Pronto', 'out_for_delivery' => 'In consegna', 'completed' => 'Completato', 'rejected' => 'Rifiutato', 'cancelled' => 'Annullato'][$this->fulfillment_status] ?? '';
     }
 
+    public function effectiveDiscountCents(): int
+    {
+        return $this->cash_snapshot !== null
+            ? (int) $this->cash_snapshot['discount_cents']
+            : min((int) $this->discount_cents, $this->grossCents());
+    }
+
+    public function balanceCents(): int
+    {
+        return max(0, $this->totalCents() - (int) $this->payments()->sum('amount_cents'));
+    }
+
     public function totalCents(): int
+    {
+        if ($this->cash_snapshot !== null) {
+            return (int) $this->cash_snapshot['total_cents'];
+        }
+
+        return max(0, $this->grossCents() - (int) $this->discount_cents);
+    }
+
+    public function grossCents(): int
     {
         return $this->covers * $this->cover_price_cents + (int) $this->delivery_fee_cents
             + (int) $this->items()->whereNull('order_courses.rejected_at')->selectRaw('COALESCE(SUM(quantity * unit_price_cents), 0) as total')->value('total')

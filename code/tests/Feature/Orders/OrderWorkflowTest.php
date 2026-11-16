@@ -240,7 +240,7 @@ class OrderWorkflowTest extends TestCase
             $this->get(route($route))->assertOk();
         }
         $this->get(route('orders.show', $order))->assertOk()->assertSee('Margherita');
-        $this->get(route('cash-desk.show', $order))->assertOk()->assertSee('Marca come pagato');
+        $this->get(route('cash-desk.show', $order))->assertOk()->assertSee('Registra incasso');
         $this->get(route('cash-desk.print', $order))->assertOk()->assertSee('Documento non fiscale');
         $this->get(route('kds.show', $this->pizza->department_id))->assertOk()->assertSee('Margherita');
     }

@@ -19,6 +19,7 @@
         <tr><td>Subtotale prodotti</td><td style="text-align:right">{{ number_format($summary['subtotal_cents']/100,2,',','.') }} €</td></tr>
         @if($summary['covers'])<tr><td>Coperti: {{ $summary['covers'] }} × {{ number_format($summary['cover_price_cents']/100,2,',','.') }} €</td><td style="text-align:right">{{ number_format($summary['covers']*$summary['cover_price_cents']/100,2,',','.') }} €</td></tr>@endif
         @if($summary['fulfillment']==='Consegna')<tr><td>Consegna</td><td style="text-align:right">{{ number_format($summary['delivery_fee_cents']/100,2,',','.') }} €</td></tr>@endif
+        @if($summary['discount_cents'] ?? 0)<tr><td>Sconto · {{ $summary['discount_reason'] ?? '' }}</td><td style="text-align:right">−{{ number_format($summary['discount_cents']/100,2,',','.') }} €</td></tr>@endif
         @if($summary['service_fee_cents'])<tr><td>Servizio</td><td style="text-align:right">{{ number_format($summary['service_fee_cents']/100,2,',','.') }} €</td></tr>@endif
         <tr><td style="padding-top:10px;font-size:18px"><strong>Totale ordine</strong></td><td style="padding-top:10px;text-align:right;font-size:18px"><strong>{{ number_format($summary['total_cents']/100,2,',','.') }} €</strong></td></tr>
     </table>

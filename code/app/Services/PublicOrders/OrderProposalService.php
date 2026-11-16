@@ -89,14 +89,14 @@ class OrderProposalService
             'service_date' => $details['date'], 'customer_notes' => $details['notes'] ?? '',
             'delivery_fee_cents' => $fee, 'delivery_neighborhood' => $order->delivery_neighborhood,
         ];
-        $quote['total'] = $quote['subtotal'] + $fee;
+        $quote['total'] = max(0, $quote['subtotal'] + $fee - (int) $order->discount_cents);
 
         return $quote;
     }
 
     public function fingerprint(Order $order): string
     {
-        $data = $order->fresh()->only(['status', 'fulfillment_status', 'requested_at', 'service_date', 'customer_notes', 'delivery_fee_cents', 'delivery_address', 'delivery_neighborhood', 'customer_email', 'payment_method']);
+        $data = $order->fresh()->only(['status', 'fulfillment_status', 'requested_at', 'service_date', 'customer_notes', 'delivery_fee_cents', 'delivery_address', 'delivery_neighborhood', 'customer_email', 'payment_method', 'discount_cents', 'discount_reason', 'auxiliary_vat']);
         $data['courses'] = $order->courses()->orderBy('id')->get()->map(fn ($c) => $c->only(['id', 'sent_at', 'rejected_at', 'service_percentage_bps']))->all();
         $data['items'] = $order->items()->with('modifiers')->orderBy('order_items.id')->get()->map(function ($item) {
             $attributes = $item->getAttributes();
