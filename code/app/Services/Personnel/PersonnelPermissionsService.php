@@ -16,6 +16,8 @@ class PersonnelPermissionsService
 
     public const CUSTOMERS = 'personnel-manage-customers';
 
+    public const KDS = 'personnel-manage-kds';
+
     public const ORDERS = 'personnel-manage-orders';
 
     public const MARKETING = 'personnel-manage-marketing';
@@ -37,6 +39,7 @@ class PersonnelPermissionsService
         self::CASH_REGISTER => 'cash_register',
         self::CUSTOMERS => 'customers',
         self::ORDERS => 'orders',
+        self::KDS => 'kds',
         self::MARKETING => 'marketing',
         self::MARKETPLACE => 'marketplace',
         self::BOOKINGS => 'bookings',

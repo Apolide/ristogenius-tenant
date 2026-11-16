@@ -22,6 +22,7 @@ return [
     ],
     'roles' => ['admin' => 'Administrator', 'manager' => 'Manager', 'operator' => 'Bediener', 'kiosk' => 'Kiosk'],
     'features' => [
+        'kds' => 'KDS · Produktion',
         'ai' => 'KI-Verwaltung', 'calendar' => 'Kalenderverwaltung', 'cash_register' => 'Kassenverwaltung',
         'customers' => 'Kundenverwaltung', 'orders' => 'Bestellverwaltung', 'marketing' => 'Marketingverwaltung',
         'marketplace' => 'Marketplace-Verwaltung', 'bookings' => 'Reservierungsverwaltung',

@@ -30,4 +30,13 @@
             </a>
         </li>
     @endif
+    @foreach([
+        [\App\Services\Personnel\PersonnelPermissionsService::ORDERS, 'orders.index', 'ri-file-list-3-line', 'personnel.features.orders'],
+        [\App\Services\Personnel\PersonnelPermissionsService::CASH_REGISTER, 'cash-desk.index', 'ri-wallet-line', 'personnel.features.cash_register'],
+        [\App\Services\Personnel\PersonnelPermissionsService::KDS, 'kds.index', 'ri-restaurant-line', 'personnel.features.kds'],
+    ] as [$permission, $destination, $icon, $label])
+        @if($permissionService->can(auth()->user(), $permission))
+        <li class="slide"><a href="{{ route($destination) }}" class="side-menu__item"><i class="{{ $icon }} side-menu__icon"></i><span class="side-menu__label">{{ __($label) }}</span></a></li>
+        @endif
+    @endforeach
 </ul>

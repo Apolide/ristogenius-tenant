@@ -25,7 +25,6 @@
         </a>
     </li>
 
-    {{-- 
     <li class="slide">
         <a href="/manage/takeaway" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -40,7 +39,7 @@
 
 
     <li class="slide">
-        <a href="/comande/rooms-map" class="side-menu__item">
+        <a href="/manage/orders" class="side-menu__item">
 
 
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -52,7 +51,7 @@
     </li>
 
     <li class="slide">
-        <a href="/cassa/rooms-map" class="side-menu__item">
+        <a href="/manage/cash-desk" class="side-menu__item">
 
 
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -66,7 +65,10 @@
             <span class="side-menu__label">Cassa</span>
         </a>
     </li>
---}}
+    @if(auth()->user()?->can(\App\Services\Personnel\PersonnelPermissionsService::KDS))
+    <li class="slide"><a href="{{ route('kds.index') }}" class="side-menu__item"><i class="ri-restaurant-line side-menu__icon"></i><span class="side-menu__label">KDS</span></a></li>
+    @endif
+    {{-- --}}
 
 
 

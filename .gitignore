@@ -4,3 +4,4 @@
 certificates
 /code/vendorcode/storage/data/chroma.sqlite3
 code/storage/data/ops.sqlite
+.codex

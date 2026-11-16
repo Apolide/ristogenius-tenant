@@ -135,6 +135,21 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/bookings/edit/{booking}', BookingEdit::class)->name('bookings.edit');
         });
 
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::ORDERS)->group(function () {
+            Route::get('/manage/orders', \App\Livewire\Orders\RoomMap::class)->name('orders.index');
+            Route::get('/manage/orders/{order}', \App\Livewire\Orders\Editor::class)->name('orders.show');
+        });
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::CASH_REGISTER)->group(function () {
+            Route::get('/manage/cash-desk', \App\Livewire\CashDesk\RoomMap::class)->name('cash-desk.index');
+            Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
+            Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
+            Route::get('/manage/cash-desk/orders/{order}/print', \App\Http\Controllers\OrderPrintController::class)->name('cash-desk.print');
+        });
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::KDS)->group(function () {
+            Route::get('/manage/kds', \App\Livewire\Kds\Board::class)->name('kds.index');
+            Route::get('/manage/kds/{department}', \App\Livewire\Kds\Board::class)->name('kds.show');
+        });
+
         Route::middleware('role:admin')->group(function () {
             Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
             Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
