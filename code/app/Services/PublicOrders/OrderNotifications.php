@@ -41,6 +41,12 @@ class OrderNotifications
         $this->record('proposal:'.$proposal->id.':'.$proposal->status.':customer', $order->id, $order->customer_email, $order->customer_name ?? '',
             'Aggiornamento ordine '.$order->reference, $text, language: $order->customer?->lang ?? 'it', context: $context);
         if (in_array($proposal->status, ['accepted', 'rejected'])) {
+            app(\App\Services\Notification\NotificationService::class)->forPermission(
+                Permissions::CUSTOMER_ORDERS, 'customer_order.proposal_'.$proposal->status,
+                'Risposta alla proposta · '.$order->reference,
+                'Il cliente ha '.($proposal->status === 'accepted' ? 'accettato' : 'rifiutato').' la proposta di modifica.',
+                route('customers-orders.show', $order)
+            );
             foreach (User::where('enabled', true)->whereNotNull('email')->where(fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('name', 'admin'))->orWhereHas('permissions', fn ($p) => $p->where('name', Permissions::CUSTOMER_ORDERS)))->get() as $user) {
                 $this->record('proposal:'.$proposal->id.':'.$proposal->status.':staff:'.$user->id, $order->id, $user->email, $user->name,
                     'Risposta alla proposta · '.$order->reference, 'Il cliente ha '.($proposal->status === 'accepted' ? 'accettato' : 'rifiutato').' la proposta di modifica.', route('customers-orders.show', $order), context: $context);
@@ -75,6 +81,11 @@ class OrderNotifications
 
     public function incomingCourse(\App\Models\OrderCourse $course): void
     {
+        app(\App\Services\Notification\NotificationService::class)->forPermission(
+            Permissions::ORDERS, 'table_order.received', 'Nuovo ordine dal tavolo',
+            'Tavolo '.$course->order->tables->pluck('name')->implode(', ').' · Uscita '.$course->number.' di '.$course->customer_name.' da verificare e accettare.',
+            route('orders.show', $course->order_id)
+        );
         foreach (User::where('enabled', true)->whereNotNull('email')->where(fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('name', 'admin'))->orWhereHas('permissions', fn ($p) => $p->where('name', Permissions::ORDERS)))->get() as $user) {
             $this->record('table-incoming:'.$course->id.':'.$user->id, $course->order_id, $user->email, $user->name, 'Nuovo ordine dal tavolo', 'È arrivata una nuova uscita da verificare.', route('orders.show', $course->order_id));
         }
@@ -82,6 +93,11 @@ class OrderNotifications
 
     public function incoming(Order $order): void
     {
+        app(\App\Services\Notification\NotificationService::class)->forPermission(
+            Permissions::CUSTOMER_ORDERS, 'customer_order.received', 'Nuovo ordine '.$order->reference,
+            ($order->fulfillment === 'delivery' ? 'Consegna' : 'Asporto').' · '.$order->customer_name,
+            route('customers-orders.show', $order)
+        );
         foreach (User::where('enabled', true)->whereNotNull('email')->where(fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('name', 'admin'))->orWhereHas('permissions', fn ($p) => $p->where('name', Permissions::CUSTOMER_ORDERS)))->get() as $user) {
             $this->record('incoming:'.$order->id.':'.$user->id, $order->id, $user->email, $user->name, 'Nuovo ordine '.$order->reference, 'È arrivato un nuovo ordine cliente.', route('customers-orders.show', $order), context: ['summary' => app(OrderSummaryService::class)->snapshot($order)]);
         }

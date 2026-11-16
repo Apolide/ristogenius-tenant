@@ -7,9 +7,27 @@ use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-// TODO remove
 class NotificationService
 {
+    /** Distribute a typed in-app notification independently of email delivery. */
+    public function forPermission(string $permission, string $type, string $title, string $message, string $url): ?Notification
+    {
+        $users = User::where('enabled', true)->get()->filter(
+            fn (User $user) => app(\App\Services\Personnel\PersonnelPermissionsService::class)->can($user, $permission)
+        );
+
+        if ($users->isEmpty()) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($users, $type, $title, $message, $url) {
+            $notification = Notification::create(compact('type', 'title', 'message', 'url'));
+            $notification->users()->attach($users->modelKeys());
+
+            return $notification;
+        });
+    }
+
     /**
      * Crea e distribuisce una notifica.
      *

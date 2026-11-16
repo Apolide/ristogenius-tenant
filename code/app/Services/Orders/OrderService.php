@@ -121,6 +121,11 @@ class OrderService
             $this->event($order, 'course_sent', ['course' => $course->number]);
             if ($course->customer_id) {
                 app(\App\Services\PublicOrders\OrderNotifications::class)->courseAccepted($course);
+            } else {
+                app(\App\Services\Notification\NotificationService::class)->forPermission(
+                    Permissions::ORDERS, 'staff_order.sent', 'Comanda inviata dal personale',
+                    'Tavolo '.$order->tables->pluck('name')->implode(', ').' · Uscita '.$course->number.' inviata ai reparti.', route('orders.show', $order)
+                );
             }
         });
     }
