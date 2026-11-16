@@ -11,7 +11,7 @@ class OrderCourse extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['sent_at' => 'datetime'];
+    protected $casts = ['sent_at' => 'datetime', 'rejected_at' => 'datetime'];
 
     public function order()
     {
@@ -20,7 +20,7 @@ class OrderCourse extends Model
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class)->chaperone('course');
     }
 
     public function tickets()

@@ -14,10 +14,11 @@
 </h2>
 @forelse($tickets->where('status',$state) as $ticket)<article class="o-ticket" wire:key="ticket-{{ $ticket->id }}-{{ $ticket->status }}" style="border-top-color:{{ ['queued'=>'#f59e0b','preparing'=>'#6366f1','ready'=>'#22c55e','served'=>'#94a3b8'][$state] }}">
 <div class="o-row">
-<h3 class="text-lg font-bold">Tavolo {{ $ticket->course->order->table_name }}</h3>
+<h3 class="text-lg font-bold">{{ $ticket->course->order->fulfillment === 'dine_in' ? 'Tavolo '.$ticket->course->order->table_name : $ticket->course->order->fulfillmentLabel().' · '.$ticket->course->order->reference }}</h3>
 <span class="o-badge">{{ $ticket->course->number }}ª uscita</span>
 </div>
-<p class="o-muted">{{ $ticket->course->order->room_name }}</p>
+<p class="o-muted">{{ $ticket->course->order->fulfillment === 'dine_in' ? $ticket->course->order->room_name : $ticket->course->order->customer_name.' · '.$ticket->course->order->requested_at?->format('H:i') }}</p>
+@if($ticket->course->customer_notes)<p class="font-semibold mt-2">Note: {{ $ticket->course->customer_notes }}</p>@endif
 @foreach($ticket->items as $item)<div class="o-line">
 <strong>{{ $item->quantity }} × {{ $item->product_name }}</strong>@foreach($item->modifiers as $modifier)<p>{{ $modifier->action === 'add' ? '+' : '−' }} {{ $modifier->ingredient_name }}</p>@endforeach @if($item->notes)<p class="font-semibold mt-2">{{ $item->notes }}</p>@endif
 </div>@endforeach

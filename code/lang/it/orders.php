@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'events' => ['opened' => 'Comanda aperta', 'course_created' => 'Uscita creata', 'covers_changed' => 'Coperti aggiornati', 'item_added' => 'Prodotto aggiunto', 'item_updated' => 'Prodotto modificato', 'item_removed' => 'Prodotto rimosso', 'course_sent' => 'Uscita inviata', 'production_advanced' => 'Produzione aggiornata', 'paid' => 'Pagamento registrato', 'cancelled' => 'Ordine annullato'],
+    'events' => ['proposal_sent'=>'Proposta inviata al cliente','proposal_accepted'=>'Proposta accettata dal cliente','proposal_rejected'=>'Proposta rifiutata dal cliente','proposal_withdrawn'=>'Proposta ritirata','course_rejected'=>'Uscita cliente rifiutata', 'customer_submitted'=>'Ordine inviato dal cliente', 'fulfillment_updated'=>'Stato ordine aggiornato','opened' => 'Comanda aperta', 'course_created' => 'Uscita creata', 'covers_changed' => 'Coperti aggiornati', 'item_added' => 'Prodotto aggiunto', 'item_updated' => 'Prodotto modificato', 'item_removed' => 'Prodotto rimosso', 'course_sent' => 'Uscita inviata', 'production_advanced' => 'Produzione aggiornata', 'paid' => 'Pagamento registrato', 'cancelled' => 'Ordine annullato'],
     'details' => ['course' => 'Uscita', 'covers' => 'Coperti', 'item' => 'Riga', 'product' => 'Prodotto', 'quantity' => 'Quantità', 'notes' => 'Note', 'unit_price_cents' => 'Prezzo unitario (centesimi)', 'ticket' => 'Ticket', 'status' => 'Stato', 'amount_cents' => 'Importo (centesimi)', 'method' => 'Metodo'],
 ];

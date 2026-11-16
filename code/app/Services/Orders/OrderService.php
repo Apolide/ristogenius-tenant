@@ -2,15 +2,11 @@
 
 namespace App\Services\Orders;
 
-use App\Models\Booking;
-use App\Models\DigitalMenuCategory;
-use App\Models\DigitalMenuIngredient;
 use App\Models\DigitalMenuProduct;
 use App\Models\Order;
 use App\Models\OrderCourse;
 use App\Models\OrderItem;
 use App\Models\ProductionTicket;
-use App\Models\RoomTable;
 use App\Services\Personnel\PersonnelPermissionsService as Permissions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -35,31 +31,8 @@ class OrderService
     public function open(string $tableId, int $covers = 1, ?string $bookingId = null): Order
     {
         $this->authorize();
-        Validator::make(compact('covers'), ['covers' => 'required|integer|min:1|max:1000'])->validate();
 
-        return DB::transaction(function () use ($tableId, $covers, $bookingId) {
-            $table = RoomTable::with('room')->lockForUpdate()->findOrFail($tableId);
-            $this->check($table->room->active, 'La sala non è attiva.');
-            $existing = DB::table('order_tables')->where('active_table_id', $tableId)->lockForUpdate()->value('order_id');
-            if ($existing) {
-                return Order::findOrFail($existing);
-            }
-            $booking = $bookingId ? Booking::with('tables')->findOrFail($bookingId) : null;
-            if ($booking) {
-                $this->check($booking->booking_date->isToday() && $booking->tables->contains('id', $tableId) && in_array($booking->status, ['accepted', 'seated']), 'Prenotazione non associabile al tavolo.');
-            }
-            $order = Order::create([
-                'service_date' => now()->toDateString(), 'created_by' => auth()->id(),
-                'table_name' => $table->name, 'room_name' => $table->room->name,
-                'covers' => $booking?->pax ?? $covers, 'cover_price_cents' => self::cents((string) $table->room->service_charge),
-                'booking_id' => $booking?->id, 'customer_id' => $booking?->customer_id,
-            ]);
-            DB::table('order_tables')->insert(['order_id' => $order->id, 'room_table_id' => $tableId, 'active_table_id' => $tableId, 'created_at' => now(), 'updated_at' => now()]);
-            $order->courses()->create(['number' => 1]);
-            $this->event($order, 'opened');
-
-            return $order;
-        }, 3);
+        return app(TableOrderService::class)->open($tableId, $covers, $bookingId);
     }
 
     public function addCourse(string $orderId): void
@@ -100,7 +73,7 @@ class OrderService
                 $before = $item->load('modifiers')->toArray();
                 if ($item->product_id) {
                     $product = DigitalMenuProduct::with('ingredients')->findOrFail($item->product_id);
-                    [$price, $modifiers] = $this->modifiers($product, $item->base_price_cents, $added, $removed, $item);
+                    [$price, $modifiers] = app(OrderPricingService::class)->modifiers($product, $item->base_price_cents, $added, $removed, $item);
                     $item->update(['unit_price_cents' => $price]);
                     $item->modifiers()->delete();
                     $item->modifiers()->createMany($modifiers);
@@ -110,21 +83,11 @@ class OrderService
 
                 return;
             }
-            $this->check(! $course->sent_at, 'Aggiungi i prodotti a una nuova uscita.');
-            $category = DigitalMenuCategory::with('menu')->findOrFail($categoryId);
-            $this->check($category->is_enabled && $category->menu->is_visible, 'Menu o categoria non disponibile.');
-            $product = $category->products()->with(['ingredients', 'department'])->where('digital_menu_products.id', $productId)->firstOrFail();
-            $this->check($product->is_active && $product->pivot->is_visible, 'Prodotto non disponibile.');
-            $base = self::cents((string) ($product->pivot->menu_price ?? $product->price));
-            [$price, $modifiers] = $this->modifiers($product, $base, $added, $removed);
-            $item = $course->items()->create([
-                'product_id' => $product->id, 'menu_id' => $category->menu->id,
-                'product_name' => $product->translatedName(), 'menu_name' => $category->menu->translatedName(),
-                'department_id' => $product->department_id, 'department_name' => $product->department?->name,
-                'requires_production' => (bool) $product->department?->production,
-                'quantity' => $quantity, 'base_price_cents' => $base, 'unit_price_cents' => $price, 'vat' => $product->vat, 'notes' => $notes,
+            $this->check(! $course->sent_at && ! $course->submission_key, 'Aggiungi i prodotti a una nuova uscita del personale.');
+            $quote = app(OrderPricingService::class)->quote([
+                'category_id' => $categoryId, 'product_id' => $productId, 'quantity' => $quantity, 'notes' => $notes, 'added' => $added, 'removed' => $removed,
             ]);
-            $item->modifiers()->createMany($modifiers);
+            $item = app(OrderPricingService::class)->append($course, $quote);
             $this->event($order, 'item_added', ['item' => $item->id, 'product' => $item->product_name, 'quantity' => $quantity, 'snapshot' => $item->load('modifiers')->toArray()]);
         });
     }
@@ -154,14 +117,24 @@ class OrderService
             if ($course->sent_at) {
                 return;
             }
-            $this->check($course->items->isNotEmpty(), 'L’uscita è vuota.');
-            foreach ($course->items->where('requires_production', true)->groupBy('department_id') as $department => $items) {
-                $this->check($department !== '' && \App\Models\Department::whereKey($department)->where('production', true)->exists(), 'Reparto produttivo non più disponibile.');
-                $ticket = $course->tickets()->create(['department_id' => $department, 'department_name' => $items->first()->department_name, 'sent_at' => now()]);
-                $course->items()->whereIn('id', $items->pluck('id'))->update(['production_ticket_id' => $ticket->id]);
-            }
-            $course->update(['sent_at' => now()]);
+            app(ProductionService::class)->send($course);
             $this->event($order, 'course_sent', ['course' => $course->number]);
+            if ($course->customer_id) {
+                app(\App\Services\PublicOrders\OrderNotifications::class)->courseAccepted($course);
+            }
+        });
+    }
+
+    public function rejectCourse(string $orderId, string $courseId): void
+    {
+        $this->authorize();
+        DB::transaction(function () use ($orderId, $courseId) {
+            $order = $this->lockedOpen($orderId);
+            $course = $order->courses()->findOrFail($courseId);
+            $this->check($course->submission_key && ! $course->sent_at && ! $course->rejected_at, 'Questa uscita non può essere rifiutata.');
+            $course->update(['rejected_at' => now()]);
+            $this->event($order, 'course_rejected', ['course' => $course->number]);
+            app(\App\Services\PublicOrders\OrderNotifications::class)->courseRejected($course);
         });
     }
 
@@ -191,12 +164,17 @@ class OrderService
                 return;
             }
             $this->check($order->status === 'open', 'Ordine non aperto.');
-            $this->check(! $order->courses()->whereNull('sent_at')->whereHas('items')->exists(), 'Invia o rimuovi le righe ancora in bozza prima di incassare.');
+            $this->check(! $order->pendingProposal()->exists(), 'Attendi la risposta del cliente prima di incassare.');
+            $this->check($order->fulfillment === 'dine_in' || ! in_array($order->fulfillment_status, ['received', 'rejected', 'cancelled']), 'L’ordine deve essere accettato prima di incassare.');
+            $this->check($order->fulfillment !== 'dine_in' || ! $order->courses()->whereNull('sent_at')->whereNull('rejected_at')->whereHas('items')->exists(), 'Invia o rimuovi le righe ancora in bozza prima di incassare.');
             $this->check($order->totalCents() === $expectedTotal, 'Il totale è cambiato. Verifica il nuovo importo prima di confermare.');
             $order->payments()->create(['user_id' => auth()->id(), 'amount_cents' => $expectedTotal, 'method' => $method]);
             $order->update(['status' => 'paid', 'paid_at' => now()]);
             DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
             $this->event($order, 'paid', ['amount_cents' => $expectedTotal, 'method' => $method]);
+            if ($order->customer_email) {
+                app(\App\Services\PublicOrders\OrderNotifications::class)->status($order, 'paid');
+            }
         });
     }
 
@@ -209,39 +187,13 @@ class OrderService
             ProductionTicket::whereHas('course', fn ($q) => $q->where('order_id', $orderId))->update(['status' => 'cancelled']);
             $order->update(['status' => 'cancelled', 'cancelled_at' => now()]);
             DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
+            if ($order->fulfillment !== 'dine_in') {
+                $order->update(['fulfillment_status' => 'cancelled']);
+                $order->proposals()->where('status', 'pending')->update(['status' => 'withdrawn', 'responded_at' => now()]);
+                app(\App\Services\PublicOrders\OrderNotifications::class)->status($order, 'cancelled');
+            }
             $this->event($order, 'cancelled');
         });
-    }
-
-    private function modifiers(DigitalMenuProduct $product, int $base, array $added, array $removed, ?OrderItem $item = null): array
-    {
-        $this->check(! array_intersect($added, $removed), 'Un ingrediente non può essere aggiunto e rimosso insieme.');
-        $price = $base;
-        $modifiers = [];
-        $snapshots = $item?->modifiers()->get() ?? collect();
-        foreach ($snapshots->whereNull('ingredient_id') as $snapshot) {
-            $price += $snapshot->price_cents;
-            $modifiers[] = $snapshot->only(['ingredient_id', 'ingredient_name', 'action', 'price_cents']);
-        }
-        foreach (['add' => $added, 'remove' => $removed] as $action => $ids) {
-            foreach ($ids as $id) {
-                $snapshot = $snapshots->first(fn ($m) => $m->ingredient_id === $id && $m->action === $action);
-                if ($snapshot) {
-                    $price += $snapshot->price_cents;
-                    $modifiers[] = $snapshot->only(['ingredient_id', 'ingredient_name', 'action', 'price_cents']);
-
-                    continue;
-                }
-                $ingredient = DigitalMenuIngredient::findOrFail($id);
-                $this->check($action !== 'remove' || $product->ingredients->contains('id', $id), 'Ingrediente non presente nella ricetta.');
-                $delta = self::cents((string) ($action === 'add' ? $ingredient->add_price : $ingredient->remove_price));
-                $price += $delta;
-                $modifiers[] = ['ingredient_id' => $id, 'ingredient_name' => $ingredient->translatedName(), 'action' => $action, 'price_cents' => $delta];
-            }
-        }
-        $this->check($price >= 0, 'Il prezzo non può essere negativo.');
-
-        return [$price, $modifiers];
     }
 
     private function lockedOpen(string $id): Order
@@ -254,6 +206,7 @@ class OrderService
 
     private function editable(OrderCourse $course): void
     {
+        $this->check(! $course->rejected_at, 'Questa uscita è stata rifiutata.');
         $this->check(! $course->tickets()->whereNotIn('status', ['queued', 'cancelled'])->exists(), 'Uscita già in lavorazione: modifiche e cancellazioni bloccate.');
     }
 

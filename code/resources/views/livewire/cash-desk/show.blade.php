@@ -3,16 +3,17 @@
 @include('orders.styles')
 <div class="o-toolbar">
 <a class="ti-btn ti-btn-light" href="{{ route('cash-desk.index') }}">← Cassa</a>
-<h1 class="o-title">Tavolo {{ $order->table_name }} <span class="o-muted">{{ $order->room_name }}</span>
+<h1 class="o-title">{{ $order->fulfillment === 'dine_in' ? 'Tavolo '.$order->table_name : $order->reference.' · '.$order->fulfillmentLabel() }} <span class="o-muted">{{ $order->room_name }}</span>
 </h1>
 <span class="o-badge">{{ ['open'=>'Aperto','paid'=>'Pagato','cancelled'=>'Annullato'][$order->status] }}</span>
 <a class="ti-btn ti-btn-light" href="{{ route('cash-desk.print',$order) }}" target="_blank" rel="noopener">Stampa preconto</a>
 </div>
 @include('orders.errors')
 <div class="o-panel">
-<p class="o-muted mb-4">Aperto il {{ $order->created_at->format('d/m/Y H:i') }} · {{ $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: 'Senza cliente associato' }}</p>
+<p class="o-muted mb-4">Aperto il {{ $order->created_at->format('d/m/Y H:i') }} · {{ $order->customer_name ?: $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: 'Senza cliente associato' }}</p>
 @include('orders.items-table')
-@if($order->status === 'open')
+@if($order->pendingProposal)<p class="o-panel mt-4">In attesa della risposta del cliente alla proposta di modifica. Incasso sospeso.</p>@endif
+@if($order->status === 'open' && !$order->pendingProposal)
 <form wire:submit="pay" wire:confirm="Confermi di aver ricevuto il pagamento dell’importo visualizzato?" class="o-toolbar mt-5">
 <select wire:model="method" class="o-input" aria-label="Metodo di incasso">
 <option value="manual">Registrazione manuale</option>
@@ -23,7 +24,7 @@
 <button class="ti-btn ti-btn-primary-full" wire:loading.attr="disabled">Marca come pagato · {{ number_format($displayedTotal/100,2,',','.') }} €</button>
 </form>
 <p class="o-muted">Registra un incasso già ricevuto. Nessun addebito POS viene eseguito dall’app.</p>
-<div class="o-row mt-5">@if(auth()->user()->can(\App\Services\Personnel\PersonnelPermissionsService::ORDERS))<a class="ti-btn ti-btn-light" href="{{ route('orders.show',$order) }}">Apri comanda</a>@endif
+<div class="o-row mt-5">@if($order->fulfillment === 'dine_in' && auth()->user()->can(\App\Services\Personnel\PersonnelPermissionsService::ORDERS))<a class="ti-btn ti-btn-light" href="{{ route('orders.show',$order) }}">Apri comanda</a>@endif
 <button class="ti-btn ti-btn-danger" wire:click="cancel" wire:confirm="Annullare l’ordine? Rimarrà nello storico. L’operazione è consentita solo prima della lavorazione." wire:loading.attr="disabled">Annulla ordine</button>
 </div>
 @endif

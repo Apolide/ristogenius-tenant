@@ -22,6 +22,9 @@ class History extends Component
     #[Url]
     public string $search = '';
 
+    #[Url]
+    public string $type = '';
+
     public function boot(): void
     {
         app(OrderService::class)->authorize(Permissions::CASH_REGISTER);
@@ -34,17 +37,17 @@ class History extends Component
 
     public function updated($name): void
     {
-        if (in_array($name, ['date', 'status', 'search'])) {
+        if (in_array($name, ['date', 'status', 'search', 'type'])) {
             $this->resetPage();
         }
     }
 
     public function render()
     {
-        $this->validate(['date' => 'required|date_format:Y-m-d', 'status' => 'in:,open,paid,cancelled', 'search' => 'max:100']);
-        $query = Order::whereDate('service_date', $this->date)->when($this->status, fn ($q) => $q->where('status', $this->status))
+        $this->validate(['date' => 'required|date_format:Y-m-d', 'status' => 'in:,open,paid,cancelled', 'search' => 'max:100', 'type' => 'in:,dine_in,pickup,delivery']);
+        $query = Order::whereDate('service_date', $this->date)->when($this->type, fn ($q) => $q->where('fulfillment', $this->type))->when($this->status, fn ($q) => $q->where('status', $this->status))
             ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('table_name', 'like', '%'.$this->search.'%')->orWhere('room_name', 'like', '%'.$this->search.'%')->orWhereHas('customer', fn ($q) => $q->where('display_name', 'like', '%'.$this->search.'%')->orWhere('firstname', 'like', '%'.$this->search.'%')->orWhere('lastname', 'like', '%'.$this->search.'%'));
+                $q->where('reference', 'like', '%'.$this->search.'%')->orWhere('customer_name', 'like', '%'.$this->search.'%')->orWhere('table_name', 'like', '%'.$this->search.'%')->orWhere('room_name', 'like', '%'.$this->search.'%')->orWhereHas('customer', fn ($q) => $q->where('display_name', 'like', '%'.$this->search.'%')->orWhere('firstname', 'like', '%'.$this->search.'%')->orWhere('lastname', 'like', '%'.$this->search.'%'));
             }));
         $paidCents = (int) \App\Models\OrderPayment::whereIn('order_id', (clone $query)->select('id'))->sum('amount_cents');
 

@@ -18,11 +18,13 @@ class EmailMessageChannel implements MessageChannel
             if (! $email) {
                 continue;
             }
-            $mail = new BookingMessageMail(
-                delivery: $delivery,
-                tenant: $outbox->payload['tenant'] ?? [],
-                booking: $outbox->payload['booking'] ?? [],
-            );
+            $mail = $outbox->aggregate_type === 'customer_order'
+                ? new \App\Mail\CustomerOrderMail($delivery)
+                : new BookingMessageMail(
+                    delivery: $delivery,
+                    tenant: $outbox->payload['tenant'] ?? [],
+                    booking: $outbox->payload['booking'] ?? [],
+                );
             $mail->locale($delivery['language'] ?? 'it');
             Mail::to($email)->send($mail);
             $sent = true;

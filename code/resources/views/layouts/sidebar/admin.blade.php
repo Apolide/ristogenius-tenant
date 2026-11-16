@@ -26,14 +26,14 @@
     </li>
 
     <li class="slide">
-        <a href="/manage/takeaway" class="side-menu__item">
+        <a href="{{ route('customers-orders.index') }}" class="side-menu__item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
                 <path
                       d="M12.5 4H11V3.5A3.5 3.5 0 0 0 4 3.5V4H2.5A1.5 1.5 0 0 0 1 5.5v7A1.5 1.5 0 0 0 2.5 14h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 4M5 3.5a2.5 2.5 0 0 1 5 0V4H5zM13 12.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5H4v1a.5.5 0 0 0 1 0V5h5v1a.5.5 0 0 0 1 0V5h1.5a.5.5 0 0 1 .5.5z">
                 </path>
                 <path d="M5.5 8a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm.5 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1z"></path>
             </svg>
-            <span class="side-menu__label">Asporto</span>
+            <span class="side-menu__label">{{ __('personnel.features.customer_orders') }}</span>
         </a>
     </li>
 

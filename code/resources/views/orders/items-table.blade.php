@@ -18,9 +18,10 @@
 </td>
 <td>{{ $item->quantity }}</td>
 <td>{{ number_format($item->unit_price_cents/100,2,',','.') }} €</td>
-<td>{{ number_format($item->quantity*$item->unit_price_cents/100,2,',','.') }} €</td>
+<td>{{ number_format(($course->rejected_at ? 0 : $item->quantity*$item->unit_price_cents)/100,2,',','.') }} €</td>
 <td>{{ $item->statusLabel() }}</td>
 </tr>@endforeach @endforeach
+@if($order->covers > 0)
 <tr>
 <td>Coperto</td>
 <td>{{ $order->covers }}</td>
@@ -29,6 +30,9 @@
 <td>
 </td>
 </tr>
+@endif
+@if($order->delivery_fee_cents)<tr><td>Consegna</td><td>1</td><td>{{ number_format($order->delivery_fee_cents/100,2,',','.') }} €</td><td>{{ number_format($order->delivery_fee_cents/100,2,',','.') }} €</td><td></td></tr>@endif
+@if($order->serviceFeeCents())<tr><td>Servizio ordini al tavolo</td><td></td><td></td><td>{{ number_format($order->serviceFeeCents()/100,2,',','.') }} €</td><td></td></tr>@endif
 </tbody>
 </table>
 </div>

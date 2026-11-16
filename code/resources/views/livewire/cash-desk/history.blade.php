@@ -3,7 +3,7 @@
 @include('orders.styles')
 <div class="o-toolbar">
 <a href="{{ route('cash-desk.index') }}" class="ti-btn ti-btn-light">← Cassa</a>
-<h1 class="o-title">Storico ordini</h1>
+<h1 class="o-title">Storico ordini</h1><select class="o-input" wire:model.live="type" aria-label="Tipo ordine"><option value="">Tutti i tipi</option><option value="dine_in">Sala</option><option value="pickup">Ritiro</option><option value="delivery">Consegna</option></select>
 <input aria-label="Data" type="date" wire:model.live="date" class="o-input">
 <select aria-label="Stato" wire:model.live="status" class="o-input">
 <option value="">Tutti gli stati</option>
@@ -36,10 +36,10 @@
 </thead>
 <tbody>
 @forelse($orders as $order)<tr>
-<td>{{ $order->table_name }}<p class="o-muted">{{ $order->room_name }}</p>
+<td>{{ $order->fulfillment === 'dine_in' ? $order->table_name : $order->reference }}<p class="o-muted">{{ $order->fulfillment === 'dine_in' ? $order->room_name : $order->fulfillmentLabel() }}</p>
 </td>
 <td>{{ $order->created_at->format('H:i') }}</td>
-<td>{{ $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: '—' }}</td>
+<td>{{ $order->customer_name ?: $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: '—' }}</td>
 <td>@foreach($order->courses as $course)@foreach($course->items as $item)<p>{{ $item->quantity }} × {{ $item->product_name }}</p>@endforeach @endforeach
 </td>
 <td>

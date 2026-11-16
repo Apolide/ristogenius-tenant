@@ -29,6 +29,15 @@ class RoomTable extends Model
         'rotation',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $table): void {
+            $table->ordering_token ??= \Illuminate\Support\Str::random(48);
+        });
+    }
+
+    protected $hidden = ['ordering_token'];
+
     protected $casts = [
         'min_people' => 'integer',
         'max_people' => 'integer',

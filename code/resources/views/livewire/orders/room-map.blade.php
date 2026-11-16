@@ -14,6 +14,7 @@
     @endif
     @endif
 </div>
+@if($cash) @include('orders.cash-tabs') @endif
 @include('orders.errors')
 <div class="o-legend">
 <span>

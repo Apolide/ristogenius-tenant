@@ -31,6 +31,7 @@
         </li>
     @endif
     @foreach([
+        [\App\Services\Personnel\PersonnelPermissionsService::CUSTOMER_ORDERS, 'customers-orders.index', 'ri-shopping-bag-line', 'personnel.features.customer_orders'],
         [\App\Services\Personnel\PersonnelPermissionsService::ORDERS, 'orders.index', 'ri-file-list-3-line', 'personnel.features.orders'],
         [\App\Services\Personnel\PersonnelPermissionsService::CASH_REGISTER, 'cash-desk.index', 'ri-wallet-line', 'personnel.features.cash_register'],
         [\App\Services\Personnel\PersonnelPermissionsService::KDS, 'kds.index', 'ri-restaurant-line', 'personnel.features.kds'],

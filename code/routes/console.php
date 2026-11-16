@@ -27,3 +27,5 @@ Schedule::command('messages:publish-outbox')
 //     ->everyTwoHours()
 //     ->name('auto-purchase-funds')
 //     ->withoutOverlapping();
+
+Schedule::command('customer-orders:prune-access')->dailyAt('03:45')->withoutOverlapping();

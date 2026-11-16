@@ -174,3 +174,10 @@ npm install
 npm run dev
 // for production assets
 npm run build
+
+
+
+/////// FIX PERMESSI cartella storage
+
+docker compose -f docker-compose-dev.yml exec --user root ristopilot-tenant_php \
+  chown -R www-data:www-data storage bootstrap/cache

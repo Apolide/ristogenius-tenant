@@ -22,7 +22,7 @@ Comande e cassa condividono la mappa `Orders/RoomMap`; la mappa prenotazioni esi
 
 Permessi: `personnel-manage-orders`, `personnel-manage-cash-register`, `personnel-manage-kds`. Gli amministratori accedono tramite il bypass già esistente. I permessi del personale sono assegnabili nella matrice già presente. Il nuovo permesso non viene assegnato automaticamente ai dipendenti.
 
-`source`, `fulfillment`, associazione facoltativa ai tavoli e righe di pagamento separate consentono l’estensione futura a ordini clienti/asporto e pagamenti multipli. Non ci sono ancora endpoint pubblici, QR code, POS, split payment, emissione fiscale, scarico magazzino, gruppi di opzioni o stampa diretta sui dispositivi dei reparti.
+`source`, `fulfillment`, associazione facoltativa ai tavoli e righe di pagamento separate consentono l’estensione futura a ordini clienti/asporto e pagamenti multipli. Gli endpoint pubblici, i QR e i relativi flussi sono descritti in [public-ordering.md](public-ordering.md). Restano esclusi POS, split payment, emissione fiscale, scarico magazzino, gruppi di opzioni e stampa diretta sui dispositivi dei reparti.
 
 ## Installazione e test
 

@@ -51,11 +51,12 @@ class Editor extends Component
 
     public function mount(Order $order): void
     {
+        abort_unless($order->fulfillment === 'dine_in', 404);
         $this->orderId = $order->id;
         $this->covers = $order->covers;
         $this->menuId = (string) DigitalMenu::where('is_visible', true)->orderBy('position')->value('id');
         $this->selectFirstCategory();
-        $this->courseId = (string) $order->courses()->whereNull('sent_at')->orderByDesc('number')->value('id');
+        $this->courseId = (string) $order->courses()->whereNull('sent_at')->whereNull('submission_key')->orderByDesc('number')->value('id');
     }
 
     private function selectFirstCategory(): void
@@ -120,6 +121,11 @@ class Editor extends Component
     public function sendCourse(string $id): void
     {
         app(OrderService::class)->send($this->orderId, $id);
+    }
+
+    public function rejectCourse(string $id): void
+    {
+        app(OrderService::class)->rejectCourse($this->orderId, $id);
     }
 
     public function render()

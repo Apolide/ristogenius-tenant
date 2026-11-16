@@ -143,5 +143,6 @@
                 </div>
             </div>
         </div>
+        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('personnel.features.customer_orders') }}</div><p class="text-sm text-textmuted">Asporto e consegna a domicilio</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.customer-orders') }}">Configura asporto e consegne</a></div></div>
     </div>
 </div>

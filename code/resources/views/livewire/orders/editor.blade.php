@@ -38,13 +38,14 @@
 </form>
 <div wire:poll.5s>
 @foreach($order->courses as $course)
-@php($editable = $order->status === 'open' && !$course->tickets->contains(fn($ticket) => !in_array($ticket->status,['queued','cancelled'])))
+@php($editable = $order->status === 'open' && !$course->rejected_at && !$course->tickets->contains(fn($ticket) => !in_array($ticket->status,['queued','cancelled'])))
 <div class="o-line" wire:key="course-{{ $course->id }}">
 <div class="o-row">
-<div class="flex items-center gap-2">@if(!$course->sent_at && $order->status === 'open')<input type="radio" aria-label="Seleziona {{ $course->number }}ª uscita" wire:model.live="courseId" value="{{ $course->id }}">@endif
-<strong>{{ $course->number }}ª uscita</strong>
-</div>@if($course->sent_at)<span class="o-badge">Inviata {{ $course->sent_at->format('H:i') }}</span>@elseif($order->status === 'open')<button class="ti-btn ti-btn-primary-full" wire:click="sendCourse('{{ $course->id }}')" wire:loading.attr="disabled" @disabled($course->items->isEmpty())>Invia uscita</button>@endif
+<div class="flex items-center gap-2">@if(!$course->sent_at && !$course->submission_key && $order->status === 'open')<input type="radio" aria-label="Seleziona {{ $course->number }}ª uscita" wire:model.live="courseId" value="{{ $course->id }}">@endif
+<strong>{{ $course->number }}ª uscita</strong>@if($course->customer_name)<span class="o-badge">Cliente: {{ $course->customer_name }}</span>@endif
+</div>@if($course->rejected_at)<span class="o-badge">Rifiutata</span>@elseif($course->sent_at)<span class="o-badge">Inviata {{ $course->sent_at->format('H:i') }}</span>@elseif($order->status === 'open')<button class="ti-btn ti-btn-primary-full" wire:click="sendCourse('{{ $course->id }}')" wire:loading.attr="disabled" @disabled($course->items->isEmpty())>Invia uscita</button>@if($course->submission_key)<button class="ti-btn ti-btn-danger" wire:click="rejectCourse('{{ $course->id }}')" wire:confirm="Rifiutare questa uscita cliente? Rimarrà nello storico senza essere addebitata.">Rifiuta</button>@endif@endif
 </div>
+@if($course->customer_notes)<p class="o-muted">Note cliente: {{ $course->customer_notes }}</p>@endif
 @forelse($course->items as $item)<div class="o-line" wire:key="item-{{ $item->id }}">
 <div class="o-row">
 <strong>{{ $item->quantity }} × {{ $item->product_name }}</strong>

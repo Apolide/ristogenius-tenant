@@ -83,6 +83,14 @@ Route::domain(env('DOMAIN'))->group(function () {
 
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
     Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
+    Route::get('/order/{language}/{menu:slug}', \App\Livewire\PublicOrders\Menu::class)->name('public-orders.menu');
+    Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class,'table'])->name('public-orders.table');
+    Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'show'])->middleware('throttle:30,1')->name('public-orders.verify');
+    Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
+    Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
+    Route::post('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'respond'])->middleware('throttle:10,1')->name('public-orders.proposal.respond');
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -139,7 +147,14 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/orders', \App\Livewire\Orders\RoomMap::class)->name('orders.index');
             Route::get('/manage/orders/{order}', \App\Livewire\Orders\Editor::class)->name('orders.show');
         });
+        Route::middleware('personnel.permission:'.PersonnelPermissionsService::CUSTOMER_ORDERS)->group(function () {
+            Route::get('/manage/customers-orders', \App\Livewire\CustomerOrders\Index::class)->name('customers-orders.index');
+            Route::get('/manage/customers-orders/{order}/proposal', \App\Livewire\CustomerOrders\ProposalEditor::class)->name('customers-orders.proposal');
+            Route::get('/manage/customers-orders/{order}', \App\Livewire\CustomerOrders\Show::class)->name('customers-orders.show');
+            Route::get('/manage/customers-orders/{order}/print', \App\Http\Controllers\CustomerOrderPrintController::class)->name('customers-orders.print');
+        });
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CASH_REGISTER)->group(function () {
+            Route::get('/manage/cash-desk/customers-orders', \App\Livewire\CashDesk\CustomerOrders::class)->name('cash-desk.customer-orders');
             Route::get('/manage/cash-desk', \App\Livewire\CashDesk\RoomMap::class)->name('cash-desk.index');
             Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
             Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
@@ -164,6 +179,11 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
             Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
             Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
+            Route::get('/manage/settings/customers-orders', \App\Livewire\Settings\CustomerOrders\Settings::class)->name('settings.customer-orders');
+            Route::get('/manage/settings/rooms/orders-tables-qr-codes', \App\Livewire\Settings\Rooms\OrderTableQrCodes::class)->name('settings.rooms.order-qr-codes');
+            Route::get('/manage/settings/rooms/orders-tables-qr-codes/{table}/download', \App\Http\Controllers\OrderTableQrController::class)->name('settings.rooms.order-qr-download');
+            Route::redirect('/manage/settings/rooms/printqr', '/manage/settings/rooms/orders-tables-qr-codes');
+
             Route::get('/manage/settings/room-tables', RoomTableIndex::class)->name('settings.room-tables');
             Route::get('/manage/rooms/{room}', RoomTablePlanner::class)->name('rooms.planner');
             Route::get('/manage/settimgs/departments', DepartmentIndex::class)->name('settings.departments');

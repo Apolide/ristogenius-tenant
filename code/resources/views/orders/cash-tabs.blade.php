@@ -1,0 +1,4 @@
+<nav class="o-toolbar" aria-label="Tipo di conto">
+    <a class="o-chip {{ request()->routeIs('cash-desk.index') ? 'active' : '' }}" href="{{ route('cash-desk.index') }}">Sala</a>
+    <a class="o-chip {{ request()->routeIs('cash-desk.customer-orders') ? 'active' : '' }}" href="{{ route('cash-desk.customer-orders') }}">Asporto e consegne</a>
+</nav>
