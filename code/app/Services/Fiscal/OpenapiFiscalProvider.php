@@ -24,12 +24,18 @@ class OpenapiFiscalProvider implements FiscalProvider
     public function execute(string $action, array $data, ?string $operationId = null): array
     {
         $this->assertAvailable();
+        if ($action === 'send_invoice') {
+            $validation = $this->execute('validate_invoice', $data, $operationId);
+            if (($validation['valid'] ?? false) !== true) {
+                throw new FiscalFailure(false, 'XML fattura rifiutato dalla validazione Openapi: correggi i dati prima di inviare.');
+            }
+        }
         [$method, $path, $payload] = $this->command($action, $data);
         $tariff = config('fiscal.environment') === 'sandbox' ? 0 : config('fiscal.tariffs_micros.'.$action);
         // Persist the attempt BEFORE sending: a process crash cannot erase its cost trail.
         $call = FiscalApiCall::create([
             'fiscal_operation_id' => $operationId, 'user_id' => auth()->id(), 'provider' => 'openapi', 'environment' => 'sandbox',
-            'action' => $action, 'request_hash' => hash('sha256', json_encode([$method, $path, $payload], JSON_THROW_ON_ERROR)),
+            'action' => $action, 'request_hash' => hash('sha256', json_encode([$method, $path, $payload, isset($data['xml']) ? hash('sha256', $data['xml']) : null], JSON_THROW_ON_ERROR)),
             'outcome' => 'in_flight', 'estimated_cost_micros' => $tariff, 'cost_status' => $tariff === 0 ? 'sandbox' : ($tariff === null ? 'unpriced' : 'estimated'),
         ]);
         $started = microtime(true);
@@ -37,13 +43,16 @@ class OpenapiFiscalProvider implements FiscalProvider
             $request = Http::withToken(config('fiscal.openapi.token'))
                 ->timeout(config('fiscal.openapi.timeout'))->connectTimeout(config('fiscal.openapi.connect_timeout'))
                 ->withOptions(['allow_redirects' => false]);
-            if ($action === 'receipt_pdf') {
+            if (in_array($action, ['receipt_pdf', 'invoice_pdf'], true)) {
                 $request = $request->accept('application/pdf')->contentType('application/pdf');
+            } elseif (in_array($action, ['send_invoice', 'validate_invoice', 'invoice_xml'], true)) {
+                $request = $request->accept($action === 'invoice_xml' ? 'application/xml' : 'application/json')->contentType('application/xml');
             } else {
                 $request = $request->acceptJson()->asJson();
             }
             // Intentionally no retry(), including for provisioning, returns and closes.
-            $response = $request->send($method, self::BASE.$path, $method === 'GET' ? ['query' => $payload] : ['json' => $payload ?: new \stdClass]);
+            $options = $method === 'GET' ? ['query' => $payload] : (in_array($action, ['send_invoice', 'validate_invoice'], true) ? ['body' => $data['xml']] : ['json' => $payload ?: new \stdClass]);
+            $response = $request->send($method, self::BASE.$path, $options);
         } catch (ConnectionException) {
             $call->update(['outcome' => 'unknown', 'duration_ms' => (int) ((microtime(true) - $started) * 1000)]);
             throw new FiscalFailure(true, 'Connessione interrotta: esito da verificare. Nessun reinvio automatico.');
@@ -70,7 +79,7 @@ class OpenapiFiscalProvider implements FiscalProvider
             }
             throw new FiscalFailure($uncertain, $message, $response->status(), $details['error_code']);
         }
-        if ($action === 'receipt_pdf') {
+        if (in_array($action, ['receipt_pdf', 'invoice_pdf'], true)) {
             if (str_starts_with($response->body(), '%PDF-')) {
                 $call->update(['outcome' => 'succeeded']);
 
@@ -83,7 +92,12 @@ class OpenapiFiscalProvider implements FiscalProvider
             $call->update(['outcome' => 'invalid_format', 'error_code' => $details['error_code'] ?? 'PDF_FORMAT', 'error_message' => $message]);
             throw new FiscalFailure(false, $message, $response->status(), $details['error_code']);
         }
-        if (! is_array($body) || ($body['success'] ?? null) !== true) {
+        if ($action === 'invoice_xml' && str_contains($response->body(), 'FatturaElettronica') && ! str_contains($response->body(), '<!DOCTYPE')) {
+            $call->update(['outcome' => 'succeeded']);
+
+            return ['xml' => $response->body()];
+        }
+        if (! is_array($body) || (($body['success'] ?? null) !== true && ! (in_array($action, ['send_invoice', 'invoice', 'validate_invoice', 'invoices'], true) && ! array_key_exists('success', $body) && is_array($body['data'] ?? null)))) {
             // Even a malformed 2xx can follow a successful fiscal mutation.
             $call->update(['outcome' => 'unknown'] + $details);
             throw new FiscalFailure(true, 'Risposta fiscale non conclusiva: verifica l’esito prima di procedere.'.($details['error_message'] ? ' Dettaglio Openapi: '.$details['error_message'] : ''));
@@ -110,6 +124,11 @@ class OpenapiFiscalProvider implements FiscalProvider
                 'e_receipts' => true, 'receipts' => false, 'customer_invoice' => false, 'supplier_invoice' => false, 'legal_storage' => false,
                 'merchant_address' => $data['address'], 'stores' => $data['stores'],
             ]],
+            'enable_invoices' => ['PATCH', '/IT-configurations/'.$fiscal, ['customer_invoice' => true]],
+            'send_invoice' => ['POST', '/IT-invoices', []],
+            'validate_invoice' => ['POST', '/IT-invoices_validate', []],
+            'invoice', 'invoice_pdf', 'invoice_xml' => ['GET', '/IT-invoices/'.$id, []],
+            'invoices' => ['GET', '/IT-invoices', ['fiscal_id' => $data['fiscal_id'], 'document_number' => $data['number'], 'direction' => 'outgoing', 'skip' => $data['skip'] ?? 0, 'limit' => 100]],
             'add_store' => ['PATCH', '/IT-configurations/'.$fiscal, ['e_receipts' => true, 'stores' => $data['stores']]],
             'connection' => ['GET', '/IT-configurations', []],
             'configuration' => ['GET', '/IT-configurations/'.$fiscal, []],
@@ -146,11 +165,15 @@ class OpenapiFiscalProvider implements FiscalProvider
         $data = $body['data'] ?? [];
 
         return match ($action) {
-            'configure', 'add_store', 'configuration' => [
+            'configure', 'add_store', 'configuration', 'enable_invoices' => [
                 'id' => $data['id'] ?? null, 'fiscal_id' => $data['fiscal_id'] ?? null, 'enabled' => ($data['e_receipts'] ?? false) === true,
+                'invoice_enabled' => ($data['customer_invoice'] ?? false) === true,
                 'stores' => array_map(fn ($store) => Arr::only($store, ['store_id', 'label', 'address', 'status', 'operational_status', 'pem_serial', 'active', 'cash_registers']), $data['stores'] ?? []),
             ],
             'connection' => is_array($data) && array_is_list($data) ? ['authenticated' => true] : throw new FiscalFailure(true, 'Risposta di verifica connessione non valida.'),
+            'send_invoice', 'invoice' => Arr::only($data, ['id', 'state', 'direction', 'fiscal_id', 'type', 'document_number', 'issue_date', 'total_amount_including_tax', 'total_gross_amount', 'recipient', 'details']),
+            'validate_invoice' => ['valid' => ($data['valid'] ?? false) === true, 'message' => $data['message'] ?? ''],
+            'invoices' => ['documents' => array_map(fn ($row) => Arr::only($row, ['id', 'state', 'direction', 'fiscal_id', 'type', 'document_number', 'issue_date', 'total_amount_including_tax', 'total_gross_amount', 'recipient', 'details']), $data)],
             'create_cashier', 'cashier' => Arr::only($data, ['id', 'fiscal_id', 'email', 'name', 'status']),
             'cashiers' => ['cashiers' => array_map(fn ($cashier) => Arr::only($cashier, ['id', 'fiscal_id', 'email', 'name', 'status']), $data)],
             'issue', 'receipt', 'return', 'void' => $this->document($data),

@@ -170,6 +170,7 @@ class OrderService
         $this->check($method !== 'voucher' || $tip === 0, 'I buoni pasto non possono coprire le mance.');
         DB::transaction(function () use ($orderId, $method, $expectedTotal, $amount, $tip, $key, $payer, $voucherIssuer, $voucherReference, $expectedBalance) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
+            $this->check($key === null || ! \App\Models\CashPaymentBatch::whereKey($key)->exists(), 'Identificativo già usato per un incasso misto.');
             if ($key && ($existing = \App\Models\OrderPayment::where('idempotency_key', $key)->first())) {
                 $this->check($existing->order_id === $orderId && $existing->method === $method
                     && ($amount === null || (int) $existing->amount_cents === $amount) && (int) $existing->tip_cents === $tip
@@ -181,13 +182,9 @@ class OrderService
             if ($order->status === 'paid' && $amount === null) {
                 return;
             }
-            $this->check($order->status === 'open', 'Ordine non aperto.');
-            $this->check(! $order->pendingProposal()->exists(), 'Attendi la risposta del cliente prima di incassare.');
-            $this->check($order->fulfillment === 'dine_in' || ! in_array($order->fulfillment_status, ['received', 'rejected', 'cancelled']), 'L’ordine deve essere accettato prima di incassare.');
-            $this->check($order->fulfillment !== 'dine_in' || ! $order->courses()->whereNull('sent_at')->whereNull('rejected_at')->whereHas('items')->exists(), 'Invia o rimuovi le righe ancora in bozza prima di incassare.');
-            $this->check($order->totalCents() === $expectedTotal, 'Il totale è cambiato. Verifica il nuovo importo prima di confermare.');
+            $this->check(! $order->billPlan()->exists(), 'Questo conto è diviso: incassa una delle quote preconfigurate.');
+            $this->assertPayable($order, $expectedTotal, $expectedBalance);
             $balance = $order->balanceCents();
-            $this->check($expectedBalance === null || $expectedBalance === $balance, 'Il residuo è cambiato. Verifica gli incassi prima di confermare.');
             $amount ??= $balance;
             $this->check($amount <= $balance && ($amount > 0 || $balance === 0), 'Importo superiore al residuo o non valido.');
             $this->check($method !== 'voucher' || filled($voucherIssuer) || $key === null, 'Indica l’emittente dei buoni pasto.');
@@ -206,6 +203,18 @@ class OrderService
                 }
             }
         });
+    }
+
+    public function assertPayable(Order $order, int $expectedTotal, ?int $expectedBalance): void
+    {
+        $this->authorize(Permissions::CASH_REGISTER);
+        $this->check($order->status === 'open', 'Ordine non aperto.');
+        $this->check(! $order->pendingProposal()->exists(), 'Attendi la risposta del cliente prima di incassare.');
+        $this->check($order->fulfillment === 'dine_in' || ! in_array($order->fulfillment_status, ['received', 'rejected', 'cancelled']), 'L’ordine deve essere accettato prima di incassare.');
+        $this->check($order->fulfillment !== 'dine_in' || ! $order->courses()->whereNull('sent_at')->whereNull('rejected_at')->whereHas('items')->exists(), 'Invia o rimuovi le righe ancora in bozza prima di incassare.');
+        $this->check($order->totalCents() === $expectedTotal, 'Il totale è cambiato. Verifica il nuovo importo prima di confermare.');
+        $balance = $order->balanceCents();
+        $this->check($expectedBalance === null || $expectedBalance === $balance, 'Il residuo è cambiato. Verifica gli incassi prima di confermare.');
     }
 
     public function discount(string $orderId, int $value, string $reason, int $expectedTotal, bool $percentage = false, int $auxiliaryVat = 10): void

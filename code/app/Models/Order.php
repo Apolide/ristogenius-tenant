@@ -43,6 +43,11 @@ class Order extends Model
         return $this->belongsTo(Booking::class);
     }
 
+    public function billPlan()
+    {
+        return $this->hasOne(CashBillPlan::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(OrderPayment::class);

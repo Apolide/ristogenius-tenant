@@ -36,6 +36,10 @@ class FiscalDocuments extends Component
 
     public int $remoteOffset = 0;
 
+    public string $remoteKind = 'receipt';
+
+    public string $invoiceNumber = '';
+
     public function boot(): void
     {
         app(FiscalDocumentService::class)->authorize();
@@ -44,6 +48,10 @@ class FiscalDocuments extends Component
     public function mount(Order $order): void
     {
         $this->orderId = $order->id;
+        $voucherPayments = $order->payments()->where('method', 'voucher')->where('amount_cents', '>', 0)->get();
+        if ($voucherPayments->isNotEmpty() && $voucherPayments->every(fn ($payment) => $payment->voucher_quantity > 0)) {
+            $this->voucherCount = (int) $voucherPayments->sum('voucher_quantity');
+        }
         $defaults = app(FiscalWorkstationService::class)->defaults();
         $this->storeId = $defaults['store_id'];
         $this->registerId = $defaults['register_id'];
@@ -106,7 +114,10 @@ class FiscalDocuments extends Component
 
     public function searchRemote(): void
     {
-        $this->remoteDocuments = app(FiscalDocumentService::class)->remoteDocuments($this->storeId, $this->remoteOffset);
+        $this->validate(['remoteKind' => 'in:receipt,invoice', 'remoteOffset' => 'integer|min:0|max:1000000', 'invoiceNumber' => 'string|max:20']);
+        $this->remoteDocuments = $this->remoteKind === 'invoice'
+            ? app(\App\Services\Fiscal\FiscalSetupService::class)->read('invoices', ['fiscal_id' => app(\App\Services\Fiscal\FiscalSetupService::class)->profile()->fiscal_id, 'number' => $this->invoiceNumber, 'skip' => $this->remoteOffset])['documents']
+            : app(FiscalDocumentService::class)->remoteDocuments($this->storeId, $this->remoteOffset);
     }
 
     public function render()

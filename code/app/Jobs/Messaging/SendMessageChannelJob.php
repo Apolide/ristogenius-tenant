@@ -22,7 +22,7 @@ class SendMessageChannelJob implements ShouldQueue
     {
         $outbox = MessageOutbox::query()->find($this->outboxId);
 
-        if ($outbox && $outbox->aggregate_type === 'customer_order') {
+        if ($outbox && in_array($outbox->aggregate_type, ['customer_order', 'fiscal_copy'], true)) {
             if ($this->channel === 'email') {
                 $channels->get('email')->send($outbox);
             }

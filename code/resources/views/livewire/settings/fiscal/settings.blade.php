@@ -16,10 +16,13 @@
 <label>{{ $label }} <input class="o-input" wire:model="company.address.{{ $field }}" required @readonly($profile?->remote_id)></label>
 @endforeach
 </div>
+<div class="o-toolbar mt-3"><label>Regime fiscale fatture (RF01–RF19) <input class="o-input" wire:model="company.tax_regime" maxlength="4" placeholder="Es. RF01"></label><label>Serie fatture <input class="o-input" wire:model="company.invoice_series" maxlength="10"></label></div>
 <div class="o-toolbar mt-3"><label>Natura per righe con IVA zero <select class="o-input" wire:model="company.zero_vat_code"><option value="">Da configurare se necessaria</option>@foreach(['N1','N2','N3','N4','N5','N6'] as $code)<option value="{{ $code }}">{{ $code }}</option>@endforeach</select></label><button class="ti-btn ti-btn-primary-full" wire:loading.attr="disabled">Salva dati azienda</button></div>
 <p class="o-muted">Anche in sandbox CAP, comune e provincia devono essere coerenti fra loro secondo il registro CAP italiano. L’elenco Company Sandbox non è un elenco di aziende già registrate in Invoice.</p>
 <p class="o-muted">Il salvataggio è locale. Dopo la registrazione i dati aziendali sono bloccati; la natura IVA va scelta secondo il proprio regime fiscale.</p>
 </form>
+<div class="o-panel mt-3"><strong>Fatturazione elettronica italiana · Sandbox</strong><p>{{ $profile?->invoice_enabled ? 'Abilitata' : 'Da abilitare' }} · B2B/B2C, XML FPR12. Conservazione a norma e produzione escluse.</p><button class="ti-btn ti-btn-light" wire:click="enableInvoices" wire:loading.attr="disabled" @disabled($profile?->invoice_enabled)>Abilita fatture sandbox</button></div>
+@include('livewire.settings.fiscal.conservation-placeholder')
 @if($profile)
 <div class="o-panel mt-4"><div class="o-toolbar"><h2 class="font-semibold">Sedi e registratori</h2><button class="ti-btn ti-btn-light" wire:click="sync" wire:loading.attr="disabled">Sincronizza azienda e sedi</button><span class="o-badge">{{ $profile->enabled ? 'E-Receipts abilitato' : 'Da abilitare / verificare' }}</span></div>
 <form wire:submit="provision" wire:confirm="Inviare la configurazione della sede alla sandbox Openapi?" class="mt-3">

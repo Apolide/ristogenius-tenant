@@ -29,3 +29,7 @@ Schedule::command('messages:publish-outbox')
 //     ->withoutOverlapping();
 
 Schedule::command('customer-orders:prune-access')->dailyAt('03:45')->withoutOverlapping();
+
+Schedule::command('fiscal:sync-invoices')->everyFiveMinutes()->withoutOverlapping();
+
+Schedule::command('fiscal:queue-copies')->everyMinute()->withoutOverlapping();

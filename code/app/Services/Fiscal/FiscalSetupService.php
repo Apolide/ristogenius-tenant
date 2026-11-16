@@ -34,6 +34,7 @@ class FiscalSetupService
         $valid = Validator::make($data, [
             'fiscal_id' => ['required', 'regex:/^\d{11}$/'], 'name' => 'required|string|max:255', 'email' => 'required|email|max:255',
             'zero_vat_code' => 'nullable|in:N1,N2,N3,N4,N5,N6',
+            'tax_regime' => ['nullable', 'regex:/^RF(0[1-9]|1[0-9])$/'], 'invoice_series' => ['sometimes', 'required', 'regex:/^[A-Z0-9]{1,10}$/'],
         ] + $this->addressRules('address'))->validate();
 
         return DB::transaction(function () use ($valid) {
@@ -75,6 +76,17 @@ class FiscalSetupService
         }, fn ($result) => $this->applyConfiguration($result));
     }
 
+    public function enableInvoices(): void
+    {
+        $this->admin();
+        $profile = $this->profile();
+        $this->check(filled($profile->remote_id) && filled($profile->tax_regime), 'Salva prima il regime fiscale e registra l’azienda.');
+        if ($profile->invoice_enabled) {
+            return;
+        }
+        $this->runner->run('profile:sandbox', 'enable_invoices', fn () => ['fiscal_id' => $profile->fiscal_id], fn ($result) => $this->applyConfiguration($result));
+    }
+
     public function checkConnection(): void
     {
         $this->admin();
@@ -93,7 +105,7 @@ class FiscalSetupService
                     continue;
                 }
                 $request = $operation->request;
-                $complete = $result['enabled'];
+                $complete = $operation->action === 'enable_invoices' ? ($result['invoice_enabled'] ?? false) : $result['enabled'];
                 foreach ($request['stores'] ?? [] as $expected) {
                     $store = collect($result['stores'])->firstWhere('label', $expected['label']);
                     $labels = array_column($store['cash_registers'] ?? [], 'label');
@@ -113,7 +125,7 @@ class FiscalSetupService
     {
         $profile = $this->profile();
         $this->check(($result['fiscal_id'] ?? null) === $profile->fiscal_id && filled($result['id'] ?? null), 'La risposta non identifica la configurazione di questo tenant.');
-        $profile->update(['remote_id' => $result['id'], 'enabled' => $result['enabled'], 'synced_at' => now()]);
+        $profile->update(['remote_id' => $result['id'], 'enabled' => $result['enabled'], 'invoice_enabled' => $result['invoice_enabled'] ?? false, 'synced_at' => now()]);
         $seen = [];
         foreach ($result['stores'] as $store) {
             $this->check(filled($store['store_id'] ?? null), 'Sede senza identificativo nella risposta fiscale.');

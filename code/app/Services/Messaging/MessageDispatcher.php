@@ -14,7 +14,7 @@ class MessageDispatcher
     public function dispatch(MessageOutbox $outbox): void
     {
         $messageCase = (string) ($outbox->payload['message_case'] ?? '');
-        if ($outbox->aggregate_type === 'customer_order') {
+        if (in_array($outbox->aggregate_type, ['customer_order', 'fiscal_copy'], true)) {
             SendMessageChannelJob::dispatch($outbox->id, 'email')
                 ->onConnection(config('messaging.queue.connection'))
                 ->onQueue(config('messaging.queue.channels.email'));

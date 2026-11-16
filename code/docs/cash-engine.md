@@ -7,7 +7,7 @@ Il conto continua a coincidere con l'ordine: sala, QR, asporto e consegna utiliz
 Nel dettaglio cassa sono disponibili:
 
 - Incassi parziali o saldo residuo, con contanti, carta incassata esternamente, registrazione manuale o buoni pasto. L'importo esclude la mancia, che va indicata a parte. I buoni pasto richiedono un emittente e non coprono mance; riferimento facoltativo.
-- Divisione per importo con indicazione del pagante e calcolo di una quota del residuo corrente. Per tre quote di un conto da 10,01 € si possono incassare 3,34 €, 3,34 € e il saldo di 3,33 €. Il pulsante ricalcola sul residuo attuale: non genera sottoconti persistenti né assegna singoli prodotti ai paganti.
+- Divisione persistente in N parti uguali oppure per prodotti, con schede pagante, rimanenza e incasso misto nella stessa modal. Flusso e regole in [cash-split-bills.md](cash-split-bills.md).
 - Sconto fisso in euro o percentuale con motivazione obbligatoria. Una nuova applicazione sostituisce lo sconto precedente. Se il conto viene ridotto prima dell’incasso, lo sconto effettivo è limitato al lordo corrente. Zero rimuove lo sconto; 100% permette un conto omaggio, chiuso con registrazione a zero.
 - Riepilogo di imponibile e IVA inclusa per aliquota. I prodotti usano l'IVA fotografata nelle righe. Coperti, servizio e consegna usano un'aliquota del conto, inizialmente 10%, modificabile prima dell'incasso nel modulo sconto/IVA (sconto zero per aggiornare solo l'aliquota). Il riepilogo non è una validazione fiscale delle aliquote o delle esenzioni.
 
@@ -15,7 +15,7 @@ Al primo incasso il totale e il riepilogo IVA vengono fotografati: non sono più
 
 ## Turni e riconciliazione
 
-`/manage/cash-desk/shifts`, accessibile dalle pagine cassa, gestisce un solo cassetto attivo per database tenant. Apertura con fondo iniziale, riepilogo per metodo, chiusura con contanti contati e note. La differenza è `contati − (fondo + contanti incassati + mance in contanti)`. Carta, manuale e buoni pasto sono esclusi dal contante atteso. Le mance in contanti si presumono lasciate nel cassetto fino alla chiusura: non sono previsti prelievi o versamenti durante il turno.
+`/manage/cash-desk/shifts`, accessibile dalle pagine cassa, gestisce un solo cassetto attivo per database tenant. Apertura con fondo iniziale, riepilogo per metodo, chiusura con contanti contati e note. La differenza è `contati − (fondo + contanti incassati + mance in contanti − rimborsi in contanti del turno)`. Carta, manuale e buoni pasto sono esclusi dal contante atteso. Le mance in contanti si presumono lasciate nel cassetto fino alla chiusura: non sono previsti prelievi o versamenti durante il turno.
 
 Gli incassi vengono associati automaticamente al turno attivo. Per compatibilità con il flusso esistente si possono registrare incassi senza turno: sono esplicitamente indicati e non entrano nella riconciliazione. Un conto può avere incassi in turni differenti. La chiusura è immutabile e una ripetizione non cambia i valori già salvati; non equivale alla chiusura fiscale giornaliera.
 
@@ -29,7 +29,7 @@ Gli incassi serializzano l'ordine con `lockForUpdate`, verificano totale e resid
 
 L'isolamento segue il modello esistente del progetto: un database per tenant. Tutte le operazioni richiedono `personnel-manage-cash-register`. Non introdurre un database condiviso senza aggiungere lo scope tenant a conti, pagamenti e turni.
 
-La fase 2 sandbox è descritta in [fiscal-module.md](fiscal-module.md) e consuma lo snapshot del conto da un servizio fiscale separato. Il solo incasso gestionale non invia richieste fiscali. Emissione sandbox e relativo registro chiamate richiedono azioni esplicite nel modulo fiscale. Fatture/SDI, conservazione, addebiti al portafoglio tenant, gateway Stripe e riconciliazione bancaria/POS restano nelle fasi successive.
+La fase 2 sandbox è descritta in [fiscal-module.md](fiscal-module.md) e consuma lo snapshot del conto da un servizio fiscale separato. Il solo incasso gestionale non invia richieste fiscali. Emissione sandbox e relativo registro chiamate richiedono azioni esplicite nel modulo fiscale. Il flusso fatture/SDI sandbox e la riconciliazione gestionale sono descritti in [cash-fiscal-checkout.md](cash-fiscal-checkout.md). Conservazione, addebiti al portafoglio tenant, gateway Stripe e riconciliazione bancaria/POS restano da integrare.
 
 ## Migrazione e verifica
 

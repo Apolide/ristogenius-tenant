@@ -14,6 +14,7 @@
 </select>
 <input aria-label="Cerca tavolo, sala o cliente" type="search" placeholder="Tavolo, sala o cliente…" wire:model.live.debounce.300ms="search" class="o-input">
 </div>
+<a class="ti-btn ti-btn-light mb-3" href="{{ route('cash-desk.reconciliation') }}">Riconciliazione ed esportazione</a>
 @include('orders.errors')
 <div class="o-panel mb-4"><h2 class="font-semibold">Incassi registrati il {{ $date }} · tutti gli ordini</h2>
 @forelse($dailyPayments as $row)<p>{{ ['cash'=>'Contanti','card'=>'Carta','voucher'=>'Buoni pasto','manual'=>'Manuale'][$row->method] ?? $row->method }}: {{ number_format($row->amount/100,2,',','.') }} € · Mance {{ number_format($row->tips/100,2,',','.') }} €</p>@empty<p>Nessun incasso nella giornata.</p>@endforelse

@@ -8,5 +8,5 @@ class FiscalProfile extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['address' => 'array', 'enabled' => 'boolean', 'synced_at' => 'datetime'];
+    protected $casts = ['address' => 'array', 'enabled' => 'boolean', 'invoice_enabled' => 'boolean', 'synced_at' => 'datetime'];
 }

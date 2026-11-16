@@ -85,6 +85,7 @@ Route::domain(env('DOMAIN'))->group(function () {
     Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
     Route::get('/order/{language}/{menu:slug}', \App\Livewire\PublicOrders\Menu::class)->name('public-orders.menu');
     Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class,'table'])->name('public-orders.table');
+    Route::get('/fiscal-copy/{copy}/{document}', \App\Http\Controllers\FiscalCopyController::class)->middleware(['signed','throttle:20,1'])->name('fiscal-copy.download');
     Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'show'])->middleware('throttle:30,1')->name('public-orders.verify');
     Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
     Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
@@ -156,10 +157,12 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CASH_REGISTER)->group(function () {
             Route::get('/manage/cash-desk/customers-orders', \App\Livewire\CashDesk\CustomerOrders::class)->name('cash-desk.customer-orders');
             Route::get('/manage/cash-desk', \App\Livewire\CashDesk\RoomMap::class)->name('cash-desk.index');
+            Route::get('/manage/cash-desk/reconciliation', \App\Livewire\CashDesk\Reconciliation::class)->name('cash-desk.reconciliation');
             Route::get('/manage/cash-desk/shifts', \App\Livewire\CashDesk\Shifts::class)->name('cash-desk.shifts');
             Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
             Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
             Route::get('/manage/cash-desk/orders/{order}/fiscal', \App\Livewire\CashDesk\FiscalDocuments::class)->name('cash-desk.fiscal');
+            Route::get('/manage/cash-desk/fiscal-documents/{document}/xml', \App\Http\Controllers\FiscalDocumentXmlController::class)->name('cash-desk.fiscal-xml');
             Route::get('/manage/cash-desk/fiscal-documents/{document}/pdf', \App\Http\Controllers\FiscalDocumentPdfController::class)->name('cash-desk.fiscal-pdf');
             Route::get('/manage/cash-desk/orders/{order}/print', \App\Http\Controllers\OrderPrintController::class)->name('cash-desk.print');
         });

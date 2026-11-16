@@ -51,7 +51,7 @@ docker exec ristopilot-tenant_php php artisan migrate --path=database/migrations
 1. Aprire **Impostazioni → Configurazione fiscale · Sandbox**, oppure `/manage/settings/fiscal`.
 2. Salvare partita IVA italiana, ragione sociale, email e sede legale. 
 Vedi https://docs.openapi.it/company-sandbox-examples.html#1 con ESEMPI!
-Il salvataggio è locale. Dopo la registrazione remota questi dati sono bloccati in questa versione; la natura IVA zero resta configurabile. Non vengono abilitate fatture passive, fatture attive, Smart Receipts o conservazione.
+Il salvataggio è locale. Dopo la registrazione remota questi dati sono bloccati in questa versione; la natura IVA zero resta configurabile. Questa attivazione abilita solo E-Receipts. Le fatture attive sandbox hanno un’attivazione separata, descritta in [cash-fiscal-checkout.md](cash-fiscal-checkout.md). Fatture passive, Smart Receipts e conservazione restano esclusi.
 3. Inserire sede e nome del registratore. Attivare azienda e prima sede sandbox. Per sedi successive viene usato il PATCH additivo per label. Ogni sede nasce con un registratore; i registratori già presenti nella configurazione vengono importati e sono selezionabili.
 4. Attendere il provisioning asincrono, indicativamente 60–120 secondi secondo Openapi, e utilizzare **Sincronizza azienda e sedi**. L'emissione richiede sede attiva, stato `ONLINE`, matricola `pem_serial`, abilitazione E-Receipts e registratore `ONLINE`.
 5. Registrare un cassiere per ogni utente che emette documenti, incluso l'amministratore. Gli admin hanno già il permesso cassa e sono volutamente esclusi dalla matrice Personale; il selettore fiscale li include insieme agli altri utenti abilitati. Il campo **Email cassiere Openapi** può contenere un indirizzo distinto da `User.email`: non modifica il login RistoPilot. Vuoto significa usare l'email dell'utente. Un cassiere già collegato non può cambiare email da questa schermata. **Sincronizza cassieri** verifica lo stato e permette di recuperare una creazione con esito incerto solo quando c'è una corrispondenza univoca per azienda e identità del cassiere. Lo schema della lista può omettere `fiscal_id`: in quel caso viene letto `GET /IT-cashiers/{id}` per provare l'appartenenza alla configurazione prima di collegarlo. Un indirizzo già presente nei sistemi Openapi non implica che il relativo cassiere sia disponibile per questa azienda.
@@ -91,7 +91,7 @@ L'incasso non emette automaticamente un documento. L'emissione esplicita richied
 - numero effettivo dei buoni pasto se presenti;
 - natura `N1`–`N6` esplicitamente configurata se ci sono righe con aliquota zero.
 
-Si emette **una vendita per intero conto**, anche con più incassi o paganti. Le N quote del motore cassa non generano N documenti fiscali. Le mance restano separate e non sono incluse nei corrispettivi inviati da questo modulo.
+Il flusso aggiornato emette **un documento per singolo incasso**, direttamente dalla cassa; vedi [cash-fiscal-checkout.md](cash-fiscal-checkout.md). L’emissione per intero conto rimane per i pagamenti storici senza conticini, ed è bloccata se esistono incassi del nuovo checkout. La gestione delle quote è descritta in [cash-split-bills.md](cash-split-bills.md). Le mance restano separate e non sono incluse nei corrispettivi inviati da questo modulo.
 
 Gli sconti già fotografati vengono ripartiti fra i prodotti rispettando i totali per aliquota. Si inviano prezzi unitari già scontati e il totale dello sconto nel testo aggiuntivo, senza riapplicare uno sconto globale. Quando la divisione non è esatta al centesimo, uno stesso prodotto viene rappresentato da al massimo due righe con prezzi unitari differenti di un centesimo. I resi si riferiscono agli ID delle righe fiscali risultanti.
 
@@ -101,7 +101,7 @@ La vendita usa `POST /IT-e-receipts`. La risposta è considerata emessa solo qua
 
 **Verifica articoli restituibili** usa `GET /IT-e-receipts/{id}/returnable-items`. L'interfaccia permette un articolo con quantità intera per operazione; il servizio supporta un insieme di articoli. Prima dell'invio si ricontrollano disponibilità remota, quantità già rese localmente e stato della vendita. Il reso usa `PATCH /IT-e-receipts/{id}`; l'annullamento usa `DELETE /IT-e-receipts/{id}`. Ogni rettifica ha un record separato, collegato alla vendita originale.
 
-Non vengono cancellati né modificati gli incassi originali. Reso e annullamento fiscale **non eseguono un rimborso monetario**, non riaprono il conto e non liberano il vincolo sull'unica vendita già inviata. La riconciliazione dei rimborsi appartiene alla fase 4.
+Non vengono cancellati né modificati gli incassi originali. Reso e annullamento fiscale **non eseguono un rimborso monetario**, non riaprono il conto e non liberano il vincolo sull'unica vendita già inviata. I rimborsi già eseguiti possono essere registrati separatamente: vedi [cash-fiscal-checkout.md](cash-fiscal-checkout.md).
 
 ### Chiusure
 
@@ -137,7 +137,7 @@ I costi sono interi in **micro-euro** (1 € = 1.000.000), per poter rappresenta
 
 ## Limiti espliciti
 
-Non sono implementati in questa fase: produzione E-Receipts, certificazione reale senza RT, fatturazione/SDI, conservazione, accrediti o rimborsi, wallet/Stripe, documenti per singolo pagante, riapertura conti, procedure automatiche per outage/inattività, rinnovi/disattivazioni store, modifica dati aziendali dopo registrazione e creazione aggiuntiva di registratori in una sede già esistente. I registratori esistenti vengono comunque letti e selezionati.
+Il seguito in [cash-fiscal-checkout.md](cash-fiscal-checkout.md) aggiunge documenti per singolo incasso, fatture/SDI sandbox, note di credito totali e rimborsi gestionali. Restano esclusi: produzione E-Receipts, certificazione reale senza RT, conservazione, accrediti o rimborsi via PSP, wallet/Stripe, riapertura conti, procedure automatiche per outage/inattività, rinnovi/disattivazioni store, modifica dati aziendali dopo registrazione e creazione aggiuntiva di registratori in una sede già esistente. I registratori esistenti vengono comunque letti e selezionati.
 
 I conti omaggio e gli incassi esclusivamente in contanti con totale non multiplo di 5 centesimi vengono bloccati all'emissione. Il motore di fase 1 non registra ancora l'arrotondamento obbligatorio del contante: il modulo fiscale non inventa un incasso differente da quello registrato. I pagamenti misti quadrano esattamente senza aggiungere arrotondamenti. Questi casi vanno completati prima dell'uso produttivo.
 

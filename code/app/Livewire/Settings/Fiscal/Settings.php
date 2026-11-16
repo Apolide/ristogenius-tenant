@@ -15,7 +15,7 @@ use Livewire\Component;
 
 class Settings extends Component
 {
-    public array $company = ['fiscal_id' => '', 'name' => '', 'email' => '', 'zero_vat_code' => null,
+    public array $company = ['fiscal_id' => '', 'name' => '', 'email' => '', 'zero_vat_code' => null, 'tax_regime' => null, 'invoice_series' => 'F',
         'address' => ['street_address' => '', 'street_number' => '', 'zip_code' => '', 'city' => '', 'province' => '']];
 
     public array $storeAddress = ['street_address' => '', 'street_number' => '', 'zip_code' => '', 'city' => '', 'province' => ''];
@@ -45,7 +45,7 @@ class Settings extends Component
     {
         $profile = FiscalProfile::where('environment', 'sandbox')->first();
         if ($profile) {
-            $this->company = $profile->only(['fiscal_id', 'name', 'email', 'address', 'zero_vat_code']);
+            $this->company = $profile->only(['fiscal_id', 'name', 'email', 'address', 'zero_vat_code', 'tax_regime', 'invoice_series']);
         }
         $this->loadWorkstations();
     }
@@ -60,6 +60,12 @@ class Settings extends Component
     {
         app(FiscalSetupService::class)->save($this->company);
         session()->flash('order_notice', 'Dati aziendali salvati. Nessuna attivazione inviata.');
+    }
+
+    public function enableInvoices(): void
+    {
+        app(FiscalSetupService::class)->enableInvoices();
+        session()->flash('order_notice', 'Fatturazione elettronica sandbox abilitata.');
     }
 
     public function provision(): void

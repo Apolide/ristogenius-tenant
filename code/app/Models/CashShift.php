@@ -21,6 +21,7 @@ class CashShift extends Model
     public function expectedCents(): int
     {
         return (int) $this->opening_cents + (int) $this->payments()->where('method', 'cash')->sum('amount_cents')
-            + (int) $this->payments()->where('method', 'cash')->sum('tip_cents');
+            + (int) $this->payments()->where('method', 'cash')->sum('tip_cents')
+            - (int) CashRefund::where('cash_shift_id', $this->id)->where('method', 'cash')->sum('amount_cents');
     }
 }

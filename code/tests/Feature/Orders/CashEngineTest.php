@@ -170,9 +170,12 @@ class CashEngineTest extends TestCase
     public function test_split_ui_handles_final_rounding_and_free_account(): void
     {
         $order = $this->order(1001);
-        Livewire::test(Show::class, ['order' => $order])->set('shares', 3)->call('split')->assertSet('amount', '3.34')->call('pay')->assertHasNoErrors();
-        $this->assertSame(667, $order->fresh()->balanceCents());
-        Livewire::test(Show::class, ['order' => $order])->call('pay')->assertHasNoErrors();
+        Livewire::test(Show::class, ['order' => $order])->set('shares', 3)->call('split')->assertHasNoErrors();
+        $shares = $order->billPlan()->firstOrFail()->shares()->get();
+        $this->assertSame([334, 334, 333], $shares->pluck('amount_cents')->all());
+        foreach ($shares as $share) {
+            Livewire::test(Show::class, ['order' => $order])->call('openPayment', $share->id)->call('checkout')->assertHasNoErrors();
+        }
         $this->assertSame('paid', $order->fresh()->status);
         $free = $this->order();
         app(OrderService::class)->discount($free->id, 10000, 'Omaggio', 1000, true);

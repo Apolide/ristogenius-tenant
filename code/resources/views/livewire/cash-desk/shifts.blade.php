@@ -1,6 +1,7 @@
 <div class="content order-workspace"><div class="main-content">
 @include('orders.styles')
 <div class="o-toolbar"><a class="ti-btn ti-btn-light" href="{{ route('cash-desk.index') }}">← Cassa</a><a class="ti-btn ti-btn-light" href="{{ route('cash-desk.history') }}">Storico incassi</a><h1 class="o-title">Turni di cassa</h1></div>
+<a class="ti-btn ti-btn-light mb-3" href="{{ route('cash-desk.reconciliation') }}">Riconciliazione ed esportazione</a>
 @include('orders.errors')
 <div class="o-panel">
 @if($active)
