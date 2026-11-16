@@ -53,7 +53,7 @@
                         <label for="menu-language" class="sr-only">{{ __('public_bookings.language') }}</label>
                         <select id="menu-language" onchange="window.location.href = this.value" class="appearance-none rounded-lg border border-white/40 bg-white px-5 py-2 pr-8 text-sm font-medium text-gray-800 shadow-sm focus:border-white focus:outline-none">
                             @foreach($languages as $code => $meta)
-                                <option value="{{ route('menu.public', ['language' => $code, 'menu' => $menu]) }}" @selected($language === $code)>{{ $meta['flag'] }} {{ strtoupper($code) }}</option>
+                                <option value="{{ ($ordering ?? false) ? route('public-orders.menu', ['language'=>$code, 'menu'=>$menu, 'table'=>$tableToken]) : route('menu.public', ['language'=>$code, 'menu'=>$menu]) }}" @selected($language === $code)>{{ $meta['flag'] }} {{ strtoupper($code) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -79,6 +79,10 @@
     </nav>
 
     <main class="mx-auto max-w-5xl px-5 sm:px-7">
+        @if(!($ordering ?? false) && app(\App\Services\PublicOrders\OrderingSettings::class)->get()['enabled'])
+            <a href="{{ route('public-orders.menu',['language'=>$language,'menu'=>$menu]) }}" class="mt-6 inline-block rounded-xl px-5 py-3 font-semibold text-white" style="background:var(--dm-primary)">Ordina per ritiro o consegna</a>
+        @endif
+
         @foreach($menu->categories as $category)
             <section id="category-{{ $category->id }}" class="scroll-mt-20 pt-12 sm:pt-16">
                 <div class="mb-6 overflow-hidden rounded-2xl @if($category->image_path) relative min-h-48 @endif">
@@ -114,6 +118,9 @@
                                 @if($product->translatedDescription($language))<p class="dm-muted mt-3 text-sm leading-6">{{ $product->translatedDescription($language) }}</p>@endif
                                 @if($product->allergens)<p class="mt-3 text-xs text-[#8a5b39]"><strong>{{ $labels['allergens'] }}:</strong> {{ implode(', ', $product->allergens) }}</p>@endif
 
+                                @if(($ordering ?? false) && $access)
+                                    <button type="button" wire:click="chooseProduct('{{ $category->id }}','{{ $product->id }}')" class="mt-4 rounded-xl px-4 py-3 font-semibold text-white" style="background:var(--dm-primary)">Personalizza e aggiungi</button>
+                                @endif
                                 @php($upsells = $product->recommendations->where('type', 'upsell'))
                                 @if($upsells->isNotEmpty())
                                     <div class="dm-upsell mt-5 rounded-xl border p-4">
@@ -133,7 +140,7 @@
             </section>
         @endforeach
 
-        @if($menu->service_charge > 0)
+        @if(!($ordering ?? false) && $menu->service_charge > 0)
             <div class="mt-12 flex items-center justify-between rounded-xl border bg-white p-4 text-sm shadow-sm" style="border-color: color-mix(in srgb, var(--dm-primary) 16%, #ddd)"><span class="dm-muted">{{ $labels['service'] }}</span><strong style="color: var(--dm-primary)">{{ Number::currency($menu->service_charge, 'EUR', $language) }}</strong></div>
         @endif
     </main>

@@ -66,6 +66,15 @@ su www-data -s /bin/sh -c 'mkdir -p /var/www/html/storage/logs && : > /var/www/h
 chmod 664 /var/www/html/storage/logs/laravel.log &&
 ls -l /var/www/html/storage/logs/laravel.log"
 
+altro PROBLEMA
+cd /home/toni/Projects/ristopilot/saas-infra/ristopilot-tenant
+
+sudo setfacl -R -m u:$(id -u):rwX code/public/marketing-assets
+
+sudo find code/public/marketing-assets -type d \
+  -exec setfacl -m d:u:$(id -u):rwx {} \;
+
+  
 
 docker compose -f docker-compose-dev.yml exec -T ristopilot-tenant_php sh -lc "chown -R www-data:www-data /var/www/html/public/tenant-assets && find /var/www/html/public/tenant-assets -type d -exec chmod 775 {} \; && find /var/www/html/public/tenant-assets -type f -exec chmod 664 {} \;"
 
@@ -136,8 +145,7 @@ docker compose config --services
 
 
 Per entrare direttamente nel container:
-docker compose exec ristopilot-tenant_php bash
-php artisan test
+docker compose exec ristopilot-tenant_php bash php artisan test
 
 Per ripulire laravel config:
 docker compose exec ristopilot-tenant_php php artisan config:clear
@@ -166,3 +174,10 @@ npm install
 npm run dev
 // for production assets
 npm run build
+
+
+
+/////// FIX PERMESSI cartella storage
+
+docker compose -f docker-compose-dev.yml exec --user root ristopilot-tenant_php \
+  chown -R www-data:www-data storage bootstrap/cache

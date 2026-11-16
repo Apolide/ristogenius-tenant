@@ -30,7 +30,7 @@
                     </a>
                 </div>
                 <div class="pe-1 xl:mb-0">
-                    <a href="/manage/settings/rooms/printqr" class="ti-btn ti-btn-info-full text-white ti-btn-icon">
+                    <a href="{{ route('settings.rooms.order-qr-codes') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon">
                         <i class="las text-3xl la-print"></i>
                     </a>
                 </div>

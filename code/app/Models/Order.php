@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+
+class Order extends Model
+{
+    use HasUuids;
+
+    protected $guarded = [];
+
+    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime'];
+
+    public function proposals()
+    {
+        return $this->hasMany(CustomerOrderProposal::class)->latest();
+    }
+
+    public function pendingProposal()
+    {
+        return $this->hasOne(CustomerOrderProposal::class)->where('status', 'pending')->where('expires_at', '>', now());
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(OrderCourse::class)->orderBy('number');
+    }
+
+    public function tables()
+    {
+        return $this->belongsToMany(RoomTable::class, 'order_tables');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(OrderEvent::class)->latest('id');
+    }
+
+    public function items()
+    {
+        return $this->hasManyThrough(OrderItem::class, OrderCourse::class);
+    }
+
+    public function serviceFeeCents(): int
+    {
+        $totals = \Illuminate\Support\Facades\DB::table('order_courses')
+            ->join('order_items', 'order_items.order_course_id', '=', 'order_courses.id')
+            ->where('order_courses.order_id', $this->id)->whereNull('order_courses.rejected_at')
+            ->where('order_courses.service_percentage_bps', '>', 0)
+            ->groupBy('order_courses.id', 'order_courses.service_percentage_bps')
+            ->selectRaw('order_courses.service_percentage_bps, SUM(order_items.quantity * order_items.unit_price_cents) AS subtotal')->get();
+
+        return (int) $totals->sum(fn ($row) => intdiv((int) $row->subtotal * $row->service_percentage_bps + 5000, 10000));
+    }
+
+    public function fulfillmentLabel(): string
+    {
+        return ['dine_in' => 'Sala', 'pickup' => 'Ritiro', 'delivery' => 'Consegna'][$this->fulfillment] ?? $this->fulfillment;
+    }
+
+    public function fulfillmentStatusLabel(): string
+    {
+        if ($this->fulfillment !== 'dine_in' && $this->pendingProposal) {
+            return 'In attesa risposta cliente';
+        }
+
+        return ['received' => 'Da approvare', 'accepted' => 'Accettato', 'preparing' => 'In preparazione', 'ready' => 'Pronto', 'out_for_delivery' => 'In consegna', 'completed' => 'Completato', 'rejected' => 'Rifiutato', 'cancelled' => 'Annullato'][$this->fulfillment_status] ?? '';
+    }
+
+    public function totalCents(): int
+    {
+        return $this->covers * $this->cover_price_cents + (int) $this->delivery_fee_cents
+            + (int) $this->items()->whereNull('order_courses.rejected_at')->selectRaw('COALESCE(SUM(quantity * unit_price_cents), 0) as total')->value('total')
+            + $this->serviceFeeCents();
+    }
+}

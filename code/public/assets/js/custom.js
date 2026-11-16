@@ -20,8 +20,7 @@
   /*Start Sidemenu Scroll */
   // var myElement = document.getElementById("header-cart-items-scroll");
   // new SimpleBar(myElement, { autoHide: true });
-  var myElement = document.getElementById("header-notification-scroll");
-  new SimpleBar(myElement, { autoHide: true });
+  // The notification list uses native scrolling so Livewire can update its rows.
   /*End Sidemenu Scroll */
 
   /* header dropdowns scroll */

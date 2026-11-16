@@ -14,6 +14,13 @@ class MessageDispatcher
     public function dispatch(MessageOutbox $outbox): void
     {
         $messageCase = (string) ($outbox->payload['message_case'] ?? '');
+        if ($outbox->aggregate_type === 'customer_order') {
+            SendMessageChannelJob::dispatch($outbox->id, 'email')
+                ->onConnection(config('messaging.queue.connection'))
+                ->onQueue(config('messaging.queue.channels.email'));
+
+            return;
+        }
 
         if ($outbox->aggregate_type !== 'booking' || ! str_starts_with($messageCase, 'booking_')) {
             Log::warning('Evento messaggistica non supportato', ['outbox_id' => $outbox->id]);
