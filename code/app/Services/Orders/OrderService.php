@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderCourse;
 use App\Models\OrderItem;
 use App\Models\ProductionTicket;
+use App\Services\Fidelity\FidelityCheckout;
 use App\Services\Personnel\PersonnelPermissionsService as Permissions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -197,6 +198,7 @@ class OrderService
             $this->event($order, 'payment_recorded', ['amount_cents' => $amount, 'method' => $method, 'tip_cents' => $tip, 'payer' => $payer]);
             if ($amount === $balance) {
                 $order->update(['status' => 'paid', 'paid_at' => now()]);
+                app(FidelityCheckout::class)->settle($order);
                 DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
                 $this->event($order, 'paid', ['amount_cents' => $expectedTotal, 'method' => $method]);
                 if ($order->customer_email) {
@@ -214,6 +216,7 @@ class OrderService
         $this->check($order->fulfillment === 'dine_in' || ! in_array($order->fulfillment_status, ['received', 'rejected', 'cancelled']), 'L’ordine deve essere accettato prima di incassare.');
         $this->check($order->fulfillment !== 'dine_in' || ! $order->courses()->whereNull('sent_at')->whereNull('rejected_at')->whereHas('items')->exists(), __('Invia o rimuovi le righe ancora in bozza prima di incassare.'));
         $this->check($order->totalCents() === $expectedTotal, __('Il totale è cambiato. Verifica il nuovo importo prima di confermare.'));
+        app(FidelityCheckout::class)->assertReward($order);
         $balance = $order->balanceCents();
         $this->check($expectedBalance === null || $expectedBalance === $balance, __('Il residuo è cambiato. Verifica gli incassi prima di confermare.'));
     }
@@ -229,6 +232,7 @@ class OrderService
             $this->check($order->totalCents() === $expectedTotal, __('Il totale è cambiato. Aggiorna il conto.'));
             $this->check(! $order->pendingProposal()->exists(), __('Ritira la proposta al cliente prima di modificare lo sconto.'));
             $this->check($value === 0 || $order->coupon_disabled || ! \App\Models\CouponUsage::where('booking_id', $order->booking_id)->exists(), __('marketing.not_stackable'));
+            $this->check(! $order->fidelity_reward || $value === 0, __('fidelity.existing_discount'));
             $gross = $order->grossCents();
             $this->check(! $percentage || $value <= 10000, __('La percentuale deve essere fra 0 e 100.'));
             $discount = $percentage ? intdiv($gross * $value + 5000, 10000) : $value;
@@ -245,6 +249,7 @@ class OrderService
             $order = $this->lockedOpen($orderId);
             $this->check(! ProductionTicket::whereHas('course', fn ($q) => $q->where('order_id', $orderId))->whereNotIn('status', ['queued', 'cancelled'])->exists(), __('Una uscita è già in lavorazione: impossibile annullare.'));
             ProductionTicket::whereHas('course', fn ($q) => $q->where('order_id', $orderId))->update(['status' => 'cancelled']);
+            app(FidelityCheckout::class)->release($order);
             $order->update(['status' => 'cancelled', 'cancelled_at' => now()]);
             DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
             if ($order->fulfillment !== 'dine_in') {

@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\CouponAssignment;
 use App\Models\CouponClaim;
 use App\Models\CouponUsage;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -84,14 +85,51 @@ class CouponService
                 return $existing;
             }
             $this->check($coupon->claimable(), 'unavailable');
-            $access = Str::random(64);
-            $assignment = CouponAssignment::create(['coupon_id' => $coupon->id, 'customer_id' => $customer->id, 'token_hash' => hash('sha256', $access), 'access_token' => $access, 'snapshot' => $coupon->snapshot() + ['campaign_delivery_id' => $claim->campaign_delivery_id], 'profile' => $identity, 'language' => $language]);
-            $coupon->increment('assigned_count');
+            $assignment = $this->assign($coupon, $customer, $language, $identity, ['campaign_delivery_id' => $claim->campaign_delivery_id]);
             $claim->update(['coupon_assignment_id' => $assignment->id]);
-            app(MarketingMailer::class)->enqueue('coupon-assigned:'.$assignment->id, $customer->email, $assignment->language, $coupon->title($assignment->language), __('marketing.assigned_text', [], $assignment->language), $assignment->bookingUrl() ?? $assignment->url(), ['assignment_id' => $assignment->id]);
 
             return $assignment;
         }, 3);
+    }
+
+    public function awardSurveyCoupon(string $couponId, Customer $customer, string $language): void
+    {
+        DB::transaction(function () use ($couponId, $customer, $language): void {
+            $coupon = Coupon::lockForUpdate()->find($couponId);
+            if (! $coupon?->claimable() || $coupon->assignments()->where('customer_id', $customer->id)->exists()) {
+                return;
+            }
+
+            $language = in_array($language, $coupon->enabled_languages, true) ? $language : ($coupon->enabled_languages[0] ?? null);
+            if ($language) {
+                $this->assign($coupon, $customer, $language, []);
+            }
+        }, 3);
+    }
+
+    private function assign(Coupon $coupon, Customer $customer, string $language, array $profile, array $snapshot = []): CouponAssignment
+    {
+        $access = Str::random(64);
+        $assignment = $coupon->assignments()->create([
+            'customer_id' => $customer->id,
+            'token_hash' => hash('sha256', $access),
+            'access_token' => $access,
+            'snapshot' => $coupon->snapshot() + $snapshot,
+            'profile' => $profile,
+            'language' => $language,
+        ]);
+        $coupon->increment('assigned_count');
+        app(MarketingMailer::class)->enqueue(
+            'coupon-assigned:'.$assignment->id,
+            $customer->email,
+            $language,
+            $coupon->title($language),
+            __('marketing.assigned_text', [], $language),
+            $assignment->bookingUrl() ?? $assignment->url(),
+            ['assignment_id' => $assignment->id],
+        );
+
+        return $assignment;
     }
 
     public function fromToken(string $token): CouponAssignment

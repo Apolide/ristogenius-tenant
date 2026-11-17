@@ -41,6 +41,7 @@ class CustomerOrderWorkflow
             }
             if (in_array($next, ['rejected', 'cancelled'])) {
                 $this->check(! $order->payments()->exists(), __('Ordine con incassi registrati: annullamento bloccato.'));
+                app(\App\Services\Fidelity\FidelityCheckout::class)->release($order);
                 $order->status = 'cancelled';
             }
             if ($next === 'completed') {

@@ -21,6 +21,7 @@ class OrderProposalService
 {
     public function assertEditable(Order $order): void
     {
+        $this->check(! $order->fidelity_reward, __('fidelity.remove_reward_first'));
         $this->check(in_array($order->fulfillment, ['pickup', 'delivery']) && $order->status === 'open'
             && in_array($order->fulfillment_status, ['received', 'accepted']) && ! $order->payments()->exists()
             && ! $order->courses()->whereNotNull('sent_at')->exists(),

@@ -2,7 +2,7 @@
 <div class="main-content">
 @include('orders.styles')
 @include('orders.workspace-styles')
-<x-orders.workspace :title="$cash ? __('Cassa') : __('Comande')" :icon="$cash ? 'la-cash-register' : 'la-utensils'" :summary="\Carbon\Carbon::parse($date)->format('d/m/Y')">
+<x-orders.workspace :sidebar-open="$cash" :title="$cash ? __('Cassa') : __('Comande')" :icon="$cash ? 'la-cash-register' : 'la-utensils'" :summary="\Carbon\Carbon::parse($date)->format('d/m/Y')">
     <x-slot:actions>
         @if($cash)<a class="ti-btn ti-btn-primary-full !m-0" href="{{ route('cash-desk.history') }}"><i class="las la-history" aria-hidden="true"></i> {{ __('Storico cassa') }}</a>
         @elseif(auth()->user()->can(\App\Services\Personnel\PersonnelPermissionsService::KDS))
@@ -25,7 +25,7 @@
 @if(!$cash)
 <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen = !sidebarOpen" :aria-expanded="sidebarOpen.toString()" aria-controls="service-orders-sidebar">
     <i class="las" :class="sidebarOpen ? 'la-chevron-left' : 'la-list'" aria-hidden="true"></i>
-    <span x-text="sidebarOpen ? @js(__('Nascondi comande')) : @js(__('Mostra comande'))"></span>
+    <span x-text="sidebarOpen ? @js(__('Nascondi comande')) : @js(__('Mostra comande'))">{{ __('Mostra comande') }}</span>
 </button>
 @endif
 <div class="o-legend">
@@ -59,7 +59,7 @@
     </div>
 </div>
 @if(!$cash)
-<aside id="service-orders-sidebar" x-show="sidebarOpen" class="service-orders-sidebar" aria-label="{{ __('Ordini e produzione') }}">
+<aside id="service-orders-sidebar" x-show="sidebarOpen" @if(!$cash) x-cloak @endif class="service-orders-sidebar" aria-label="{{ __('Ordini e produzione') }}">
 <h2 class="font-semibold mb-3">{{ __('Ordini e produzione') }}</h2>
 @forelse($orders->where('status','open') as $order)
 <div class="service-order-card" wire:key="summary-{{ $order->id }}">

@@ -21,6 +21,14 @@ class CustomerLanguageService
         ])->all();
     }
 
+    public function default(): string
+    {
+        $default = strtolower((string) config('tenant.default_backend_language', 'it'));
+        $enabled = $this->enabled();
+
+        return isset($enabled[$default]) ? $default : (array_key_first($enabled) ?? $default);
+    }
+
     public function meta(?string $code): array
     {
         $code = strtolower($code ?: 'it');

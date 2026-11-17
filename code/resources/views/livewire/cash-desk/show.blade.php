@@ -9,10 +9,11 @@
 @include('orders.errors')
 @if($usage=\App\Models\CouponUsage::where('booking_id',$order->booking_id)->first())<div class="box mb-4"><div class="box-body"><strong>{{ $order->coupon_disabled ? __('marketing.coupon_disabled') : __('marketing.coupon') }}: {{ $usage->snapshot['translations'][app()->getLocale()]['title'] ?? $usage->snapshot['name'] }}</strong>
 @if($couponReason=app(\App\Services\Marketing\CouponPricing::class)->reason($order,$usage->snapshot))<p>{{ __('marketing.'.$couponReason) }}</p>@endif
-@if($order->status==='open' && !$order->payments->count() && !$order->cash_snapshot)<button class="ti-btn ti-btn-light" wire:click="toggleCoupon">{{ $order->coupon_disabled ? __('marketing.apply_coupon') : __('marketing.remove_coupon') }}</button>@endif</div></div>@endif
+@if($order->status==='open' && !$order->payments->count() && !$order->cash_snapshot && (!$order->fidelity_reward || !$order->coupon_disabled))<button class="ti-btn ti-btn-light" wire:click="toggleCoupon">{{ $order->coupon_disabled ? __('marketing.apply_coupon') : __('marketing.remove_coupon') }}</button>@endif</div></div>@endif
 
 <div class="box"><div class="box-body">
 <p class="o-muted mb-4">{{ __('Aperto il') }} {{ $order->created_at->format('d/m/Y H:i') }} · {{ $order->customer_name ?: $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: __('Senza cliente associato') }}</p>
+@include('fidelity.checkout')
 @include('orders.items-table')
 <div class="o-row mt-4"><strong>{{ __('Incassato sul conto:') }} {{ number_format($order->payments->sum('amount_cents')/100,2,',','.') }} €</strong><strong>{{ __('Residuo:') }} {{ number_format($balance/100,2,',','.') }} €</strong><span>{{ __('Mance:') }} {{ number_format($order->payments->sum('tip_cents')/100,2,',','.') }} €</span></div>
 @if($order->effectiveDiscountCents())<p>{{ __('Sconto:') }} {{ number_format($order->effectiveDiscountCents()/100,2,',','.') }} € · {{ $order->discount_reason }}</p>@endif

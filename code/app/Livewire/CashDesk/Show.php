@@ -2,7 +2,10 @@
 
 namespace App\Livewire\CashDesk;
 
+use App\Models\Customer;
+use App\Models\FidelityProgram;
 use App\Models\Order;
+use App\Services\Fidelity\FidelityCheckout;
 use App\Services\Orders\CashBillService;
 use App\Services\Orders\CashCheckoutService;
 use App\Services\Orders\OrderService;
@@ -33,6 +36,10 @@ class Show extends Component
     public string $voucherIssuer = '';
 
     public string $voucherReference = '';
+
+    public string $fidelitySearch = '';
+
+    public string $selectedFidelityReward = '';
 
     public string $discount = '0.00';
 
@@ -351,6 +358,30 @@ class Show extends Component
         }
     }
 
+    public function associateFidelityCustomer(string $customerId): void
+    {
+        app(FidelityCheckout::class)->associate($this->orderId, $customerId, $this->displayedTotal);
+        $this->fidelitySearch = '';
+    }
+
+    public function clearFidelityCustomer(): void
+    {
+        app(FidelityCheckout::class)->associate($this->orderId, null, $this->displayedTotal);
+        $this->fidelitySearch = '';
+    }
+
+    public function applyFidelityReward(): void
+    {
+        $this->validate(['selectedFidelityReward' => 'required|integer|min:1']);
+        app(FidelityCheckout::class)->reserve($this->orderId, (int) $this->selectedFidelityReward, $this->displayedTotal);
+        $this->selectedFidelityReward = '';
+    }
+
+    public function removeFidelityReward(): void
+    {
+        app(FidelityCheckout::class)->remove($this->orderId, $this->displayedTotal);
+    }
+
     public function applyDiscount(): void
     {
         $this->validate(['discount' => ['required', 'regex:/^\d{1,7}([.,]\d{1,2})?$/']]);
@@ -409,7 +440,26 @@ class Show extends Component
             $customerMatches = \App\Models\Customer::where(fn ($q) => $q->where('display_name', 'like', $term)->orWhere('firstname', 'like', $term)->orWhere('lastname', 'like', $term)->orWhere('email', 'like', $term)->orWhere('phone', 'like', $term))->limit(8)->get(['id', 'display_name', 'firstname', 'lastname', 'email', 'phone']);
         }
 
+        $fidelity = app(FidelityCheckout::class);
+        $fidelityProgram = FidelityProgram::findOrFail(1);
+        $fidelityCard = $fidelity->card($order);
+        $fidelityEditable = $order->status === 'open' && ! $order->cash_snapshot && $order->payments->isEmpty() && ! $order->pendingProposal;
+        $fidelityCanAssociate = $fidelityProgram->active && $fidelityEditable && ! $order->fidelity_reward;
+        $fidelityMatches = collect();
+        if ($fidelityCanAssociate && mb_strlen(trim($this->fidelitySearch)) >= 3) {
+            $term = '%'.addcslashes(mb_substr(trim($this->fidelitySearch), 0, 150), '%_\\').'%';
+            $fidelityMatches = Customer::whereHas('fidelityCard')
+                ->where(fn ($query) => $query->where('display_name', 'like', $term)->orWhere('firstname', 'like', $term)
+                    ->orWhere('lastname', 'like', $term)->orWhere('email', 'like', $term)->orWhere('phone', 'like', $term))
+                ->limit(8)->get();
+        }
+
         return view('livewire.cash-desk.show', [
+            'fidelityCard' => $fidelityCard, 'fidelityEditable' => $fidelityEditable, 'fidelityCanAssociate' => $fidelityCanAssociate,
+            'fidelityMatches' => $fidelityMatches,
+            'fidelityPreview' => $fidelityCard && $order->status === 'open' && $fidelityProgram->active ? $fidelity->preview($order, $fidelityProgram) : null,
+            'fidelityRewards' => $fidelityCard && $fidelityEditable && $fidelityProgram->active
+                ? $fidelity->availableRewards($order, $fidelityCard) : collect(),
             'checkoutProfile' => $checkoutProfile, 'checkoutStores' => app(\App\Services\Fiscal\FiscalWorkstationService::class)->stores(),
             'checkoutCanSwitch' => app(\App\Services\Fiscal\FiscalWorkstationService::class)->defaults()['can_switch'],
             'checkoutRecipients' => $this->paymentModal && $checkoutProfile ? \App\Models\FiscalRecipient::where('fiscal_profile_id', $checkoutProfile->id)->orderBy('name')->get() : collect(),

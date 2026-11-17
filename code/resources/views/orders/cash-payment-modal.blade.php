@@ -3,6 +3,9 @@
 <div class="o-dialog" role="dialog" aria-modal="true" aria-labelledby="cash-payment-title" tabindex="-1" x-ref="dialog" x-init="$nextTick(() => $refs.dialog.focus())">
 <h2 id="cash-payment-title" class="o-title">{{ __('Incasso') }} {{ $payShareId ? __('del pagante') : __('del conto') }}</h2>
 <p class="mt-3">{{ $payShareId ? __('Residuo della quota') : __('Residuo del conto') }}: <strong>{{ number_format($paymentTargetCents/100,2,',','.') }} €</strong></p>
+@if($fidelityCard && $fidelityPreview !== null)
+    <p>{{ __('fidelity.balance', ['points' => max(0, $fidelityCard->points)]) }} · {{ __('fidelity.preview', ['points' => $fidelityPreview]) }}</p>
+@endif
 @if($errors->any())<div class="o-error mt-3" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 <form wire:submit="checkout">
 <label class="o-field"><span>{{ __('Nome pagante / riferimento') }}</span><input class="form-control" wire:model="payer" maxlength="100"></label>

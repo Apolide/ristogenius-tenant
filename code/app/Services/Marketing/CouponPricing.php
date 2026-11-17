@@ -115,6 +115,9 @@ class CouponPricing
         \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
             $order = Order::lockForUpdate()->findOrFail($order->id);
             app(CouponService::class)->check($order->status === 'open' && ! $order->cash_snapshot && ! $order->payments()->exists(), 'bill_locked');
+            if ($order->fidelity_reward && $order->coupon_disabled) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['order' => __('fidelity.existing_discount')]);
+            }
             $order->update(['coupon_disabled' => ! $order->coupon_disabled]);
             $order->events()->create(['user_id' => auth()->id(), 'action' => 'coupon_toggled', 'details' => ['disabled' => $order->coupon_disabled]]);
         });

@@ -6,6 +6,7 @@ use App\Models\CashPaymentBatch;
 use App\Models\CashShift;
 use App\Models\Order;
 use App\Models\OrderPayment;
+use App\Services\Fidelity\FidelityCheckout;
 use App\Services\Personnel\PersonnelPermissionsService as Permissions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -75,6 +76,7 @@ class CashCheckoutService
                 'details' => ['amount_cents' => $paid, 'method' => count(array_filter($amounts)) > 1 ? 'mixed' : array_key_first(array_filter($amounts)), 'payer' => $payer ?: $share?->label, 'batch' => $batch->id]]);
             if ($paid === $expectedBalance) {
                 $order->update(['status' => 'paid', 'paid_at' => now()]);
+                app(FidelityCheckout::class)->settle($order);
                 DB::table('order_tables')->where('order_id', $orderId)->update(['active_table_id' => null]);
                 $order->events()->create(['user_id' => auth()->id(), 'action' => 'paid', 'details' => ['amount_cents' => $expectedTotal]]);
                 if ($order->customer_email) {

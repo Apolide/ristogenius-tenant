@@ -1486,5 +1486,9 @@
     "○ Bozza": "○ Draft",
     "● Pubblicato": "● Published",
     "⛶ Schermo intero": "⛶ Full screen",
-    "＋ Uscita": "＋ Course"
+    "＋ Uscita": "Course",
+    "Mostra prenotazioni": "Show bookings",
+    "Nascondi prenotazioni": "Hide bookings",
+    "Mostra comande": "Show orders",
+    "Nascondi comande": "Hide orders"
 }

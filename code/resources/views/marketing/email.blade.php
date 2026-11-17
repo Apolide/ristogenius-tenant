@@ -8,7 +8,22 @@
 @if(!empty($content['assignment_id'])) @php($assignment=\App\Models\CouponAssignment::find($content['assignment_id'])) @if($assignment && $url=$assignment->bookingUrl($content['language']))<p><a href="{{ $url }}" style="background:#2563eb;color:white;padding:12px 20px;display:inline-block">{{ __('marketing.book_coupon') }}</a></p>@endif @endif
 @if(!empty($content['image'])) @if(!empty($content['url']))<a href="{{ $content['url'] }}">@endif<img src="{{ $content['image'] }}" alt="{{ $content['subject'] }}" style="max-width:100%;height:auto">@if(!empty($content['url']))</a>@endif @endif
 @if(!empty($content['html']))<div>{!! $content['html'] !!}</div>@endif
-@if(!empty($content['message']))<p style="line-height:1.6">{!! nl2br(e($content['message'])) !!}</p>@endif
+@if(!empty($content['message']))
+    <p style="line-height:1.6">
+        @if(!empty($content['linkify_message']))
+            @foreach(preg_split('~(https?://[^\s<>"\\x27]+)~iu', $content['message'], -1, PREG_SPLIT_DELIM_CAPTURE) as $index => $part)
+                @if($index % 2 === 1)
+                    @php($link = rtrim($part, '.,;!?)'))
+                    <a href="{{ $link }}">{{ $link }}</a>{{ substr($part, strlen($link)) }}
+                @else
+                    {!! nl2br(e($part)) !!}
+                @endif
+            @endforeach
+        @else
+            {!! nl2br(e($content['message'])) !!}
+        @endif
+    </p>
+@endif
 @if(!empty($content['coupon_title']))
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:20px 0">
         <h2 style="font-size:20px;margin:0 0 12px">{{ $content['coupon_title'] }}</h2>

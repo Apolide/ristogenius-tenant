@@ -28,7 +28,7 @@ class BookingShow extends Component
             $check->check(! in_array($booking->status, ['canceled', 'cancelled', 'denied', 'no-show', 'finalized'], true), 'unavailable');
             $orders = \App\Models\Order::where('booking_id', $booking->id)->lockForUpdate()->get();
             foreach ($orders as $order) {
-                $check->check($order->status === 'open' && ! $order->cash_snapshot && ! $order->payments()->exists() && ! $order->discount_cents, 'bill_locked');
+                $check->check($order->status === 'open' && ! $order->cash_snapshot && ! $order->payments()->exists() && ! $order->discount_cents && ! $order->fidelity_reward, 'bill_locked');
             }
             $assignment = \App\Models\CouponAssignment::where('customer_id', $booking->customer_id)->findOrFail($this->couponAssignmentId);
             $check->consume($assignment, $booking, ['children' => $this->couponChildren]);
@@ -45,7 +45,7 @@ class BookingShow extends Component
 
     public function mount(Booking $booking): void
     {
-        $this->booking = $booking->load('customer', 'tables.room', 'histories', 'formSubmissions.form');
+        $this->booking = $booking->load('customer.fidelityCard', 'tables.room', 'histories', 'formSubmissions.form');
     }
 
     public function showPickTable(): void

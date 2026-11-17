@@ -286,13 +286,13 @@
                 <a href="/manage/coupons" class="side-menu__item">{{ __('sidebar.coupons') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/fidelity" class="side-menu__item">{{ __('sidebar.loyalty') }}</a>
+                <a href="{{ route('fidelity.manage.index') }}" class="side-menu__item {{ request()->routeIs('fidelity.manage.*') ? 'active' : '' }}">{{ __('sidebar.loyalty') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/giftcard" class="side-menu__item">{{ __('sidebar.gift_cards') }}</a>
+                <a href="{{ route('gift-cards.index') }}" class="side-menu__item {{ request()->routeIs('gift-cards.*') ? 'active' : '' }}">{{ __('sidebar.gift_cards') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/polls" class="side-menu__item">{{ __('sidebar.polls') }}</a>
+                <a href="{{ route('polls.index') }}" class="side-menu__item {{ request()->routeIs('polls.*') ? 'active' : '' }}">{{ __('sidebar.polls') }}</a>
             </li>
         </ul>
 

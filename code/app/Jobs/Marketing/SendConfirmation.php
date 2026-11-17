@@ -39,6 +39,12 @@ class SendConfirmation implements ShouldQueue
                 \App\Models\CouponClaim::whereKey($outbox->aggregate_id)->whereNull('coupon_assignment_id')->update(['expires_at' => now()->addMinutes(30)]);
             }
             $data = $outbox->payload;
+            if (isset($data['poll_invitation_id']) && ! app(\App\Services\Polls\PollDelivery::class)->canSend($data)) {
+                $data['smtp_status'] = 'skipped';
+                $outbox->update(['payload' => $data]);
+
+                return;
+            }
             $data['smtp_status'] = 'processing';
             $outbox->update(['payload' => $data]);
             try {

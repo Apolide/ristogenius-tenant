@@ -81,6 +81,25 @@ Route::domain(env('DOMAIN'))->group(function () {
         ]);
     })->name('privacy-policy');
 
+    Route::get('/poll/{invitation}', [\App\Http\Controllers\PublicPollController::class, 'show'])
+        ->middleware(['signed:relative', 'throttle:60,1'])->name('polls.public');
+    Route::post('/poll/{invitation}', [\App\Http\Controllers\PublicPollController::class, 'submit'])
+        ->middleware(['signed:relative', 'throttle:15,1'])->name('polls.submit');
+
+    Route::prefix('/fidelity')->name('fidelity.')->controller(\App\Http\Controllers\PublicFidelityController::class)->group(function () {
+        Route::get('/subscribe', 'show')->name('subscribe');
+        Route::post('/subscribe', 'subscribe')->middleware('throttle:5,1')->name('request');
+        Route::get('/confirm', 'confirm')->middleware(['signed', 'throttle:30,1'])->name('confirm');
+        Route::post('/confirm', 'activate')->middleware(['signed', 'throttle:10,1'])->name('activate');
+        Route::get('/card/{token}', 'status')->whereAlphaNumeric('token')->middleware('throttle:60,1')->name('status');
+        Route::get('/card/{token}/pdf', 'pdf')->whereAlphaNumeric('token')->middleware('throttle:10,1')->name('pdf');
+    });
+
+    Route::get('/giftcard/{language?}', [\App\Http\Controllers\PublicGiftCardController::class, 'show'])
+        ->name('gift-cards.public');
+    Route::post('/giftcard/{language?}', [\App\Http\Controllers\PublicGiftCardController::class, 'store'])
+        ->middleware('throttle:5,1')->name('gift-cards.store');
+
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
     Route::get('/coupons/{language}/{coupon:slug}', \App\Livewire\Marketing\Coupons\PublicCoupon::class)->middleware('throttle:60,1')->name('coupons.public');
     Route::get('/coupon-verify/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'verify'])->middleware('throttle:30,1')->name('coupons.verify');
@@ -123,6 +142,20 @@ Route::domain(env('DOMAIN'))->group(function () {
             ->name('manage');
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
+            Route::prefix('/manage/fidelity')->name('fidelity.manage.')->controller(\App\Http\Controllers\FidelityController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/', 'update')->name('update');
+                Route::post('/rewards', 'reward')->name('rewards.create');
+                Route::put('/rewards/{reward}', 'reward')->name('rewards.update');
+                Route::delete('/rewards/{reward}', 'deleteReward')->name('rewards.delete');
+            });
+            Route::prefix('/manage/giftcard')->name('gift-cards.')
+                ->controller(\App\Http\Controllers\GiftCardController::class)->group(function (): void {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/show/{giftCard}', 'show')->whereUuid('giftCard')->name('show');
+                    Route::post('/{giftCard}/pay', 'pay')->whereUuid('giftCard')->name('pay');
+                    Route::post('/{giftCard}/redeem', 'redeem')->whereUuid('giftCard')->name('redeem');
+                });
             Route::get('/manage/coupons', \App\Livewire\Marketing\Coupons\CouponIndex::class)->name('coupons.index');
             Route::get('/manage/coupons/create', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.create');
             Route::get('/manage/coupons/{coupon}/edit', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.edit');
@@ -132,6 +165,12 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/marketing/campaigns/{campaign}/send', \App\Livewire\Marketing\Campaigns\CampaignSend::class)->name('campaigns.send');
             Route::get('/manage/contacts', ContactIndex::class);
             Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
+            Route::prefix('/manage/polls')->name('polls.')->group(function (): void {
+                Route::get('/', \App\Livewire\Polls\PollIndex::class)->name('index');
+                Route::get('/create', \App\Livewire\Polls\PollEditor::class)->name('create');
+                Route::get('/{poll}/edit', \App\Livewire\Polls\PollEditor::class)->name('edit');
+                Route::get('/{poll}/responses', \App\Livewire\Polls\PollResponses::class)->name('responses');
+            });
             Route::prefix('/manage/marketing/forms')->name('marketing.forms.')->group(function (): void {
                 Route::get('/', MarketingFormIndex::class)->name('index');
                 Route::get('/create', MarketingFormCreate::class)->name('create');

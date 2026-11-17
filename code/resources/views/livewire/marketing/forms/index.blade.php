@@ -21,7 +21,9 @@
                                 <tr>
                                     <td><div class="flex gap-3">
                                         <a class="ti-btn ti-btn-icon bg-warning text-white" href="{{ route('marketing.forms.edit', $form) }}"><i class="las la-pen"></i></a>
-                                        <button wire:click="delete('{{ $form->id }}')" wire:confirm="{{ __('Eliminare il form?') }}" class="ti-btn ti-btn-icon bg-danger text-white"><i class="las la-trash"></i></button>
+                                        @unless($form->isPrimaryBookingForm())
+                                            <button wire:click="delete('{{ $form->id }}')" wire:confirm="{{ __('Eliminare il form?') }}" class="ti-btn ti-btn-icon bg-danger text-white"><i class="las la-trash"></i></button>
+                                        @endunless
                                     </div></td>
                                     <td>{{ $form->title() }}</td>
                                     <td>{{ $form->type }}</td>

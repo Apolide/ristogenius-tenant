@@ -187,7 +187,7 @@
         @keydown.escape.window="cancelInteractiveModes()"
     >
         <div class="flex flex-col items-start gap-3 mb-3 md:flex-row md:items-center md:justify-between">
-            <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen?'Nascondi prenotazioni':'Mostra prenotazioni'"></span></button>
+            <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen ? @js(__('Nascondi prenotazioni')) : @js(__('Mostra prenotazioni'))">{{ __('Mostra prenotazioni') }}</span></button>
             <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> {{ __('Libero') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> {{ __('Arrivo entro 60 min') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> {{ __('Orario raggiunto') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> {{ __('Seduti') }}</span></div>
         </div>
         <div class="room-workspace">

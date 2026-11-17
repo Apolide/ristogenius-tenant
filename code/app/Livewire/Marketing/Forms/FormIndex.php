@@ -15,7 +15,9 @@ class FormIndex extends Component
 
     public function delete(string $id): void
     {
-        MarketingForm::findOrFail($id)->delete();
+        $form = MarketingForm::findOrFail($id);
+        abort_if($form->isPrimaryBookingForm(), 403);
+        $form->delete();
         session()->flash('success', __('marketing_forms.deleted'));
     }
 

@@ -37,7 +37,7 @@ class CustomerService
             ->when(! empty($filters['onlyTelegram']), fn (Builder $query) => $query->whereNotNull('telegramid')->where('telegramid', '<>', ''))
             ->when(! empty($filters['onlyConsentMarketing']), fn (Builder $query) => $query->where('consent_marketing', true))
             ->when(! empty($filters['onlyBlacklisted']) && Schema::hasColumn('customers', 'blacklisted'), fn (Builder $query) => $query->where('blacklisted', true))
-            ->when(! empty($filters['onlyFidelity']) && Schema::hasColumn('customers', 'fidelity_subscribed_at'), fn (Builder $query) => $query->whereNotNull('fidelity_subscribed_at'))
+            ->when(! empty($filters['onlyFidelity']), fn (Builder $query) => $query->whereHas('fidelityCard'))
             ->when($this->filled($filters, 'bookingStatus'), fn (Builder $query) => $query->whereHas('bookings', fn (Builder $query) => $query->where('status', $filters['bookingStatus'])))
             ->when($this->filled($filters, 'noShowCount'), fn (Builder $query) => $this->applyNoShowCount($query, (int) $filters['noShowCount']))
             ->when($this->filled($filters, 'lastVisitStart'), fn (Builder $query) => $query->whereDate('last_action_at', '>=', $filters['lastVisitStart']))

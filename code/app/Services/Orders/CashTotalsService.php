@@ -3,6 +3,7 @@
 namespace App\Services\Orders;
 
 use App\Models\Order;
+use App\Services\Fidelity\FidelityCheckout;
 
 class CashTotalsService
 {
@@ -25,9 +26,11 @@ class CashTotalsService
             throw \Illuminate\Validation\ValidationException::withMessages(['order' => __('marketing.not_stackable')]);
         }
         $manual = app(\App\Services\Marketing\CouponPricing::class)->allocate(min((int) $order->discount_cents, array_sum($netWeights)), $netWeights);
+        $fidelity = app(FidelityCheckout::class)->discounts($order, $lines);
         $lineDiscounts = [];
         foreach ($lines as $line) {
-            $discount = ($coupon[$line['id']] ?? 0) + ($manual[$line['id']] ?? 0);
+            $discount = ($coupon[$line['id']] ?? 0) + ($manual[$line['id']] ?? 0) + ($fidelity[$line['id']] ?? 0);
+            $discount = min($line['gross_cents'], $discount);
             $lineDiscounts[$line['id']] = $discount;
             $groups[$line['rate']] = ($groups[$line['rate']] ?? 0) + $line['gross_cents'] - $discount;
         }

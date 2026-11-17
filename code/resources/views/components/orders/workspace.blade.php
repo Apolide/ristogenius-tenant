@@ -1,7 +1,7 @@
-@props(['title', 'icon' => 'la-chair', 'summary' => null])
+@props(['title', 'icon' => 'la-chair', 'summary' => null, 'sidebarOpen' => true])
 <div class="service-workspace" x-ref="serviceWorkspace"
      x-data="{
-         controlsOpen: false, isFullscreen: false, sidebarOpen: true,
+         controlsOpen: false, isFullscreen: false, sidebarOpen: @js($sidebarOpen),
          syncFullscreen() { this.isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === this.$refs.serviceWorkspace; },
          async toggleFullscreen() {
              try {

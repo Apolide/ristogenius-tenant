@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime', 'cash_snapshot' => 'array'];
+    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime', 'cash_snapshot' => 'array', 'fidelity_reward' => 'array'];
 
     public function proposals()
     {
