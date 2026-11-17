@@ -6,6 +6,8 @@ return [
     'search' => 'Cerca reparto',
     'actions' => 'Azioni',
     'name' => 'Nome reparto',
+    'translation_placeholder' => 'Nome tradotto (facoltativo)',
+    'translations_help' => 'Le traduzioni sono facoltative. Se assenti viene mostrato il nome italiano.',
     'production' => 'Reparto di produzione',
     'production_help' => 'Usato per produzione prodotti/comande',
     'use_printer' => 'Usa stampante',

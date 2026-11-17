@@ -13,6 +13,8 @@ class DepartmentEdit extends Component
 
     public ?string $name = null;
 
+    public array $nameTranslations = ['en' => '', 'de' => ''];
+
     public bool $production = false;
 
     public bool $use_printer = false;
@@ -33,6 +35,7 @@ class DepartmentEdit extends Component
 
         $this->departmentId = $department->id;
         $this->name = $department->name;
+        $this->nameTranslations = array_replace(['en' => '', 'de' => ''], $department->name_translations ?? []);
         $this->production = $department->production;
         $this->use_printer = $department->use_printer;
         $this->printer_number = $department->printer_number;
@@ -48,7 +51,11 @@ class DepartmentEdit extends Component
             return;
         }
 
-        $data = $this->validate($this->rules());
+        $data = $this->validate($this->rules(), [], [
+            'name' => __('department_settings.name').' (Italiano)',
+            'nameTranslations.en' => __('department_settings.name').' (English)',
+            'nameTranslations.de' => __('department_settings.name').' (Deutsch)',
+        ]);
 
         $departmentService->updateDepartment($this->departmentId, $data);
 
@@ -82,6 +89,9 @@ class DepartmentEdit extends Component
                 'max:255',
                 Rule::unique('departments', 'name')->ignore($this->departmentId),
             ],
+            'nameTranslations' => ['array:en,de'],
+            'nameTranslations.en' => ['nullable', 'string', 'max:255'],
+            'nameTranslations.de' => ['nullable', 'string', 'max:255'],
             'production' => ['boolean'],
             'use_printer' => ['boolean'],
             'printer_number' => [$this->use_printer ? 'required' : 'nullable', 'integer', 'min:1', 'max:65535'],
@@ -92,6 +102,7 @@ class DepartmentEdit extends Component
     {
         $this->departmentId = null;
         $this->name = null;
+        $this->nameTranslations = ['en' => '', 'de' => ''];
         $this->production = false;
         $this->use_printer = false;
         $this->printer_number = null;

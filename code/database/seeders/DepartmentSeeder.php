@@ -13,14 +13,14 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $departments = [
-            ['name' => 'Accoglienza', 'production' => false],
-            ['name' => 'Bar', 'production' => true],
-            ['name' => 'Cucina', 'production' => true],
-            ['name' => 'Pizzeria', 'production' => true],
+            ['name' => 'Accoglienza', 'production' => false, 'translations' => ['en' => 'Reception', 'de' => 'Empfang']],
+            ['name' => 'Bar', 'production' => true, 'translations' => ['en' => 'Bar', 'de' => 'Bar']],
+            ['name' => 'Cucina', 'production' => true, 'translations' => ['en' => 'Kitchen', 'de' => 'Küche']],
+            ['name' => 'Pizzeria', 'production' => true, 'translations' => ['en' => 'Pizzeria', 'de' => 'Pizzeria']],
         ];
 
         foreach ($departments as $department) {
-            Department::query()->updateOrCreate(
+            $model = Department::query()->updateOrCreate(
                 ['name' => $department['name']],
                 [
                     'production' => $department['production'],
@@ -28,6 +28,7 @@ class DepartmentSeeder extends Seeder
                     'printer_number' => null,
                 ]
             );
+            $model->update(['name_translations' => array_replace($department['translations'], $model->name_translations ?? [])]);
         }
     }
 }

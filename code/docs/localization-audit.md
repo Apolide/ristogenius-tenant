@@ -43,3 +43,10 @@ Verifiche automatizzate: sintassi PHP e compilazione delle viste modificate; pag
 I controlli sono eseguiti nel container PHP con il database dedicato `ristopilot_tenant_testing`. Non è stata effettuata una verifica visuale tramite l'account Simone e non è stata eseguita una distribuzione in produzione.
 
 Esito finale: **403 test superati, 2.841 assertion** nei moduli interessati, incluse le verifiche mirate finali sulle email. Controlli PHP/Blade e `git diff --check` superati. Cataloghi JSON: **1.488 voci per lingua**, con parità delle chiavi tra italiano, inglese e tedesco e nessun valore vuoto.
+
+
+## Nomi dei reparti
+
+La pagina `/manage/settimgs/departments` permette di aggiungere e modificare i nomi inglese e tedesco di ogni reparto. Il nome esistente resta quello italiano e il ripiego quando manca una traduzione. Elenco, ricerca, conferma di eliminazione, KDS, collegamenti dalla sala e selettori del catalogo prodotti usano il nome nella lingua dell’operatore. I nomi canonici salvati nelle comande restano stabili.
+
+La migrazione `2026_11_17_010000_add_department_name_translations.php` aggiunge il campo JSON facoltativo e traduce i quattro reparti predefiniti. I nomi personalizzati possono essere tradotti dal modulo di modifica. Il seeder completa le traduzioni predefinite senza sovrascrivere quelle personalizzate.

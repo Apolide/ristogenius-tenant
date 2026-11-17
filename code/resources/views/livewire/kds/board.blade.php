@@ -3,8 +3,8 @@
 @include('orders.styles')
 <div class="o-fullscreen" x-data="{ async fullscreen() { if(document.fullscreenElement) await document.exitFullscreen(); else await $el.requestFullscreen(); } }">
 <div class="o-toolbar">
-<h1 class="o-title">{{ __('KDS ·') }} {{ $departments->firstWhere('id',$departmentId)?->name ?? __('Nessun reparto produttivo') }}</h1>
-<button class="ti-btn ti-btn-light" @click="fullscreen()">{{ __('⛶ Schermo intero') }}</button>@foreach($departments as $department)<a class="o-chip {{ $departmentId === $department->id ? 'active' : '' }}" href="{{ route('kds.show',$department) }}">{{ $department->name }}</a>@endforeach
+<h1 class="o-title">{{ __('KDS ·') }} {{ $departments->firstWhere('id',$departmentId)?->translatedName() ?? __('Nessun reparto produttivo') }}</h1>
+<button class="ti-btn ti-btn-light" @click="fullscreen()">{{ __('⛶ Schermo intero') }}</button>@foreach($departments as $department)<a class="o-chip {{ $departmentId === $department->id ? 'active' : '' }}" href="{{ route('kds.show',$department) }}">{{ $department->translatedName() }}</a>@endforeach
 </div>
 @include('orders.errors')
 <div class="o-board" wire:poll.3s>

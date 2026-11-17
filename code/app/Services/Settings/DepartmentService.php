@@ -11,7 +11,11 @@ class DepartmentService
     {
         return Department::query()
             ->when($search !== '', function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%");
+                $query->where(function ($names) use ($search): void {
+                    $names->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_translations->en', 'like', "%{$search}%")
+                        ->orWhere('name_translations->de', 'like', "%{$search}%");
+                });
             })
             ->orderBy('name')
             ->paginate(10);
@@ -39,6 +43,14 @@ class DepartmentService
 
     private function normalizeData(array $data): array
     {
+        if (array_key_exists('nameTranslations', $data)) {
+            $data['name_translations'] = collect($data['nameTranslations'])
+                ->only(['en', 'de'])
+                ->map(fn ($name) => trim((string) $name))
+                ->filter(fn ($name) => $name !== '')
+                ->all();
+            unset($data['nameTranslations']);
+        }
         $data['production'] = (bool) ($data['production'] ?? false);
         $data['use_printer'] = (bool) ($data['use_printer'] ?? false);
         $data['printer_number'] = $data['use_printer'] ? ($data['printer_number'] ?? null) : null;

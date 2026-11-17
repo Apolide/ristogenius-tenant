@@ -1,8 +1,19 @@
 <div class="w-full mb-5">
-    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('department_settings.name') }}</label>
+    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('department_settings.name') }} (Italiano)</label>
     <input required wire:model="name" type="text" id="name" class="form-control" placeholder="{{ __('department_settings.name') }}">
     @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
 </div>
+
+<div class="grid md:grid-cols-2 grid-cols-1 gap-5 mb-5">
+    @foreach (['en' => 'English', 'de' => 'Deutsch'] as $language => $label)
+        <div>
+            <label for="department-name-{{ $language }}" class="block mb-2 text-sm font-medium">{{ __('department_settings.name') }} ({{ $label }})</label>
+            <input wire:model="nameTranslations.{{ $language }}" type="text" id="department-name-{{ $language }}" maxlength="255" class="form-control" placeholder="{{ __('department_settings.translation_placeholder') }}">
+            @error('nameTranslations.'.$language) <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        </div>
+    @endforeach
+</div>
+<p class="text-sm text-gray-500 mb-5">{{ __('department_settings.translations_help') }}</p>
 
 <div class="grid md:grid-cols-2 grid-cols-1 gap-5">
     <div class="w-full mb-5">

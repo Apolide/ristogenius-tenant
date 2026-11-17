@@ -10,7 +10,7 @@
     <button class="ti-btn ti-btn-light" @click="fullscreen()">{{ __('⛶ Schermo intero') }}</button>
     @if($cash)<a class="ti-btn ti-btn-primary-full" href="{{ route('cash-desk.history') }}">{{ __('Storico cassa') }}</a>@else
     @if(auth()->user()->can(\App\Services\Personnel\PersonnelPermissionsService::KDS))
-    @foreach($departments as $department)<a class="ti-btn ti-btn-light" href="{{ route('kds.show', $department) }}">{{ $department->name }}</a>@endforeach
+    @foreach($departments as $department)<a class="ti-btn ti-btn-light" href="{{ route('kds.show', $department) }}">{{ $department->translatedName() }}</a>@endforeach
     @endif
     @endif
 </div>

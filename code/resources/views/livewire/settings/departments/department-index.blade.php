@@ -90,7 +90,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $department->name }}</td>
+                                        <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $department->translatedName() }}</td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             @if ($department->production)
                                                 <span class="badge bg-success/10 !text-success">{{ __('department_settings.yes') }}</span>

@@ -6,6 +6,8 @@ return [
     'search' => 'Abteilungen suchen',
     'actions' => 'Aktionen',
     'name' => 'Abteilungsname',
+    'translation_placeholder' => 'Übersetzter Name (optional)',
+    'translations_help' => 'Übersetzungen sind optional. Ohne Übersetzung wird der italienische Name angezeigt.',
     'production' => 'Produktionsabteilung',
     'production_help' => 'Wird für die Produktion von Produkten/Bestellungen verwendet',
     'use_printer' => 'Drucker verwenden',
