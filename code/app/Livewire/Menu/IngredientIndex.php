@@ -77,13 +77,13 @@ class IngredientIndex extends Component
             'remove_price' => $data['removePrice'], 'tracked' => $data['tracked'], 'is_frozen' => $data['isFrozen'],
         ]);
         $this->showForm = false;
-        session()->flash('success', 'Ingrediente salvato.');
+        session()->flash('success', __('Ingrediente salvato.'));
     }
 
     public function delete(string $id): void
     {
         DigitalMenuIngredient::findOrFail($id)->delete();
-        session()->flash('success', 'Ingrediente eliminato.');
+        session()->flash('success', __('Ingrediente eliminato.'));
     }
 
     private function resetForm(): void
@@ -95,6 +95,6 @@ class IngredientIndex extends Component
 
     public function render()
     {
-        return view('livewire.menu.ingredient-index', ['ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->latest()->paginate(15)])->title('Ingredienti');
+        return view('livewire.menu.ingredient-index', ['ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->latest()->paginate(15)])->title(__('Ingredienti'));
     }
 }

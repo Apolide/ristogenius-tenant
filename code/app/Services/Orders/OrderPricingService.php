@@ -13,7 +13,7 @@ class OrderPricingService
 {
     public function modifiers(DigitalMenuProduct $product, int $base, array $added, array $removed, ?OrderItem $item = null): array
     {
-        $this->check(! array_intersect($added, $removed), 'Un ingrediente non può essere aggiunto e rimosso insieme.');
+        $this->check(! array_intersect($added, $removed), __('Un ingrediente non può essere aggiunto e rimosso insieme.'));
         $price = $base;
         $modifiers = [];
         $snapshots = $item?->modifiers()->get() ?? collect();
@@ -31,13 +31,13 @@ class OrderPricingService
                     continue;
                 }
                 $ingredient = DigitalMenuIngredient::findOrFail($id);
-                $this->check($action !== 'remove' || $product->ingredients->contains('id', $id), 'Ingrediente non presente nella ricetta.');
+                $this->check($action !== 'remove' || $product->ingredients->contains('id', $id), __('Ingrediente non presente nella ricetta.'));
                 $delta = OrderService::cents((string) ($action === 'add' ? $ingredient->add_price : $ingredient->remove_price));
                 $price += $delta;
                 $modifiers[] = ['ingredient_id' => $id, 'ingredient_name' => $ingredient->translatedName(), 'action' => $action, 'price_cents' => $delta];
             }
         }
-        $this->check($price >= 0, 'Il prezzo non può essere negativo.');
+        $this->check($price >= 0, __('Il prezzo non può essere negativo.'));
 
         return [$price, $modifiers];
     }
@@ -51,10 +51,10 @@ class OrderPricingService
         ])->validate();
         $category = DigitalMenuCategory::with('menu')->findOrFail($line['category_id']);
         $menu = $category->menu;
-        $this->check($category->is_enabled && $menu->is_visible && (! $public || ($menu->is_published && in_array($language, $menu->enabled_languages, true))), 'Menu non disponibile.');
+        $this->check($category->is_enabled && $menu->is_visible && (! $public || ($menu->is_published && in_array($language, $menu->enabled_languages, true))), __('Menu non disponibile.'));
         $product = $category->products()->with(['ingredients', 'department'])->where('digital_menu_products.id', $line['product_id'])->firstOrFail();
-        $this->check($product->is_active && $product->pivot->is_visible, 'Prodotto non disponibile.');
-        $this->check(! $public || $fulfillment === 'dine_in' || ! $product->disallow_takeaway, 'Questo prodotto è disponibile soltanto al tavolo.');
+        $this->check($product->is_active && $product->pivot->is_visible, __('Prodotto non disponibile.'));
+        $this->check(! $public || $fulfillment === 'dine_in' || ! $product->disallow_takeaway, __('Questo prodotto è disponibile soltanto al tavolo.'));
         $base = OrderService::cents((string) ($product->pivot->menu_price ?? $product->price));
         [$price,$modifiers] = $this->modifiers($product, $base, $line['added'] ?? [], $line['removed'] ?? []);
 

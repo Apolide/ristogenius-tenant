@@ -264,6 +264,13 @@ class DigitalMenuLivewireTest extends TestCase
             ->assertSee('dm-nav', false)
             ->assertSee(route('menu.public', ['language' => 'en', 'menu' => $menu]), false);
 
+        $settings = app(\App\Services\PublicOrders\OrderingSettings::class);
+        $settings->save(array_replace($settings->get(), ['enabled' => true]));
+        $this->get(route('menu.public', ['language' => 'en', 'menu' => $menu]))
+            ->assertOk()
+            ->assertSee('Order for pickup or delivery')
+            ->assertDontSee('Ordina per ritiro o consegna');
+
         $this->get(route('menu.public', ['language' => 'de', 'menu' => $menu]))->assertNotFound();
         $menu->update(['is_published' => false]);
         $this->get(route('menu.public', ['language' => 'it', 'menu' => $menu]))->assertNotFound();

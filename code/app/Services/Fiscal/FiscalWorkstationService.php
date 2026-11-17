@@ -60,7 +60,7 @@ class FiscalWorkstationService
         if (! $defaults['can_switch']) {
             $this->setup->check($defaults['store_id'] !== '' && $storeId === $defaults['store_id']
                 && ($registerId === null || $defaults['register_id'] !== '' && $registerId === $defaults['register_id']),
-                'Postazione non assegnata o diversa da quella autorizzata. Chiedi all’amministratore di configurare sede e registratore.');
+                __('Postazione non assegnata o diversa da quella autorizzata. Chiedi all’amministratore di configurare sede e registratore.'));
         }
     }
 
@@ -85,7 +85,7 @@ class FiscalWorkstationService
         $this->validatePair($storeId, $registerId);
         DB::transaction(function () use ($storeId, $registerId, $manualMethod) {
             $cashier = FiscalCashier::where('fiscal_profile_id', $this->setup->profile()->id)->where('user_id', auth()->id())->lockForUpdate()->first();
-            $this->setup->check($cashier !== null, 'Registra il cassiere prima di salvare la postazione.');
+            $this->setup->check($cashier !== null, __('Registra il cassiere prima di salvare la postazione.'));
             abort_unless(auth()->user()->hasRole('admin') || $cashier->allow_workstation_switch, 403);
             if ($cashier->default_store_id === $storeId && $cashier->default_register_id === $registerId
                 && ($manualMethod === null || $cashier->default_manual_method === ($manualMethod ?: null))) {
@@ -106,7 +106,7 @@ class FiscalWorkstationService
             return;
         }
         $store = $this->stores()->firstWhere('id', $storeId);
-        $this->setup->check($store && $this->operational($store) && $this->registers($store)->contains('cr_id', $registerId), 'Seleziona una sede e un registratore operativi della stessa azienda.');
+        $this->setup->check($store && $this->operational($store) && $this->registers($store)->contains('cr_id', $registerId), __('Seleziona una sede e un registratore operativi della stessa azienda.'));
     }
 
     private function operational(FiscalStore $store): bool

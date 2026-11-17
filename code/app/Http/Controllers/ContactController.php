@@ -57,7 +57,7 @@ class ContactController extends Controller
             ]);
 
             return back()->withErrors([
-                'error' => 'Errore durante l’avvio dell’onboarding Stripe Connect. Riprova più tardi.',
+                'error' => __('Errore durante l’avvio dell’onboarding Stripe Connect. Riprova più tardi.'),
             ]);
         }
     }
@@ -80,7 +80,7 @@ class ContactController extends Controller
             ]);
 
             return back()->withErrors([
-                'error' => 'Errore nel ripristinare l’onboarding Stripe Connect. Riprova più tardi.',
+                'error' => __('Errore nel ripristinare l’onboarding Stripe Connect. Riprova più tardi.'),
             ]);
         }
     }

@@ -31,9 +31,9 @@ class OrderItem extends Model
     public function statusLabel(): string
     {
         if ($this->course->rejected_at) {
-            return 'Rifiutato';
+            return __('Rifiutato');
         }
 
-        return $this->ticket ? $this->ticket->statusLabel() : ($this->course->sent_at ? 'Inviato' : 'In attesa');
+        return $this->ticket ? $this->ticket->statusLabel() : ($this->course->sent_at ? __('Inviato') : __('In attesa'));
     }
 }

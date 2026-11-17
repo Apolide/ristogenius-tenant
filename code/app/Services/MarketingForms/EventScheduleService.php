@@ -80,7 +80,7 @@ class EventScheduleService
         $slotMode = $schedule['slot_mode'] ?? (array_key_exists('slots', $schedule) ? 'custom' : 'standard');
 
         if (! $this->dateIsAvailable($form, $date)) {
-            throw ValidationException::withMessages(['answers.date' => 'La data selezionata non è disponibile per questo evento.']);
+            throw ValidationException::withMessages(['answers.date' => __('La data selezionata non è disponibile per questo evento.')]);
         }
         if ($slotMode === 'custom') {
             $minimum = max(1, (int) ($schedule['min_guests'] ?? 1));
@@ -90,7 +90,7 @@ class EventScheduleService
             }
         }
         if (! isset($this->availableSlots($form, $date, $guests)[$time])) {
-            throw ValidationException::withMessages(['answers.time' => 'Lo slot selezionato non è più disponibile.']);
+            throw ValidationException::withMessages(['answers.time' => __('Lo slot selezionato non è più disponibile.')]);
         }
     }
 }

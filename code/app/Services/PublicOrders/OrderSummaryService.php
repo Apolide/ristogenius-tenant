@@ -29,7 +29,7 @@ class OrderSummaryService
         $summary = [
             'restaurant' => $branding['name'], 'restaurant_address' => $branding['address'],
             'reference' => $order->reference ?: 'Tavolo '.$order->table_name,
-            'fulfillment' => $order->fulfillmentLabel(), 'status' => $order->status === 'cancelled' ? 'Annullato' : ($order->fulfillmentStatusLabel() ?: 'Aperto'),
+            'fulfillment' => $order->fulfillmentLabel('it'), 'status' => $order->status === 'cancelled' ? 'Annullato' : ($order->fulfillmentStatusLabel('it') ?: 'Aperto'),
             'created_at' => $order->created_at?->format('d/m/Y H:i'), 'requested_at' => $order->requested_at?->format('d/m/Y H:i'),
             'customer_name' => $order->customer_name, 'customer_email' => $order->customer_email, 'customer_phone' => $order->customer_phone,
             'address' => $order->delivery_address, 'neighborhood' => $order->delivery_neighborhood,

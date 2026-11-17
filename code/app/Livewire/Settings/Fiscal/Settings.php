@@ -53,19 +53,19 @@ class Settings extends Component
     public function checkConnection(): void
     {
         app(FiscalSetupService::class)->checkConnection();
-        session()->flash('order_notice', 'Token sandbox accettato per la lettura delle configurazioni Invoice. Gli scope di scrittura sono verificati dal fornitore al momento dell’attivazione.');
+        session()->flash('order_notice', __('Token sandbox accettato per la lettura delle configurazioni Invoice. Gli scope di scrittura sono verificati dal fornitore al momento dell’attivazione.'));
     }
 
     public function save(): void
     {
         app(FiscalSetupService::class)->save($this->company);
-        session()->flash('order_notice', 'Dati aziendali salvati. Nessuna attivazione inviata.');
+        session()->flash('order_notice', __('Dati aziendali salvati. Nessuna attivazione inviata.'));
     }
 
     public function enableInvoices(): void
     {
         app(FiscalSetupService::class)->enableInvoices();
-        session()->flash('order_notice', 'Fatturazione elettronica sandbox abilitata.');
+        session()->flash('order_notice', __('Fatturazione elettronica sandbox abilitata.'));
     }
 
     public function provision(): void
@@ -73,13 +73,13 @@ class Settings extends Component
         $this->validate(['sameAddress' => 'boolean']);
         app(FiscalSetupService::class)->provisionStore($this->storeLabel, $this->registerLabel,
             $this->sameAddress ? app(FiscalSetupService::class)->profile()->address : $this->storeAddress);
-        session()->flash('order_notice', 'Configurazione inviata alla sandbox. Sincronizza tra 60–120 secondi per verificare l’attivazione.');
+        session()->flash('order_notice', __('Configurazione inviata alla sandbox. Sincronizza tra 60–120 secondi per verificare l’attivazione.'));
     }
 
     public function sync(): void
     {
         app(FiscalSetupService::class)->sync();
-        session()->flash('order_notice', 'Stato azienda e sedi sincronizzato.');
+        session()->flash('order_notice', __('Stato azienda e sedi sincronizzato.'));
     }
 
     public function updatedUserId(): void
@@ -92,14 +92,14 @@ class Settings extends Component
         $this->validate(['userId' => 'required|integer|min:1', 'cashierEmail' => 'nullable|email|max:255']);
         app(FiscalSetupService::class)->createCashier($this->userId, trim($this->cashierEmail) === '' ? null : $this->cashierEmail);
         $this->loadWorkstations();
-        session()->flash('order_notice', 'Cassiere registrato nella sandbox.');
+        session()->flash('order_notice', __('Cassiere registrato nella sandbox.'));
     }
 
     public function syncCashiers(): void
     {
         $result = app(FiscalSetupService::class)->syncCashiers();
         $this->loadWorkstations();
-        session()->flash('order_notice', 'Cassieri collegati: '.$result['linked'].'. Email già utilizzate da sostituire: '.$result['email_conflicts'].'. Associazioni ancora da verificare: '.$result['unresolved'].'.');
+        session()->flash('order_notice', __('Cassieri collegati: ').$result['linked'].__('. Email già utilizzate da sostituire: ').$result['email_conflicts'].__('. Associazioni ancora da verificare: ').$result['unresolved'].'.');
     }
 
     private function loadWorkstations(): void
@@ -128,13 +128,13 @@ class Settings extends Component
             $prefix.'.manual_method' => 'in:,cash,card', $prefix.'.allow_switch' => 'required|boolean']);
         $value = $this->workstations[$cashierId];
         app(FiscalWorkstationService::class)->assign($cashierId, $value['store_id'] ?? '', $value['register_id'] ?? '', $value['manual_method'] ?? '', (bool) $value['allow_switch']);
-        session()->flash('order_notice', 'Postazione e preferenze del cassiere salvate.');
+        session()->flash('order_notice', __('Postazione e preferenze del cassiere salvate.'));
     }
 
     public function close(string $storeId): void
     {
         app(FiscalDocumentService::class)->close($storeId);
-        session()->flash('order_notice', 'Chiusura fiscale sandbox registrata. Il turno gestionale si chiude separatamente.');
+        session()->flash('order_notice', __('Chiusura fiscale sandbox registrata. Il turno gestionale si chiude separatamente.'));
     }
 
     public function events(string $storeId): void
@@ -146,7 +146,7 @@ class Settings extends Component
     {
         $this->validate(['eventIds.'.$operationId => 'required|string|max:100']);
         app(FiscalDocumentService::class)->reconcileClose($operationId, $this->eventIds[$operationId]);
-        session()->flash('order_notice', 'Chiusura riconciliata con l’evento selezionato.');
+        session()->flash('order_notice', __('Chiusura riconciliata con l’evento selezionato.'));
     }
 
     public function render()
@@ -165,6 +165,6 @@ class Settings extends Component
             'calls' => FiscalApiCall::latest()->limit(20)->get(), 'callCount' => FiscalApiCall::count(),
             'estimatedCost' => (int) FiscalApiCall::sum('estimated_cost_micros'),
             'unpricedCalls' => FiscalApiCall::where('cost_status', 'unpriced')->count(),
-        ])->title('Configurazione fiscale · Sandbox');
+        ])->title(__('Configurazione fiscale · Sandbox'));
     }
 }

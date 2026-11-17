@@ -224,7 +224,7 @@ class BookingRoomIndex extends Component
             'arrivingPax' => $bookings->whereIn('status', ['pending', 'waiting', 'accepted'])->sum('pax'),
             'servingPax' => $bookings->where('status', 'seated')->sum('pax'),
             'maxSitting' => (int) $settings->settings()['reservations']['table_stay_minutes'],
-        ])->title('Sala e prenotazioni');
+        ])->title(__('Sala e prenotazioni'));
     }
 
     private function bookings(TenantSettingsService $settings): Collection

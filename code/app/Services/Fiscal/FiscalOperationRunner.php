@@ -25,7 +25,7 @@ class FiscalOperationRunner
                 return $operation->fresh();
             });
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['fiscal' => 'Esiste già un’operazione per questa risorsa. Verificane l’esito prima di riprovare.']);
+            throw ValidationException::withMessages(['fiscal' => __('Esiste già un’operazione per questa risorsa. Verificane l’esito prima di riprovare.')]);
         }
         try {
             $result = $this->provider->execute($action, $operation->request, $operation->id);
@@ -34,8 +34,8 @@ class FiscalOperationRunner
             throw ValidationException::withMessages(['fiscal' => $error->getMessage()]);
         } catch (\Throwable $error) {
             // Unexpected transport/decoding failures must never unlock a write.
-            $this->failure($operation, true, 'Esito non disponibile. Verifica sul servizio fiscale.');
-            throw ValidationException::withMessages(['fiscal' => 'Esito non disponibile. Verifica sul servizio fiscale prima di procedere.']);
+            $this->failure($operation, true, __('Esito non disponibile. Verifica sul servizio fiscale.'));
+            throw ValidationException::withMessages(['fiscal' => __('Esito non disponibile. Verifica sul servizio fiscale prima di procedere.')]);
         }
         // A durable response also covers a crash between the API reply and local commit.
         $operation->update(['response' => $result, 'status' => 'received']);
@@ -46,8 +46,8 @@ class FiscalOperationRunner
                 $locked->update(['status' => 'succeeded', 'active_key' => null, 'error' => null]);
             });
         } catch (\Throwable $error) {
-            $this->failure($operation, true, 'Risposta ricevuta, riconciliazione locale necessaria.');
-            throw ValidationException::withMessages(['fiscal' => 'Risposta ricevuta ma non riconciliata. Verifica l’esito, senza reinviare.']);
+            $this->failure($operation, true, __('Risposta ricevuta, riconciliazione locale necessaria.'));
+            throw ValidationException::withMessages(['fiscal' => __('Risposta ricevuta ma non riconciliata. Verifica l’esito, senza reinviare.')]);
         }
 
         return $operation->fresh();

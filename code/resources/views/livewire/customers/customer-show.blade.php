@@ -104,7 +104,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="text-start">Blacklist</th>
+                                <th class="text-start">{{ __('Blacklist') }}</th>
                                 <td>
                                     @if ($customer->blacklisted)
                                         <span class="badge bg-danger/10 !text-danger">{{ __('customers.yes') }}</span>

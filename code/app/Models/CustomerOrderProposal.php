@@ -33,9 +33,9 @@ class CustomerOrderProposal extends Model
     public function statusLabel(): string
     {
         if ($this->status === 'pending' && $this->expires_at->isPast()) {
-            return 'Scaduta';
+            return __('Scaduta');
         }
 
-        return ['pending' => 'In attesa del cliente', 'accepted' => 'Accettata dal cliente', 'rejected' => 'Rifiutata dal cliente', 'withdrawn' => 'Ritirata dal ristorante', 'expired' => 'Scaduta'][$this->status] ?? $this->status;
+        return ['pending' => __('In attesa del cliente'), 'accepted' => __('Accettata dal cliente'), 'rejected' => __('Rifiutata dal cliente'), 'withdrawn' => __('Ritirata dal ristorante'), 'expired' => __('Scaduta')][$this->status] ?? $this->status;
     }
 }

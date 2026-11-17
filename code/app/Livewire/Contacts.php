@@ -39,7 +39,7 @@ class Contacts extends Component
         ]);
 
         if (!$this->phone)
-            $this->phone = 'Non specificato';
+            $this->phone = __('Non specificato');
 
         Telegram::sendMessage([
             'chat_id' => config('telegram.signals_chan'),
@@ -48,7 +48,7 @@ class Contacts extends Component
         ]);
 
         $this->reset();
-        $message = "Grazie per il tuo messaggio, ti risponderemo il prima possibile.";
+        $message = __("Grazie per il tuo messaggio, ti risponderemo il prima possibile.");
         session()->flash('success_contacts_message', $message);
     }
 

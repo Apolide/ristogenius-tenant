@@ -39,10 +39,10 @@ class FiscalSetupService
 
         return DB::transaction(function () use ($valid) {
             $profile = FiscalProfile::where('environment', 'sandbox')->lockForUpdate()->first();
-            $this->check(! FiscalOperation::where('active_key', 'profile:sandbox')->exists(), 'Configurazione con esito da verificare: sincronizza prima di modificarla.');
+            $this->check(! FiscalOperation::where('active_key', 'profile:sandbox')->exists(), __('Configurazione con esito da verificare: sincronizza prima di modificarla.'));
             if ($profile?->remote_id) {
                 foreach (['fiscal_id', 'name', 'email', 'address'] as $field) {
-                    $this->check($profile->{$field} == $valid[$field], 'I dati aziendali già registrati non possono essere modificati da questa schermata.');
+                    $this->check($profile->{$field} == $valid[$field], __('I dati aziendali già registrati non possono essere modificati da questa schermata.'));
                 }
             }
             $profile ??= new FiscalProfile(['environment' => 'sandbox', 'provider' => 'openapi']);
@@ -68,8 +68,8 @@ class FiscalSetupService
         $action = $profile->remote_id ? 'add_store' : 'configure';
         $this->runner->run('profile:sandbox', $action, function () use ($profile, $label, $register, $address, $action) {
             $current = $profile->fresh();
-            $this->check(($action === 'configure') === ($current->remote_id === null), 'Configurazione cambiata: aggiorna la pagina.');
-            $this->check(! FiscalStore::where('fiscal_profile_id', $current->id)->where('label', $label)->exists(), 'Questa sede è già configurata. Sincronizza lo stato.');
+            $this->check(($action === 'configure') === ($current->remote_id === null), __('Configurazione cambiata: aggiorna la pagina.'));
+            $this->check(! FiscalStore::where('fiscal_profile_id', $current->id)->where('label', $label)->exists(), __('Questa sede è già configurata. Sincronizza lo stato.'));
 
             return ['fiscal_id' => $current->fiscal_id, 'name' => $current->name, 'email' => $current->email, 'address' => $current->address,
                 'stores' => [['label' => $label, 'address' => $address, 'cash_registers' => [['label' => $register]]]]];
@@ -80,7 +80,7 @@ class FiscalSetupService
     {
         $this->admin();
         $profile = $this->profile();
-        $this->check(filled($profile->remote_id) && filled($profile->tax_regime), 'Salva prima il regime fiscale e registra l’azienda.');
+        $this->check(filled($profile->remote_id) && filled($profile->tax_regime), __('Salva prima il regime fiscale e registra l’azienda.'));
         if ($profile->invoice_enabled) {
             return;
         }
@@ -124,13 +124,13 @@ class FiscalSetupService
     private function applyConfiguration(array $result): void
     {
         $profile = $this->profile();
-        $this->check(($result['fiscal_id'] ?? null) === $profile->fiscal_id && filled($result['id'] ?? null), 'La risposta non identifica la configurazione di questo tenant.');
+        $this->check(($result['fiscal_id'] ?? null) === $profile->fiscal_id && filled($result['id'] ?? null), __('La risposta non identifica la configurazione di questo tenant.'));
         $profile->update(['remote_id' => $result['id'], 'enabled' => $result['enabled'], 'invoice_enabled' => $result['invoice_enabled'] ?? false, 'synced_at' => now()]);
         $seen = [];
         foreach ($result['stores'] as $store) {
-            $this->check(filled($store['store_id'] ?? null), 'Sede senza identificativo nella risposta fiscale.');
+            $this->check(filled($store['store_id'] ?? null), __('Sede senza identificativo nella risposta fiscale.'));
             $local = FiscalStore::firstOrNew(['remote_id' => $store['store_id']]);
-            $this->check(! $local->exists || $local->fiscal_profile_id === $profile->id, 'Sede appartenente a un’altra configurazione.');
+            $this->check(! $local->exists || $local->fiscal_profile_id === $profile->id, __('Sede appartenente a un’altra configurazione.'));
             $local->fill(['fiscal_profile_id' => $profile->id, 'label' => $store['label'], 'address' => $store['address'] ?? [],
                 'status' => $store['status'] ?? 'NEW', 'operational_status' => $store['operational_status'] ?? null, 'pem_serial' => $store['pem_serial'] ?? null,
                 'active' => $store['active'] ?? false, 'registers' => $store['cash_registers'] ?? [], 'synced_at' => now()])->save();
@@ -143,26 +143,26 @@ class FiscalSetupService
     {
         $this->admin();
         $profile = $this->profile();
-        $this->check(filled($profile->remote_id), 'Registra prima l’azienda nella sandbox.');
+        $this->check(filled($profile->remote_id), __('Registra prima l’azienda nella sandbox.'));
         $user = User::findOrFail($userId);
-        $this->check(app(Permissions::class)->can($user, Permissions::CASH_REGISTER), 'L’utente non ha il permesso di gestione cassa. Gli amministratori sono già abilitati.');
+        $this->check(app(Permissions::class)->can($user, Permissions::CASH_REGISTER), __('L’utente non ha il permesso di gestione cassa. Gli amministratori sono già abilitati.'));
         $email = trim($email ?? $user->email);
         Validator::make(compact('email'), ['email' => 'required|email|max:255'])->validate();
         $this->resolveCashierEmailConflicts();
         try {
             $this->runner->run('cashier:'.$profile->id.':'.$userId, 'create_cashier', function () use ($user, $profile, $email) {
                 $cashier = FiscalCashier::firstOrCreate(['fiscal_profile_id' => $profile->id, 'user_id' => $user->id], ['name' => $user->name, 'email' => $email]);
-                $this->check($cashier->remote_id === null, 'Cassiere già registrato. Sincronizza lo stato; non è possibile sostituire l’email di un cassiere remoto da questa schermata.');
-                $this->check($cashier->status !== 'email_conflict' || strcasecmp($cashier->email, $email) !== 0, 'Questa email è già stata rifiutata da Openapi. Inserisci un’email diversa nel campo Email cassiere Openapi.');
+                $this->check($cashier->remote_id === null, __('Cassiere già registrato. Sincronizza lo stato; non è possibile sostituire l’email di un cassiere remoto da questa schermata.'));
+                $this->check($cashier->status !== 'email_conflict' || strcasecmp($cashier->email, $email) !== 0, __('Questa email è già stata rifiutata da Openapi. Inserisci un’email diversa nel campo Email cassiere Openapi.'));
                 $this->check(! FiscalCashier::where('fiscal_profile_id', $profile->id)->where('user_id', '!=', $user->id)
-                    ->whereRaw('LOWER(email) = ?', [mb_strtolower($email)])->exists(), 'Questa email fiscale è già associata a un altro utente RistoPilot.');
+                    ->whereRaw('LOWER(email) = ?', [mb_strtolower($email)])->exists(), __('Questa email fiscale è già associata a un altro utente RistoPilot.'));
                 // This is the provider identity, never User::email (the login identity).
                 $cashier->update(['name' => $user->name, 'email' => $email, 'status' => 'pending']);
 
                 return ['fiscal_id' => $profile->fiscal_id, 'name' => $cashier->name, 'email' => $cashier->email];
             }, function ($result) use ($profile, $userId, $email) {
                 $this->check(($result['fiscal_id'] ?? null) === $profile->fiscal_id && filled($result['id'] ?? null)
-                    && is_string($result['email'] ?? null) && strcasecmp($result['email'], $email) === 0, 'Cassiere non riconosciuto nella risposta del fornitore.');
+                    && is_string($result['email'] ?? null) && strcasecmp($result['email'], $email) === 0, __('Cassiere non riconosciuto nella risposta del fornitore.'));
                 FiscalCashier::where('fiscal_profile_id', $profile->id)->where('user_id', $userId)->update(['remote_id' => $result['id'], 'status' => $result['status'] ?? 'pending']);
             });
         } catch (ValidationException $error) {

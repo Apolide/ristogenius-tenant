@@ -532,6 +532,7 @@ class MarketingFormsTest extends TestCase
         foreach (['it', 'en', 'de'] as $language) {
             $this->get(route('marketing.forms.public', ['language' => $language, 'form' => $form->slug]))
                 ->assertOk()
+                ->assertSee(__('public_interface.submit', [], $language))
                 ->assertSee(route('privacy-policy', ['language' => $language]))
                 ->assertSee('target="_blank"', false);
         }

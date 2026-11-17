@@ -7,7 +7,7 @@
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('Home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
@@ -143,8 +143,8 @@
                 </div>
             </div>
         </div>
-        <div class="box mb-4"><div class="box-header"><div><div class="box-title">Configurazione fiscale · Sandbox</div><p class="text-sm text-textmuted">Azienda, sedi, registratori e cassieri per i documenti commerciali di prova.</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.fiscal') }}">Configura cassa fiscale sandbox</a></div></div>
+        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('Configurazione fiscale · Sandbox') }}</div><p class="text-sm text-textmuted">{{ __('Azienda, sedi, registratori e cassieri per i documenti commerciali di prova.') }}</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.fiscal') }}">{{ __('Configura cassa fiscale sandbox') }}</a></div></div>
 
-        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('personnel.features.customer_orders') }}</div><p class="text-sm text-textmuted">Asporto e consegna a domicilio</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.customer-orders') }}">Configura asporto e consegne</a></div></div>
+        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('personnel.features.customer_orders') }}</div><p class="text-sm text-textmuted">{{ __('Asporto e consegna a domicilio') }}</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.customer-orders') }}">{{ __('Configura asporto e consegne') }}</a></div></div>
     </div>
 </div>

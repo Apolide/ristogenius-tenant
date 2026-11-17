@@ -36,7 +36,7 @@
             <div class="tenant-public-form-rich-text my-4">{!! $form->translations[$language]['description'] ?? '' !!}</div>
 
             @if ($submitted)
-                <div class="alert alert-success">Grazie, la richiesta è stata inviata correttamente.</div>
+                <div class="alert alert-success">{{ __('public_interface.submitted', [], $language) }}</div>
                 @if (in_array($form->type, ['booking', 'event'], true) && filled($form->translations[$language]['booking_policy'] ?? null))
                     <div class="booking-policy tenant-public-form-rich-text mt-4 rounded border border-defaultborder bg-defaultbackground p-4">
                         {!! $form->translations[$language]['booking_policy'] !!}
@@ -58,7 +58,7 @@
                                 <textarea id="{{ $fieldId }}" wire:model="answers.{{ $field->key }}" class="form-control" @required($field->required)></textarea>
                             @elseif ($field->type === 'select')
                                 <select id="{{ $fieldId }}" wire:model="answers.{{ $field->key }}" class="form-control" @required($field->required)>
-                                    <option value="">Seleziona</option>
+                                    <option value="">{{ __('public_interface.select', [], $language) }}</option>
                                     @foreach (($field->options[$language] ?? []) as $option)
                                         <option value="{{ $option }}">{{ $option }}</option>
                                     @endforeach
@@ -142,8 +142,8 @@
 
                     <div class="pt-2 lg:col-span-2">
                         <button class="ti-btn ti-btn-primary-full" type="submit" wire:loading.attr="disabled" wire:target="submit">
-                            <span wire:loading.remove wire:target="submit">Invia</span>
-                            <span wire:loading wire:target="submit">Invio in corso…</span>
+                            <span wire:loading.remove wire:target="submit">{{ __('public_interface.submit', [], $language) }}</span>
+                            <span wire:loading wire:target="submit">{{ __('public_interface.submitting', [], $language) }}</span>
                         </button>
                     </div>
                 </form>

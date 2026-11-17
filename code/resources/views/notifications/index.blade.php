@@ -7,7 +7,7 @@
         <!-- Page Header -->
         <div class="md:flex block items-center justify-between mb-6 mt-[2rem]  page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Notifiche</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('interface.notifications') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                     <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
@@ -15,11 +15,11 @@
                             class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                         </a> </li>
                         <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                            href="/operations"> Operations <i
+                            href="/operations"> {{ __('interface.operations') }} <i
                                 class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a> </li>
                     <li class="text-[12px]"> <a class="flex items-center text-textmuted"
-                        href="javascript:void(0);">Notifiche 
+                        href="javascript:void(0);">{{ __('interface.notifications') }}
                         </a> </li>
                     </ol>
                 </nav>
@@ -34,7 +34,7 @@
               
                     <div class="menu-header-content bg-primary text-white">
                         <div class="flex items-center justify-between">
-                            <h6 class="mb-0 text-[.9375rem] font-semibold text-white">Notifiche</h6>
+                            <h6 class="mb-0 text-[.9375rem] font-semibold text-white">{{ __('interface.notifications') }}</h6>
                         </div>
                         {{-- <p class="dropdown-title-text subtext mb-0 text-white opacity-[0.6] pb-0 text-[0.75rem] ">You have 6
                             unread Notifications</p> --}}
@@ -55,8 +55,8 @@
                                         </span>
                                         <div class="ms-3">
                                         
-                                            <h5 class="notification-label text-defaulttextcolor mb-1">{{ $notification->title }}</h5>
-                                            <p class="notification-subtext text-[0.75rem]">{{ $notification->message }}</p>
+                                            <h5 class="notification-label text-defaulttextcolor mb-1">{{ $notification->translatedTitle() }}</h5>
+                                            <p class="notification-subtext text-[0.75rem]">{{ $notification->translatedMessage() }}</p>
                                         
                                             
                                         </div>

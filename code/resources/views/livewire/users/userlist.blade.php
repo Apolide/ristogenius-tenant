@@ -4,9 +4,9 @@
         <div class="box-header border-none">
             <div class="flex justify-between">
                 <div>
-                    <div class="box-title pb-0">ELENCO UTENTI</div>
-                    <p class="text-xs text-gray-500 font-normal">Example of Valex Simple Table. <a href=""
-                            class="text-black dark:text-white">Learn more</a></p>
+                    <div class="box-title pb-0">{{ __('ELENCO UTENTI') }}</div>
+                    <p class="text-xs text-gray-500 font-normal">{{ __('Example of Valex Simple Table.') }} <a href=""
+                            class="text-black dark:text-white">{{ __('Learn more') }}</a></p>
                 </div>
 
             </div>
@@ -19,23 +19,23 @@
                 <table class="table table-bordered whitespace-nowrap min-w-full">
                     <thead>
                         <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                            <th scope="col" class="border-b  dark:border-defaultborder/10 text-start">User
-                                photo</th>
+                            <th scope="col" class="border-b  dark:border-defaultborder/10 text-start">{{ __('User') }}
+                                {{ __('photo') }}</th>
                             <th scope="col"
                                 class="border border-defaultborder dark:border-defaultborder/10 text-start">
-                                Nome</th>
+                                {{ __('Nome') }}</th>
                             <th scope="col"
                                 class="border border-defaultborder dark:border-defaultborder/10 text-start">
                                 Email</th>
                             <th scope="col"
                                 class="border border-defaultborder dark:border-defaultborder/10 text-start">
-                                Status</th>
+                                {{ __('Status') }}</th>
                             <th scope="col"
                                 class="border border-defaultborder dark:border-defaultborder/10 text-start">
-                                Ruolo</th>
+                                {{ __('Ruolo') }}</th>
                             <th scope="col"
                                 class="border border-defaultborder dark:border-defaultborder/10 text-start">
-                                Azioni</th>
+                                {{ __('Azioni') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -50,7 +50,7 @@
                                 <td class="	whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{$user->email}}</td>
                                 <td class="	whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"
                                     class="	whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><span
-                                        class="badge bg-primary/10 !text-primary">Active</span></td>
+                                        class="badge bg-primary/10 !text-primary">{{ __('Active') }}</span></td>
                                 <td class="	whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"
                                     class="	whitespace-nowrap text-sm text-gray-800 dark:text-gray-200"><a
                                         href="javascript:void(0);"> {{$user->getRoleNames()[0]}}</a></td>
@@ -62,7 +62,7 @@
                                             <span
                                                 class="hs-tooltip-content  ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm "
                                                 role="tooltip">
-                                                Search
+                                                {{ __('Search') }}
                                             </span>
                                         </a>
                                     </div>
@@ -73,7 +73,7 @@
                                             <span
                                                 class="hs-tooltip-content  ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm "
                                                 role="tooltip">
-                                                Edit
+                                                {{ __('Edit') }}
                                             </span>
                                         </a>
                                     </div>
@@ -84,7 +84,7 @@
                                             <span
                                                 class="hs-tooltip-content  ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm "
                                                 role="tooltip">
-                                                Delete
+                                                {{ __('Delete') }}
                                             </span>
                                         </a>
                                     </div>
@@ -98,10 +98,10 @@
         </div>
 
         <!-- Pagination -->
-        <nav aria-label="Page  navigation">
+        <nav aria-label="{{ __('Page  navigation') }}">
             <ul class="ti-pagination !mb-4 justify-end">
                 <li class="page-item disabled">
-                    <a class="page-link px-3 py-[0.375rem]">Previous</a>
+                    <a class="page-link px-3 py-[0.375rem]">{{ __('Previous') }}</a>
                 </li>
                 <li class="page-item active"><a class="page-link px-3 py-[0.375rem]"
                         href="javascript:void(0);">1</a></li>
@@ -110,7 +110,7 @@
                 <li class="page-item"><a class="page-link px-3 py-[0.375rem]"
                         href="javascript:void(0);">3</a></li>
                 <li class="page-item">
-                    <a class="page-link px-3 py-[0.375rem]" href="javascript:void(0);">Next</a>
+                    <a class="page-link px-3 py-[0.375rem]" href="javascript:void(0);">{{ __('Next') }}</a>
                 </li>
             </ul>
         </nav>

@@ -110,7 +110,7 @@ class ContactEdit extends Component
         
 
         
-        session()->flash('message', 'Contact aggiornato con successo.');
+        session()->flash('message', __('Contact aggiornato con successo.'));
         $this->isVisible = false;
         $this->dispatch('show-listing');
         $this->dispatch('content-refresh');

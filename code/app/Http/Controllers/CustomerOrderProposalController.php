@@ -10,6 +10,7 @@ class CustomerOrderProposalController extends Controller
     public function show(Request $request, string $token)
     {
         $proposal = app(OrderProposalService::class)->find($token);
+        app()->setLocale($proposal->order->customer_language ?: ($proposal->order->customer?->lang ?? 'it'));
         $choice = in_array($request->query('choice'), ['accept', 'reject'], true) ? $request->query('choice') : null;
 
         return response()->view('public-orders.proposal', compact('proposal', 'token', 'choice'))
@@ -18,6 +19,8 @@ class CustomerOrderProposalController extends Controller
 
     public function respond(Request $request, string $token)
     {
+        $proposal = app(OrderProposalService::class)->find($token);
+        app()->setLocale($proposal->order->customer_language ?: ($proposal->order->customer?->lang ?? 'it'));
         $request->validate(['choice' => 'required|in:accept,reject']);
         app(OrderProposalService::class)->respond($token, $request->input('choice'));
 

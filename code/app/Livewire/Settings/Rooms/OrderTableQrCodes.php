@@ -21,7 +21,7 @@ class OrderTableQrCodes extends Component
         $table = RoomTable::findOrFail($id);
         $table->ordering_token = Str::random(48);
         $table->save();
-        session()->flash('order_notice', 'QR rigenerato: stampa il nuovo codice. I precedenti accessi del tavolo non sono più validi.');
+        session()->flash('order_notice', __('QR rigenerato: stampa il nuovo codice. I precedenti accessi del tavolo non sono più validi.'));
     }
 
     public function render()

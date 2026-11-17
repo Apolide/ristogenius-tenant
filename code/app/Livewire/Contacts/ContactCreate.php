@@ -76,7 +76,7 @@ class ContactCreate extends Component
         $contactService->createContact($data);
 
         $this->resetFields();
-        session()->flash('message', 'Contact creato con successo.');
+        session()->flash('message', __('Contact creato con successo.'));
         $this->isVisible = false;
         $this->dispatch('content-refresh');
         $this->dispatch('show-listing');

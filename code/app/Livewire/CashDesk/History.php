@@ -54,6 +54,6 @@ class History extends Component
         $dailyPayments = \App\Models\OrderPayment::whereDate('created_at', $this->date)->selectRaw('method, SUM(amount_cents) as amount, SUM(tip_cents) as tips')->groupBy('method')->get();
         $unassigned = (int) \App\Models\OrderPayment::whereDate('created_at', $this->date)->whereNull('cash_shift_id')->sum('amount_cents');
 
-        return view('livewire.cash-desk.history', ['dailyPayments' => $dailyPayments, 'unassigned' => $unassigned, 'orders' => $query->with(['courses.items', 'payments', 'customer'])->latest()->paginate(20), 'paidCents' => $paidCents])->title('Storico cassa');
+        return view('livewire.cash-desk.history', ['dailyPayments' => $dailyPayments, 'unassigned' => $unassigned, 'orders' => $query->with(['courses.items', 'payments', 'customer'])->latest()->paginate(20), 'paidCents' => $paidCents])->title(__('Storico cassa'));
     }
 }

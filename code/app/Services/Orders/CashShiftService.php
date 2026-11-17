@@ -19,14 +19,14 @@ class CashShiftService
         try {
             return DB::transaction(function () use ($opening) {
                 if (CashShift::where('active_key', 'main')->exists()) {
-                    throw ValidationException::withMessages(['order' => 'Un turno di cassa è già aperto.']);
+                    throw ValidationException::withMessages(['order' => __('Un turno di cassa è già aperto.')]);
                 }
 
                 // Unique active_key also prevents concurrent openings.
                 return CashShift::create(['active_key' => 'main', 'opened_by' => auth()->id(), 'opening_cents' => $opening]);
             });
         } catch (UniqueConstraintViolationException) {
-            throw ValidationException::withMessages(['order' => 'Un turno di cassa è già aperto.']);
+            throw ValidationException::withMessages(['order' => __('Un turno di cassa è già aperto.')]);
         }
     }
 

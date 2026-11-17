@@ -75,18 +75,18 @@ class Order extends Model
         return (int) $totals->sum(fn ($row) => intdiv((int) $row->subtotal * $row->service_percentage_bps + 5000, 10000));
     }
 
-    public function fulfillmentLabel(): string
+    public function fulfillmentLabel(?string $locale = null): string
     {
-        return ['dine_in' => 'Sala', 'pickup' => 'Ritiro', 'delivery' => 'Consegna'][$this->fulfillment] ?? $this->fulfillment;
+        return ['dine_in' => __('Sala', [], $locale), 'pickup' => __('Ritiro', [], $locale), 'delivery' => __('Consegna', [], $locale)][$this->fulfillment] ?? $this->fulfillment;
     }
 
-    public function fulfillmentStatusLabel(): string
+    public function fulfillmentStatusLabel(?string $locale = null): string
     {
         if ($this->fulfillment !== 'dine_in' && $this->pendingProposal) {
-            return 'In attesa risposta cliente';
+            return __('In attesa risposta cliente', [], $locale);
         }
 
-        return ['received' => 'Da approvare', 'accepted' => 'Accettato', 'preparing' => 'In preparazione', 'ready' => 'Pronto', 'out_for_delivery' => 'In consegna', 'completed' => 'Completato', 'rejected' => 'Rifiutato', 'cancelled' => 'Annullato'][$this->fulfillment_status] ?? '';
+        return ['received' => __('Da approvare', [], $locale), 'accepted' => __('Accettato', [], $locale), 'preparing' => __('In preparazione', [], $locale), 'ready' => __('Pronto', [], $locale), 'out_for_delivery' => __('In consegna', [], $locale), 'completed' => __('Completato', [], $locale), 'rejected' => __('Rifiutato', [], $locale), 'cancelled' => __('Annullato', [], $locale)][$this->fulfillment_status] ?? '';
     }
 
     public function effectiveDiscountCents(): int

@@ -1,0 +1,19 @@
+<?php
+
+return [
+    'notifications' => 'Notifiche',
+    'mark_all_read' => 'Segna come lette',
+    'unread' => 'Non letta',
+    'empty' => 'Nessuna notifica',
+    'notification_count' => 'Notifiche: :count non lette',
+    'notification_footer' => 'Ultime 30 notifiche · :count non lette',
+    'navigation' => 'Navigazione principale',
+    'toggle_sidebar' => 'Mostra/nascondi menu',
+    'profile' => 'Profilo',
+    'edit_profile' => 'Modifica profilo',
+    'inbox' => 'Posta in arrivo',
+    'messages' => 'Messaggi',
+    'account_settings' => 'Impostazioni account',
+    'logout' => 'Esci',
+    'operations' => 'Operazioni',
+];

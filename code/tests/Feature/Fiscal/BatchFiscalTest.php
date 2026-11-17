@@ -404,6 +404,23 @@ class BatchFiscalTest extends TestCase
         \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\CustomerOrderMail::class, fn ($mail) => $mail->hasTo('copy@example.test'));
     }
 
+    public function test_fiscal_email_copy_uses_order_language(): void
+    {
+        $order = $this->order();
+        $order->update(['customer_language' => 'de']);
+        $batch = $this->pay($order, ['card' => 3000]);
+        $this->receipts();
+        app(FiscalDocumentService::class)->issueBatch($batch->id, $this->store->id, 'register1');
+        $copies = app(\App\Services\Fiscal\FiscalCopyService::class);
+        $copy = $copies->request($batch->id, 'copy@example.test', true);
+        $this->assertSame(1, $copies->queueReady());
+        $delivery = \App\Models\MessageOutbox::findOrFail($copy->fresh()->message_outbox_id)->payload['deliveries'][0];
+        $this->assertSame('de', $delivery['language']);
+        $this->assertSame('Sandbox-Beleg', $delivery['subject']);
+        $this->assertStringContainsString('Wie angefordert', $delivery['message']);
+        $this->assertSame('it', app()->getLocale());
+    }
+
     public function test_copy_download_requires_unexpired_signature_and_does_not_require_staff_login(): void
     {
         $batch = $this->pay($this->order(), ['card' => 3000]);

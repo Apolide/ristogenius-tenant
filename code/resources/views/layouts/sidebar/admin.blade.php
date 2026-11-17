@@ -21,7 +21,7 @@
                 <path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"></path>
                 <path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"></path>
             </svg>
-            <span class="side-menu__label">Sala</span>
+            <span class="side-menu__label">{{ __('sidebar.dining_room') }}</span>
         </a>
     </li>
 
@@ -46,7 +46,7 @@
                 <path d="M4 1A2 2 0 0 0 2 3v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5.5L10.5 1zm6 1.5L13 5h-2a1 1 0 0 1-1-1zM4 2h5v2a2 2 0 0 0 2 2h2v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1"></path>
                 <path d="M5 7.5A.5.5 0 0 1 5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2A.5.5 0 0 1 5.5 9h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 9.5m0 2a.5.5 0 0 1 .5-.5H8a.5.5 0 0 1 0 1H5.5a.5.5 0 0 1-.5-.5"></path>
             </svg>
-            <span class="side-menu__label">Comande</span>
+            <span class="side-menu__label">{{ __('sidebar.orders') }}</span>
         </a>
     </li>
 
@@ -62,11 +62,11 @@
                       d="M4 3.5A.5.5 0 0 1 4.5 3h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m6 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5M4.5 8A.5.5 0 0 0 4 8.5v3a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5zm0 4.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1z">
                 </path>
             </svg>
-            <span class="side-menu__label">Cassa</span>
+            <span class="side-menu__label">{{ __('sidebar.cash_desk') }}</span>
         </a>
     </li>
     @if(auth()->user()?->can(\App\Services\Personnel\PersonnelPermissionsService::KDS))
-    <li class="slide"><a href="{{ route('kds.index') }}" class="side-menu__item"><i class="ri-restaurant-line side-menu__icon"></i><span class="side-menu__label">KDS</span></a></li>
+    <li class="slide"><a href="{{ route('kds.index') }}" class="side-menu__item"><i class="ri-restaurant-line side-menu__icon"></i><span class="side-menu__label">{{ __('sidebar.kds') }}</span></a></li>
     @endif
     {{-- --}}
 
@@ -168,22 +168,22 @@
                 <path d="M2 8a6 6 0 0 1 12 0h.5A1.5 1.5 0 0 1 16 9.5v.5a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-.5A1.5 1.5 0 0 1 1.5 8zm1.03 0h9.94A5 5 0 0 0 8 4a5 5 0 0 0-4.97 4"></path>
                 <path d="M2 12h12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"></path>
             </svg>
-            <span class="side-menu__label">Prodotti</span>
+            <span class="side-menu__label">{{ __('sidebar.products') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 486px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide side-menu__label1">
-                <a href="javascript:void(0);">Prodotti</a>
+                <a href="javascript:void(0);">{{ __('sidebar.products') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('menu.products') }}" class="side-menu__item {{ request()->routeIs('menu.products') ? 'active' : '' }}">Elenco</a>
+                <a href="{{ route('menu.products') }}" class="side-menu__item {{ request()->routeIs('menu.products') ? 'active' : '' }}">{{ __('sidebar.list') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('menu.ingredients') }}" class="side-menu__item {{ request()->routeIs('menu.ingredients') ? 'active' : '' }}">Ingredienti</a>
+                <a href="{{ route('menu.ingredients') }}" class="side-menu__item {{ request()->routeIs('menu.ingredients') ? 'active' : '' }}">{{ __('sidebar.ingredients') }}</a>
             </li>
             <li class="slide">
-                <a href="{{ route('menu.menus') }}" class="side-menu__item {{ request()->routeIs('menu.menus') ? 'active' : '' }}">Menù</a>
+                <a href="{{ route('menu.menus') }}" class="side-menu__item {{ request()->routeIs('menu.menus') ? 'active' : '' }}">{{ __('sidebar.menus') }}</a>
             </li>
 
 
@@ -200,26 +200,26 @@
                 <path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4m6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4"></path>
                 <path d="M6.5 5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"></path>
             </svg>
-            <span class="side-menu__label">Spesa</span>
+            <span class="side-menu__label">{{ __('sidebar.shopping') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 528px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide side-menu__label1">
-                <a href="javascript:void(0);">Spesa</a>
+                <a href="javascript:void(0);">{{ __('sidebar.shopping') }}</a>
             </li>
 
             <li class="slide">
-                <a href="/manage/suppliers" class="side-menu__item">Fornitori</a>
+                <a href="/manage/suppliers" class="side-menu__item">{{ __('sidebar.suppliers') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/suppliers/products" class="side-menu__item">Prodotti</a>
+                <a href="/manage/suppliers/products" class="side-menu__item">{{ __('sidebar.products') }}</a>
             </li>
             <li class="slide">
-                <a href="/suppliers/agenda" class="side-menu__item">Agenda</a>
+                <a href="/suppliers/agenda" class="side-menu__item">{{ __('sidebar.agenda') }}</a>
             </li>
             <li class="slide">
-                <a href="/orders" class="side-menu__item">Ordini</a>
+                <a href="/orders" class="side-menu__item">{{ __('sidebar.purchase_orders') }}</a>
             </li>
 
         </ul>
@@ -258,7 +258,7 @@
         </ul>
     </li>
 
-    <li class="slide__category"><span class="category-name">Markekting</span></li>
+    <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.marketing') }}</span></li>
 
     <li class="slide has-sub mb-10">
         <a href="javascript:void(0);" class="side-menu__item">
@@ -271,28 +271,28 @@
                 </path>
                 <path d="M7 12h1v3h4v1H7zm9 2v2h-3v-1h2v-1z"></path>
             </svg>
-            <span class="side-menu__label">Marketing</span>
+            <span class="side-menu__label">{{ __('sidebar.marketing') }}</span>
             <i class="fe fe-chevron-right side-menu__angle"></i>
         </a>
         <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 624px, 0px);" data-popper-reference-hidden=""
             data-popper-escaped="">
             <li class="slide">
-                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">Forms</a>
+                <a href="{{ route('marketing.forms.index') }}" class="side-menu__item {{ request()->routeIs('marketing.forms.*') ? 'active' : '' }}">{{ __('sidebar.forms') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/marketing/campaigns" class="side-menu__item">Campagne</a>
+                <a href="/manage/marketing/campaigns" class="side-menu__item">{{ __('sidebar.campaigns') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/coupons" class="side-menu__item">Coupons</a>
+                <a href="/manage/coupons" class="side-menu__item">{{ __('sidebar.coupons') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/fidelity" class="side-menu__item">Fidelity</a>
+                <a href="/manage/fidelity" class="side-menu__item">{{ __('sidebar.loyalty') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/giftcard" class="side-menu__item">Gift Card</a>
+                <a href="/manage/giftcard" class="side-menu__item">{{ __('sidebar.gift_cards') }}</a>
             </li>
             <li class="slide">
-                <a href="/manage/polls" class="side-menu__item">Sondaggi</a>
+                <a href="/manage/polls" class="side-menu__item">{{ __('sidebar.polls') }}</a>
             </li>
         </ul>
 

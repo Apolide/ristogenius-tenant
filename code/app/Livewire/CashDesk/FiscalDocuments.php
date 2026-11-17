@@ -70,13 +70,13 @@ class FiscalDocuments extends Component
     {
         $hasManual = Order::findOrFail($this->orderId)->payments()->where('method', 'manual')->where('amount_cents', '>', 0)->exists();
         app(FiscalWorkstationService::class)->remember($this->storeId, $this->registerId, $hasManual ? $this->manualMethod : null);
-        session()->flash('order_notice', 'Postazione predefinita salvata per il tuo utente.');
+        session()->flash('order_notice', __('Postazione predefinita salvata per il tuo utente.'));
     }
 
     public function issue(): void
     {
         app(FiscalDocumentService::class)->issue($this->orderId, $this->storeId, $this->registerId, $this->manualMethod, $this->voucherCount);
-        session()->flash('order_notice', 'Richiesta fiscale sandbox registrata. Controlla lo stato del documento.');
+        session()->flash('order_notice', __('Richiesta fiscale sandbox registrata. Controlla lo stato del documento.'));
     }
 
     private function orderDocument(string $id): FiscalDocument
@@ -88,7 +88,7 @@ class FiscalDocuments extends Component
     {
         $this->orderDocument($id);
         app(FiscalDocumentService::class)->refresh($id, $this->remoteIds[$id] ?? null);
-        session()->flash('order_notice', 'Documento verificato.');
+        session()->flash('order_notice', __('Documento verificato.'));
     }
 
     public function availableReturns(string $id): void
@@ -102,14 +102,14 @@ class FiscalDocuments extends Component
         $this->orderDocument($id);
         app(FiscalDocumentService::class)->reverse($id, 'return', [['id' => $this->returnItemId, 'quantity' => $this->returnQuantity]]);
         $this->available = [];
-        session()->flash('order_notice', 'Reso fiscale sandbox registrato. Il rimborso del pagamento va gestito separatamente.');
+        session()->flash('order_notice', __('Reso fiscale sandbox registrato. Il rimborso del pagamento va gestito separatamente.'));
     }
 
     public function voidDocument(string $id): void
     {
         $this->orderDocument($id);
         app(FiscalDocumentService::class)->reverse($id, 'void');
-        session()->flash('order_notice', 'Annullamento fiscale sandbox registrato. Gli incassi restano nello storico gestionale.');
+        session()->flash('order_notice', __('Annullamento fiscale sandbox registrato. Gli incassi restano nello storico gestionale.'));
     }
 
     public function searchRemote(): void
@@ -130,6 +130,6 @@ class FiscalDocuments extends Component
             'hasVouchers' => Order::findOrFail($this->orderId)->payments()->where('method', 'voucher')->where('amount_cents', '>', 0)->exists(),
             'documents' => FiscalDocument::where('order_id', $this->orderId)->oldest()->get(),
             'operations' => FiscalOperation::whereIn('fiscal_document_id', FiscalDocument::where('order_id', $this->orderId)->select('id'))->latest()->get(),
-        ])->title('Documenti commerciali · Sandbox');
+        ])->title(__('Documenti commerciali · Sandbox'));
     }
 }

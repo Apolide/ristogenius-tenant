@@ -17,14 +17,14 @@ class TableOrderService
 
         return DB::transaction(function () use ($tableId, $covers, $bookingId, $staff) {
             $table = RoomTable::with('room')->lockForUpdate()->findOrFail($tableId);
-            $this->check($table->room->active, 'La sala non è attiva.');
+            $this->check($table->room->active, __('La sala non è attiva.'));
             $existing = DB::table('order_tables')->where('active_table_id', $tableId)->lockForUpdate()->value('order_id');
             if ($existing) {
                 return Order::findOrFail($existing);
             }
             $booking = $bookingId ? Booking::with('tables')->findOrFail($bookingId) : null;
             if ($booking) {
-                $this->check($booking->booking_date->isToday() && $booking->tables->contains('id', $tableId) && in_array($booking->status, ['accepted', 'seated']), 'Prenotazione non associabile al tavolo.');
+                $this->check($booking->booking_date->isToday() && $booking->tables->contains('id', $tableId) && in_array($booking->status, ['accepted', 'seated']), __('Prenotazione non associabile al tavolo.'));
             }
             $order = Order::create([
                 'status' => 'open', 'fulfillment' => 'dine_in', 'delivery_fee_cents' => 0, 'service_date' => now()->toDateString(), 'created_by' => $staff ? auth()->id() : null, 'source' => $staff ? 'staff' : 'customer',

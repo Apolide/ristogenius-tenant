@@ -115,7 +115,7 @@ class Menu extends Component
     private function authenticated(): void
     {
         $this->context();
-        abort_unless(app(CustomerAccessService::class)->current($this->tableToken), 403, 'Verifica la tua email per continuare.');
+        abort_unless(app(CustomerAccessService::class)->current($this->tableToken), 403, __('Verifica la tua email per continuare.'));
     }
 
     private function cartKey(): string
@@ -175,7 +175,7 @@ class Menu extends Component
             $this->cart[$this->editingLine] = $line;
         } else {
             if (count($this->cart) >= 100) {
-                $this->addError('cart', 'Massimo 100 righe.');
+                $this->addError('cart', __('Massimo 100 righe.'));
 
                 return;
             } $this->cart[] = $line;
@@ -219,7 +219,7 @@ class Menu extends Component
             try {
                 $quote = app(CheckoutService::class)->quote($this->cart, $this->tableToken ? 'dine_in' : $this->type, $this->language);
             } catch (\Illuminate\Validation\ValidationException|\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-                $this->addError('cart', 'Un prodotto non è più disponibile. Rimuovilo dal carrello e selezionalo nuovamente.');
+                $this->addError('cart', __('Un prodotto non è più disponibile. Rimuovilo dal carrello e selezionalo nuovamente.'));
             }
         }
         $settings = app(OrderingSettings::class)->get();

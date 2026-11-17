@@ -25,12 +25,12 @@ class CustomerAccessService
         try {
             $phone = app(PhoneNumberService::class)->normalize($input['phone']);
         } catch (\InvalidArgumentException) {
-            throw ValidationException::withMessages(['phone' => 'Numero di telefono non valido.']);
+            throw ValidationException::withMessages(['phone' => __('Numero di telefono non valido.')]);
         }
         $email = mb_strtolower(trim($input['email']));
         $key = 'order-access:'.hash('sha256', request()->ip().'|'.$email);
         if (RateLimiter::tooManyAttempts($key, 3) || RateLimiter::tooManyAttempts('order-access-ip:'.request()->ip(), 20)) {
-            throw ValidationException::withMessages(['email' => 'Attendi qualche minuto prima di richiedere un altro link.']);
+            throw ValidationException::withMessages(['email' => __('Attendi qualche minuto prima di richiedere un altro link.')]);
         }
         RateLimiter::hit($key, 600);
         RateLimiter::hit('order-access-ip:'.request()->ip(), 600);
@@ -41,7 +41,7 @@ class CustomerAccessService
         $token = Str::random(64);
         DB::transaction(function () use ($menu, $language, $input, $phone, $email, $table, $token) {
             $access = CustomerOrderAccess::create(['order_id' => $table ? DB::table('order_tables')->where('active_table_id', $table->id)->value('order_id') : null, 'token_hash' => hash('sha256', $token), 'identity' => ['name' => trim($input['name']), 'email' => $email, 'phone' => $phone, 'ip' => request()->ip()], 'menu_id' => $menu->id, 'room_table_id' => $table?->id, 'table_token' => $table?->ordering_token, 'language' => $language, 'expires_at' => now()->addMinutes(20)]);
-            app(OrderNotifications::class)->record('access:'.$access->id, $access->id, $email, $input['name'], 'Accedi al menu per ordinare', 'Conferma il tuo indirizzo email per iniziare l’ordine. Il link è valido per 20 minuti.', route('public-orders.verify', ['token' => $token]), $language);
+            app(OrderNotifications::class)->record('access:'.$access->id, $access->id, $email, $input['name'], __('Accedi al menu per ordinare'), __('Conferma il tuo indirizzo email per iniziare l’ordine. Il link è valido per 20 minuti.'), route('public-orders.verify', ['token' => $token]), $language);
         });
     }
 
@@ -49,17 +49,18 @@ class CustomerAccessService
     {
         return DB::transaction(function () use ($token) {
             $access = CustomerOrderAccess::where('token_hash', hash('sha256', $token))->lockForUpdate()->firstOrFail();
-            abort_if($access->consumed_at || $access->expires_at->isPast(), 410, 'Link scaduto o già utilizzato.');
+            app()->setLocale($access->language);
+            abort_if($access->consumed_at || $access->expires_at->isPast(), 410, __('Link scaduto o già utilizzato.'));
             $menu = DigitalMenu::findOrFail($access->menu_id);
             abort_unless($menu->is_visible && $menu->is_published && in_array($access->language, $menu->enabled_languages, true), 404);
             $identity = $access->identity;
             $byEmail = Customer::where('email', $identity['email'])->lockForUpdate()->first();
             $byPhone = Customer::where('phone', $identity['phone'])->lockForUpdate()->first();
             if ($byPhone && (! $byEmail || $byPhone->id !== $byEmail->id)) {
-                throw ValidationException::withMessages(['identity' => 'Il telefono risulta associato a un altro profilo. Contatta il ristorante per verificare i recapiti.']);
+                throw ValidationException::withMessages(['identity' => __('Il telefono risulta associato a un altro profilo. Contatta il ristorante per verificare i recapiti.')]);
             }
             if ($byEmail && $byEmail->phone && $byEmail->phone !== $identity['phone']) {
-                throw ValidationException::withMessages(['identity' => 'I recapiti non corrispondono al profilo esistente. Contatta il ristorante.']);
+                throw ValidationException::withMessages(['identity' => __('I recapiti non corrispondono al profilo esistente. Contatta il ristorante.')]);
             }
             $customer = $byEmail ?? Customer::create(['firstname' => $identity['name'], 'display_name' => $identity['name'], 'email' => $identity['email'], 'phone' => $identity['phone'], 'registration_source' => 'customer_order', 'lang' => $access->language, 'consent_privacy' => true, 'datetime_consent_privacy' => now(), 'ip_consent_privacy' => $identity['ip']]);
             abort_if($customer->blacklisted, 403);
@@ -74,7 +75,7 @@ class CustomerAccessService
             if ($access->room_table_id) {
                 $table = RoomTable::with('room')->whereKey($access->room_table_id)->where('ordering_token', $access->table_token)->firstOrFail();
                 $order = app(TableOrderService::class)->open($table->id, max(1, $table->min_people), null, false);
-                abort_if($access->order_id && $order->id !== $access->order_id, 410, 'Il conto del tavolo è cambiato. Scansiona nuovamente il QR e richiedi un nuovo link.');
+                abort_if($access->order_id && $order->id !== $access->order_id, 410, __('Il conto del tavolo è cambiato. Scansiona nuovamente il QR e richiedi un nuovo link.'));
             } else {
                 abort_unless(app(OrderingSettings::class)->get()['enabled'], 404);
             }

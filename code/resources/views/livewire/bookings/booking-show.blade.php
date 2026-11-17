@@ -1,7 +1,7 @@
 <div class="content"><div class="main-content">
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
-        <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5><nav class="text-xs"><a class="text-primary" href="/">Home</a> / {{ __('bookings.detail') }}</nav></div>
-        <a href="{{ route('bookings.show', $booking) }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Aggiorna"><i class="las text-xl la-redo-alt"></i></a>
+        <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5><nav class="text-xs"><a class="text-primary" href="/">{{ __('Home') }}</a> / {{ __('bookings.detail') }}</nav></div>
+        <a href="{{ route('bookings.show', $booking) }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Aggiorna') }}"><i class="las text-xl la-redo-alt"></i></a>
     </div>
 
     @if(session('success'))<div class="alert alert-success mb-5">{{ session('success') }}</div>@endif
@@ -26,31 +26,31 @@
                 <tr><td class="font-bold">{{ __('bookings.show.datetime') }}</td><td>{{ $booking->booking_date->format('d/m/Y') }} {{ __('bookings.show.at') }} {{ substr((string)$booking->booking_time, 0, 5) }}</td></tr>
                 <tr><td class="font-bold">{{ __('bookings.show.people') }}</td><td>{{ $booking->pax }}</td></tr>
                 <tr><td class="font-bold">{{ __('bookings.show.tables') }}</td><td>@forelse($booking->tables as $table)<span class="badge bg-secondary/10 text-black mr-1">{{ $table->name }} · {{ $table->room?->name }}</span>@empty {{ __('bookings.show.unassigned') }} @endforelse</td></tr>
-                <tr><td class="font-bold">Cliente</td><td>
+                <tr><td class="font-bold">{{ __('Cliente') }}</td><td>
                     @if($booking->customer)
-                        <div><span title="{{ $bookingLanguage['label'] }}" aria-label="Lingua: {{ $bookingLanguage['label'] }}" class="mr-1">{{ $bookingLanguage['flag'] }}</span><a class="text-primary" href="{{ route('customers.show', $booking->customer) }}"><b>{{ $booking->customer->display_name ?: trim($booking->customer->firstname.' '.$booking->customer->lastname) }}</b></a></div>
+                        <div><span title="{{ $bookingLanguage['label'] }}" aria-label="{{ __('Lingua: :language', ['language' => $bookingLanguage['label']]) }}" class="mr-1">{{ $bookingLanguage['flag'] }}</span><a class="text-primary" href="{{ route('customers.show', $booking->customer) }}"><b>{{ $booking->customer->display_name ?: trim($booking->customer->firstname.' '.$booking->customer->lastname) }}</b></a></div>
                         @if($booking->customer->phone)<div><a class="text-primary" href="tel:{{ $booking->customer->phone }}"><i class="las la-phone"></i> {{ $booking->customer->phone }}</a></div>@endif
                         @if($booking->customer->email)<div><a class="text-primary" href="mailto:{{ $booking->customer->email }}"><i class="las la-envelope"></i> {{ $booking->customer->email }}</a></div>@endif
-                        @if($booking->customer->note)<div class="mt-2 text-textmuted"><b>Note cliente:</b> {{ $booking->customer->note }}</div>@endif
+                        @if($booking->customer->note)<div class="mt-2 text-textmuted"><b>{{ __('Note cliente:') }}</b> {{ $booking->customer->note }}</div>@endif
                     @else <b>Walk In</b> @endif
                 </td></tr>
                 <tr><td class="font-bold">{{ __('bookings.booking_notes') }}</td><td>{{ $booking->note ?: '-' }}</td></tr>
                 @if($booking->restaurant_note)<tr><td class="font-bold">{{ __('bookings.form.restaurant_note') }}</td><td>{{ $booking->restaurant_note }}</td></tr>@endif
-                <tr><td class="font-bold">Origine</td><td><span class="badge bg-primary/10 text-primary">{{ ucfirst($booking->source) }}</span></td></tr>
-                <tr><td class="font-bold">Inserita il</td><td>{{ $booking->created_at?->format('d/m/Y H:i:s') }}</td></tr>
+                <tr><td class="font-bold">{{ __('Origine') }}</td><td><span class="badge bg-primary/10 text-primary">{{ ucfirst($booking->source) }}</span></td></tr>
+                <tr><td class="font-bold">{{ __('Inserita il') }}</td><td>{{ $booking->created_at?->format('d/m/Y H:i:s') }}</td></tr>
             </tbody></table></div>
 
             @if($customFormFields->isNotEmpty())
                 <div class="mt-8">
-                    <h4 class="text-base font-semibold mb-3">Campi personalizzati del form</h4>
-                    @if($sourceForm)<p class="text-sm text-textmuted mb-3">Form: {{ $sourceForm->title($booking->language) }}</p>@endif
+                    <h4 class="text-base font-semibold mb-3">{{ __('Campi personalizzati del form') }}</h4>
+                    @if($sourceForm)<p class="text-sm text-textmuted mb-3">{{ __('Form:') }} {{ $sourceForm->title($booking->language) }}</p>@endif
                     <div class="table-responsive"><table class="table table-bordered min-w-full"><tbody>
                         @foreach($customFormFields as $field)
                             <tr><td class="font-bold w-1/3">{{ $field['label'] }}</td><td>
                                 @if(is_array($field['value']))
                                     {{ $field['value'] !== [] ? implode(', ', $field['value']) : '-' }}
                                 @elseif(is_bool($field['value']))
-                                    {{ $field['value'] ? 'Sì' : 'No' }}
+                                    {{ $field['value'] ? __('Sì') : __('No') }}
                                 @else
                                     {{ filled($field['value']) ? $field['value'] : '-' }}
                                 @endif

@@ -70,7 +70,7 @@
         </div>
     </header>
 
-    <nav class="dm-nav sticky top-0 z-30 border-b" style="border-color: color-mix(in srgb, var(--dm-primary) 16%, #ddd)" aria-label="Categorie menu">
+    <nav class="dm-nav sticky top-0 z-30 border-b" style="border-color: color-mix(in srgb, var(--dm-primary) 16%, #ddd)" aria-label="{{ __('public_interface.menu_categories', [], $language) }}">
         <div class="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-5 py-3 sm:px-7">
             @foreach($menu->categories as $category)
                 <a href="#category-{{ $category->id }}" class="dm-nav-link whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition">{{ $category->translatedName($language) }}</a>
@@ -80,7 +80,7 @@
 
     <main class="mx-auto max-w-5xl px-5 sm:px-7">
         @if(!($ordering ?? false) && app(\App\Services\PublicOrders\OrderingSettings::class)->get()['enabled'])
-            <a href="{{ route('public-orders.menu',['language'=>$language,'menu'=>$menu]) }}" class="mt-6 inline-block rounded-xl px-5 py-3 font-semibold text-white" style="background:var(--dm-primary)">Ordina per ritiro o consegna</a>
+            <a href="{{ route('public-orders.menu',['language'=>$language,'menu'=>$menu]) }}" class="mt-6 inline-block rounded-xl px-5 py-3 font-semibold text-white" style="background:var(--dm-primary)">{{ __('public_interface.order', [], $language) }}</a>
         @endif
 
         @foreach($menu->categories as $category)
@@ -116,10 +116,10 @@
                                     <strong class="dm-price shrink-0 rounded-full border px-3 py-1.5 text-sm">{{ Number::currency($product->pivot->menu_price ?? $product->price, 'EUR', $language) }}</strong>
                                 </div>
                                 @if($product->translatedDescription($language))<p class="dm-muted mt-3 text-sm leading-6">{{ $product->translatedDescription($language) }}</p>@endif
-                                @if($product->allergens)<p class="mt-3 text-xs text-[#8a5b39]"><strong>{{ $labels['allergens'] }}:</strong> {{ implode(', ', $product->allergens) }}</p>@endif
+                                @if($product->allergens)<p class="mt-3 text-xs text-[#8a5b39]"><strong>{{ $labels['allergens'] }}:</strong> {{ implode(', ', array_map(fn ($allergen) => __($allergen, [], $language), $product->allergens)) }}</p>@endif
 
                                 @if(($ordering ?? false) && $access)
-                                    <button type="button" wire:click="chooseProduct('{{ $category->id }}','{{ $product->id }}')" class="mt-4 rounded-xl px-4 py-3 font-semibold text-white" style="background:var(--dm-primary)">Personalizza e aggiungi</button>
+                                    <button type="button" wire:click="chooseProduct('{{ $category->id }}','{{ $product->id }}')" class="mt-4 rounded-xl px-4 py-3 font-semibold text-white" style="background:var(--dm-primary)">{{ __('public_interface.customize', [], $language) }}</button>
                                 @endif
                                 @php($upsells = $product->recommendations->where('type', 'upsell'))
                                 @if($upsells->isNotEmpty())

@@ -32,6 +32,11 @@ class SidebarMenuLocalizationTests extends TestCase
         $this->actingAs($admin)->get(route('settings.index'))->assertOk();
         $this->assertSame($locale, app()->getLocale());
         $adminHtml = (string) $this->view('layouts.sidebar.base');
+        if ($locale !== 'it') {
+            foreach (['Sala', 'Comande', 'Cassa', 'Prodotti', 'Campagne', 'Sondaggi', 'Markekting'] as $italian) {
+                $this->assertStringNotContainsString('>'.$italian.'<', $adminHtml);
+            }
+        }
         foreach ($adminTexts as $text) {
             $this->assertStringContainsString($text, $adminHtml);
         }
@@ -58,10 +63,10 @@ class SidebarMenuLocalizationTests extends TestCase
                 ['Prenotazioni', 'Personale', 'Elenco', 'Permessi', 'Turnazione', 'Gestione', 'Clienti', 'Contatti', 'Impostazioni', 'Generali', 'Profilo', 'Invio messaggi', 'Testo messaggi', 'Reparti', 'Imposta sale', 'Imposta tavoli', 'Tracciamento'],
                 ['Prenotazioni', 'Gestione', 'Clienti']],
             'English sidebar translations' => ['en',
-                ['Bookings', 'Personnel', 'List', 'Permissions', 'Shifts', 'Management', 'Customers', 'Contacts', 'Settings', 'General', 'Profile', 'Message delivery', 'Message texts', 'Departments', 'Configure rooms', 'Configure tables', 'Tracking'],
+                ['Dining room', 'Orders', 'Cash desk', 'Products', 'Ingredients', 'Menus', 'Forms', 'Campaigns', 'Surveys', 'Bookings', 'Personnel', 'List', 'Permissions', 'Shifts', 'Management', 'Customers', 'Contacts', 'Settings', 'General', 'Profile', 'Message delivery', 'Message texts', 'Departments', 'Configure rooms', 'Configure tables', 'Tracking'],
                 ['Bookings', 'Management', 'Customers']],
             'German sidebar translations' => ['de',
-                ['Reservierungen', 'Personal', 'Liste', 'Berechtigungen', 'Dienstplanung', 'Verwaltung', 'Kunden', 'Kontakte', 'Einstellungen', 'Allgemein', 'Profil', 'Nachrichtenversand', 'Nachrichtentexte', 'Abteilungen', 'Räume konfigurieren', 'Tische konfigurieren', 'Tracking'],
+                ['Gastraum', 'Bestellungen', 'Kasse', 'Produkte', 'Zutaten', 'Speisekarten', 'Formulare', 'Kampagnen', 'Umfragen', 'Reservierungen', 'Personal', 'Liste', 'Berechtigungen', 'Dienstplanung', 'Verwaltung', 'Kunden', 'Kontakte', 'Einstellungen', 'Allgemein', 'Profil', 'Nachrichtenversand', 'Nachrichtentexte', 'Abteilungen', 'Räume konfigurieren', 'Tische konfigurieren', 'Tracking'],
                 ['Reservierungen', 'Verwaltung', 'Kunden']],
         ];
     }

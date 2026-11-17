@@ -155,11 +155,11 @@
                                 </div>
                                 <div class="flex items-center mt-3 mb-2">
                                     <input type="checkbox" wire:model.live.debounce.300ms="onlyFidelity" id="ck_fidelity" class="ti-switch">
-                                    <label for="ck_fidelity" class="ltr:ml-3 rtl:mr-3 mb-1 block font-semibold text-sm cursor-pointer">Fidelity</label>
+                                    <label for="ck_fidelity" class="ltr:ml-3 rtl:mr-3 mb-1 block font-semibold text-sm cursor-pointer">{{ __('Fidelity') }}</label>
                                 </div>
                                 <div class="flex items-center mt-3 mb-2">
                                     <input type="checkbox" wire:model.live.debounce.300ms="onlyBlacklisted" id="ck_blacklisted" class="ti-switch">
-                                    <label class="ltr:ml-3 rtl:mr-3 mb-1 block font-semibold text-sm cursor-pointer" for="ck_blacklisted">Blacklist</label>
+                                    <label class="ltr:ml-3 rtl:mr-3 mb-1 block font-semibold text-sm cursor-pointer" for="ck_blacklisted">{{ __('Blacklist') }}</label>
                                 </div>
                                 <div class="flex items-center mt-3 mb-2">
                                     <input type="checkbox" wire:model.live.debounce.300ms="onlyConsentMarketing" id="ck_consent_marketing" class="ti-switch">
@@ -216,14 +216,14 @@
                                         </td>
                                         <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                             <div class="mb-1">{{ __('customers.index.last_visit') }}: {{ $customer->last_action_at?->format('d-m-Y') ?? '-' }}</div>
-                                            <div class="mb-1">Telegram:
+                                            <div class="mb-1">{{ __('Telegram:') }}
                                                 @if ($customer->telegramid)
                                                     <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                                 @else
                                                     <span class="badge bg-danger/10 !text-danger">{{ __('customers.no') }}</span>
                                                 @endif
                                             </div>
-                                            <div class="mb-1">Marketing:
+                                            <div class="mb-1">{{ __('Marketing:') }}
                                                 @if ($customer->consent_marketing)
                                                     <span class="badge bg-success/10 !text-success">{{ __('customers.yes') }}</span>
                                                 @else
@@ -231,7 +231,7 @@
                                                 @endif
                                             </div>
                                             @if ($customer->blacklisted)
-                                                <div class="mb-1">Blacklist: <span class="badge bg-danger/10 !text-danger">{{ __('customers.yes') }}</span></div>
+                                                <div class="mb-1">{{ __('Blacklist:') }} <span class="badge bg-danger/10 !text-danger">{{ __('customers.yes') }}</span></div>
                                             @endif
                                             <div class="mb-1">{{ __('customers.language') }}: {{ strtoupper($customer->lang ?? 'it') }}</div>
                                             @if ($customer->region || $customer->province || $customer->comune)

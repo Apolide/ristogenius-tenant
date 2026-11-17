@@ -3,10 +3,10 @@
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5></div>
         <div class="flex gap-3">
-            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Lista d'attesa"><i class="las text-3xl la-hourglass-half"></i></a>
-            <a href="{{ route('bookings.walk-in') }}" class="ti-btn ti-btn-success-full text-white ti-btn-icon" title="Nuovo Walk In"><i class="las text-3xl la-walking"></i></a>
-            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="Nuova prenotazione"><i class="las text-3xl la-plus"></i></a>
-            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Aggiorna prenotazioni"><i class="las text-3xl la-redo-alt"></i></button>
+            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Lista d\'attesa') }}"><i class="las text-3xl la-hourglass-half"></i></a>
+            <a href="{{ route('bookings.walk-in') }}" class="ti-btn ti-btn-success-full text-white ti-btn-icon" title="{{ __('Nuovo Walk In') }}"><i class="las text-3xl la-walking"></i></a>
+            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="{{ __('Nuova prenotazione') }}"><i class="las text-3xl la-plus"></i></a>
+            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Aggiorna prenotazioni') }}"><i class="las text-3xl la-redo-alt"></i></button>
         </div>
     </div>
     @if(session('success'))<div class="alert alert-success mb-5">{{ session('success') }}</div>@endif
@@ -50,15 +50,15 @@
 
         <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
             <input wire:model.live.debounce.300ms="search" class="form-control md:col-span-1 col-span-5 h-12" placeholder="{{ __('bookings.search') }}">
-            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">Sala</a>
+            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">{{ __('Sala') }}</a>
             <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">{{ __('bookings.all_day') }}</button>
             <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal === 'pranzo' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.lunch') }}</button>
             <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal === 'cena' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.dinner') }}</button>
         </div>
         <div class="flex flex-wrap gap-0 md:gap-2 mb-1">
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> Pax: {{ $totalPax }}</strong></div>
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> In arrivo: {{ $arrivingPax }}</strong></div>
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> Servendo: {{ $servingPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('Pax:') }} {{ $totalPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('In arrivo:') }} {{ $arrivingPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('Servendo:') }} {{ $servingPax }}</strong></div>
         </div>
         <div class="table-responsive mt-4"><table class="table table-bordered whitespace-nowrap min-w-full"><thead><tr><th>{{ __('bookings.customer_booking') }}</th><th>{{ __('bookings.tables_stay') }}</th></tr></thead><tbody>
         @forelse($bookings as $booking)
@@ -81,7 +81,7 @@
     @if($modal === 'tables')
         @include('livewire.bookings.partials.table-picker-modal', ['saveAction' => 'saveTables', 'closeAction' => 'closeModal'])
     @elseif($modal)<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"><div class="bg-white rounded p-5 w-[500px] max-w-[95vw]">
-        @if($modal === 'note')<h2 class="text-xl font-bold mb-3">Note prenotazione</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
-        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
-        <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">Chiudi</button></div></div>@endif
+        @if($modal === 'note')<h2 class="text-xl font-bold mb-3">{{ __('Note prenotazione') }}</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
+        @else<h2 class="text-xl font-bold mb-3">{{ __('Conferma operazione') }}</h2><p class="mb-4">{{ __('Confermi il cambio di stato della prenotazione?') }}</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">{{ __('Conferma') }}</button>@endif
+        <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">{{ __('Chiudi') }}</button></div></div>@endif
 </div></div>

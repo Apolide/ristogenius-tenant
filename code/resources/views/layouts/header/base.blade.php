@@ -1,5 +1,5 @@
 <header class="app-header">
-    <nav class="main-header" aria-label="Global">
+    <nav class="main-header" aria-label="{{ __('interface.navigation') }}">
       <div class="main-header-container !px-[0.85rem]">
 
         <div class="header-content-left">
@@ -20,7 +20,7 @@
           <!-- End::header-element -->
           <div class="header-element !items-center">
             <!-- Start::header-link -->
-            <a aria-label="Hide Sidebar"
+            <a aria-label="{{ __('interface.toggle_sidebar') }}"
               class="sidemenu-toggle animated-arrow header-link  hor-toggle horizontal-navtoggle inline-flex items-center"
               href="javascript:void(0);"><i class="header-icon fe fe-align-left"></i></a>
               <?php /*
@@ -371,22 +371,22 @@
                   </div>
                 </li>
                 <li><a class="dropdown-item text-defaulttextcolor flex " href="profile.html"><i
-                      class="bx bx-user-circle text-[1.125rem] me-2 opacity-[0.7]"></i>Profile</a></li>
+                      class="bx bx-user-circle text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.profile') }}</a></li>
                 <li><a class="dropdown-item text-defaulttextcolor flex " href="profile.html"><i
-                      class="bx bx-cog text-[1.125rem] me-2 opacity-[0.7]"></i>Edit Profile </a></li>
+                      class="bx bx-cog text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.edit_profile') }}</a></li>
                 <li><a class="dropdown-item text-defaulttextcolor flex  border-block-end" href="mail.html"><i
-                      class="bx bxs-inbox text-[1.125rem] me-2 opacity-[0.7]"></i>Inbox</a></li>
+                      class="bx bxs-inbox text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.inbox') }}</a></li>
                 <li><a class="dropdown-item text-defaulttextcolor flex " href="chat.html"><i
-                      class="bx bx-envelope text-[1.125rem] me-2 opacity-[0.7]"></i>Messages</a></li>
+                      class="bx bx-envelope text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.messages') }}</a></li>
                 <li><a class="dropdown-item text-defaulttextcolor flex  border-block-end" href="profile.html"><i
-                      class="bx bx-slider-alt text-[1.125rem] me-2 opacity-[0.7]"></i>Account Settings</a></li>
+                      class="bx bx-slider-alt text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.account_settings') }}</a></li>
 
                 
                 <li>
                   <form method="POST" action="{{ route('logout') }}">
                       @csrf
                       <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="dropdown-item text-defaulttextcolor !rounded-bl-md !rounded-br-md flex ">
-                          <i class="bx bx-log-out text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('Esci') }}
+                          <i class="bx bx-log-out text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.logout') }}
                       </a>  
                   </form>
                 </li>

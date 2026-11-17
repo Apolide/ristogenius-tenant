@@ -10,15 +10,15 @@
             <!-- Page Header -->
             <div class="md:flex block items-center justify-between mb-6 mt-[2rem]  page-header-breadcrumb">
                 <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Mail</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('Mail') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                     <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                        href="javascript:void(0);"> Mail <i
+                        href="javascript:void(0);"> {{ __('Mail') }} <i
                             class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                         </a> </li>
                     <li class="text-[12px]"> <a class="flex items-center text-textmuted"
-                        href="javascript:void(0);">Mail 
+                        href="javascript:void(0);">{{ __('Mail') }}
                         </a> </li>
                     </ol>
                 </nav>
@@ -62,26 +62,26 @@
                 <div class="main-mail-container !p-2 gap-x-2 flex">
                     <div class="mail-navigation border dark:border-defaultborder/10">
                         <div class="grid items-start !p-4 border-b dark:border-defaultborder/10">
-                            <a href="javascript:void(0);" class="hs-dropdown-toggle ti-btn !bg-success text-white flex items-center justify-center !font-medium" data-hs-overlay="#todo-compose"><i class="ri-add-circle-line text-[1rem] align-middle"></i>Compose Mail
+                            <a href="javascript:void(0);" class="hs-dropdown-toggle ti-btn !bg-success text-white flex items-center justify-center !font-medium" data-hs-overlay="#todo-compose"><i class="ri-add-circle-line text-[1rem] align-middle"></i>{{ __('Compose Mail') }}
                             </a>
                             <div id="todo-compose" class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none">
                                 <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-[800px] sm:w-full m-3 sm:mx-auto">
                                     <div class="flex flex-col bg-white dark:bg-bodybg border border-defaultborder dark:border-defaultborder/10 shadow-sm rounded-sm pointer-events-auto">
                                     <div class="flex justify-between items-center py-3 px-4 border-b border-defaultborder dark:border-defaultborder/10">
-                                        <h6 class="modal-title text-[1rem] font-semibold text-defaulttextcolor dark:text-defaulttextcolor/70" id="mail-ComposeLabel">Compose Mail</h6>
+                                        <h6 class="modal-title text-[1rem] font-semibold text-defaulttextcolor dark:text-defaulttextcolor/70" id="mail-ComposeLabel">{{ __('Compose Mail') }}</h6>
                                         <button type="button" class="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#todo-compose">
-                                        <span class="sr-only">Close</span>
+                                        <span class="sr-only">{{ __('Close') }}</span>
                                         <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                                         </button>
                                     </div>
                                     <div class="p-4 overflow-y-auto">
                                         <div class="grid grid-cols-12 gap-6">   
                                             <div class="xl:col-span-6 col-span-12 mb-2">
-                                                <label for="fromMail" class="form-label">From<sup class="top-[0.5em]"><i class="ri-star-s-fill text-success text-[0.5rem]"></i></sup></label>
+                                                <label for="fromMail" class="form-label">{{ __('From') }}<sup class="top-[0.5em]"><i class="ri-star-s-fill text-success text-[0.5rem]"></i></sup></label>
                                                 <input type="email" class="form-control" id="fromMail" value="jsontaylor2345@gmail.com">
                                             </div>
                                             <div class="xl:col-span-6 col-span-12 mb-2">
-                                                <label for="toMail" class="form-label">To<sup class="top-[0.5em]"><i class="ri-star-s-fill text-success text-[0.5rem]"></i></sup></label>
+                                                <label for="toMail" class="form-label">{{ __('To') }}<sup class="top-[0.5em]"><i class="ri-star-s-fill text-success text-[0.5rem]"></i></sup></label>
                                                 <select class="form-control" name="toMail" id="toMail" multiple>
                                                     <option value="Choice 1" selected>jay@gmail.com</option>
                                                     <option value="Choice 2">kia@gmail.com</option>
@@ -98,11 +98,11 @@
                                                 <input type="email" class="form-control" id="mailBcc">
                                             </div>
                                             <div class="xl:col-span-12 col-span-12 mb-2">
-                                                <label for="Subject" class="form-label">Subject</label>
-                                                <input type="text" class="form-control" id="Subject" placeholder="Subject">
+                                                <label for="Subject" class="form-label">{{ __('Subject') }}</label>
+                                                <input type="text" class="form-control" id="Subject" placeholder="{{ __('Subject') }}">
                                             </div>
                                             <div class="xl:col-span-12 col-span-12">
-                                                <label class="col-form-label">Content :</label>
+                                                <label class="col-form-label">{{ __('Content :') }}</label>
                                                 <div class="mail-compose">
                                                     <div id="mail-compose-editor"></div>
                                                 </div>
@@ -111,9 +111,9 @@
                                     </div>
                                     <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-defaultborder dark:border-defaultborder/10">
                                         <button type="button" class="ti-btn  ti-btn-light" data-hs-overlay="#todo-compose">
-                                        Close
+                                        {{ __('Close') }}
                                         </button>
-                                        <button type="button" class="ti-btn bg-primary text-white !font-medium">Send</button>
+                                        <button type="button" class="ti-btn bg-primary text-white !font-medium">{{ __('Send') }}</button>
                                     </div>
                                     </div>
                                 </div>
@@ -130,10 +130,10 @@
                                 <p class="text-white opacity-[0.7] text-[.6875rem] mb-0">jsontaylor1992@gmail.com</p>
                             </div>
                         </div>
-                        <div class="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-2 rounded-lg !border-0 font-medium bg-white dark:bg-bodybg text-gray-700 !shadow-none align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm" data-hs-collapse="#navbar-collapse-basic" aria-controls="navbar-collapse-basic" aria-label="Toggle navigation">
+                        <div class="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-2 rounded-lg !border-0 font-medium bg-white dark:bg-bodybg text-gray-700 !shadow-none align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm" data-hs-collapse="#navbar-collapse-basic" aria-controls="navbar-collapse-basic" aria-label="{{ __('Toggle navigation') }}">
                             <ul class="list-none mail-main-nav !border-0 !text-[0.813rem] overflow-scroll" id="mail-main-nav">
                                 <li class="!px-0 !pt-0">
-                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">MAILS</span>
+                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">{{ __('MAILS') }}</span>
                                 </li>
                                 <li class="active mail-type">
                                     <a href="javascript:void(0);">
@@ -142,7 +142,7 @@
                                                 <i class="ri-inbox-archive-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                All Mails
+                                                {{ __('All Mails') }}
                                             </span>
                                             <span class="badge bg-success/10 text-success !rounded-full">12,456</span>
                                         </div>
@@ -155,7 +155,7 @@
                                                 <i class="ri-inbox-archive-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Inbox
+                                                {{ __('Inbox') }}
                                             </span>
                                             <span class="badge bg-primary/10 text-primary !rounded-full">8</span>
                                         </div>
@@ -168,7 +168,7 @@
                                                 <i class="ri-send-plane-2-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Sent
+                                                {{ __('Sent') }}
                                             </span>
                                         </div>
                                     </a>
@@ -180,7 +180,7 @@
                                                 <i class="ri-draft-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Drafts
+                                                {{ __('Drafts') }}
                                             </span>
                                         </div>
                                     </a>
@@ -192,7 +192,7 @@
                                                 <i class="ri-spam-2-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Spam
+                                                {{ __('Spam') }}
                                             </span>
                                             <span class="badge bg-danger/10 text-danger !rounded-full">4</span>
                                         </div>
@@ -205,7 +205,7 @@
                                                 <i class="ri-bookmark-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Important
+                                                {{ __('Important') }}
                                             </span>
                                         </div>
                                     </a>
@@ -217,7 +217,7 @@
                                                 <i class="ri-delete-bin-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Trash
+                                                {{ __('Trash') }}
                                             </span>
                                         </div>
                                     </a>
@@ -229,7 +229,7 @@
                                                 <i class="ri-archive-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Archive
+                                                {{ __('Archive') }}
                                             </span>
                                         </div>
                                     </a>
@@ -241,14 +241,14 @@
                                                 <i class="ri-star-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Starred
+                                                {{ __('Starred') }}
                                             </span>
                                             <span class="badge bg-warning/10 text-warning !rounded-full">12</span>
                                         </div>
                                     </a>
                                 </li>
                                 <li class="px-0">
-                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">SETTINGS</span>
+                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">{{ __('SETTINGS') }}</span>
                                 </li>
                                 <li>
                                     <a href="javascript:void(0);">
@@ -257,13 +257,13 @@
                                                 <i class="ri-settings-3-line align-middle text-[.875rem]"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Settings
+                                                {{ __('Settings') }}
                                             </span>
                                         </div>
                                     </a>
                                 </li>
                                 <li class="px-0">
-                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">LABELS</span>
+                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">{{ __('LABELS') }}</span>
                                 </li>
                                 <li>
                                     <a href="javascript:void(0);">
@@ -273,7 +273,7 @@
                                                     class="ri-price-tag-line align-middle text-[.875rem] font-semibold text-secondary"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Mail
+                                                {{ __('Mail') }}
                                             </span>
                                         </div>
                                     </a>
@@ -286,7 +286,7 @@
                                                     class="ri-price-tag-line align-middle text-[.875rem] font-semibold text-danger"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Home
+                                                {{ __('Home') }}
                                             </span>
                                         </div>
                                     </a>
@@ -299,7 +299,7 @@
                                                     class="ri-price-tag-line align-middle text-[.875rem] font-semibold text-success"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Work
+                                                {{ __('Work') }}
                                             </span>
                                         </div>
                                     </a>
@@ -312,13 +312,13 @@
                                                     class="ri-price-tag-line align-middle text-[.875rem] font-semibold text-black dark:text-white"></i>
                                             </span>
                                             <span class="flex-grow whitespace-nowrap">
-                                                Friends
+                                                {{ __('Friends') }}
                                             </span>
                                         </div>
                                     </a>
                                 </li>
                                 <li class="px-0">
-                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">ONLINE USERS</span>
+                                    <span class="text-[.6875rem] text-textmuted opacity-[0.7] font-semibold">{{ __('ONLINE USERS') }}</span>
                                 </li>
                                 <li>
                                     <a href="javascript:void(0);">
@@ -359,7 +359,7 @@
                                 <input class="form-check-input" type="checkbox" id="checkAll" value="" aria-label="...">
                             </div>
                             <div class="flex-grow">
-                                <h6 class="font-semibold mb-0 text-[1rem] !text-defaulttextcolor dark:!text-defaulttextcolor/70">All Mails</h6>
+                                <h6 class="font-semibold mb-0 text-[1rem] !text-defaulttextcolor dark:!text-defaulttextcolor/70">{{ __('All Mails') }}</h6>
                             </div>
                             <button aria-label="button" type="button" class="ti-btn ti-btn-icon ti-btn-light me-1 lg:hidden block total-mails-close !mb-0">
                                 <i class="ri-close-fill"></i>
@@ -370,17 +370,17 @@
                                     <i class="ti ti-dots-vertical"></i>
                                 </button>
                                 <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">Recent</a></li>
-                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">Unread</a></li>
-                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">Mark All Read</a></li>
-                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">Spam</a></li>
-                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">Delete All</a></li>
+                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">{{ __('Recent') }}</a></li>
+                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">{{ __('Unread') }}</a></li>
+                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">{{ __('Mark All Read') }}</a></li>
+                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">{{ __('Spam') }}</a></li>
+                                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);">{{ __('Delete All') }}</a></li>
                                 </ul>
                             </div>
                         </div>
                         <div class="p-4">
                             <div class="input-group">
-                                <input type="text" class="form-control !bg-light !border-0 !rounded-s-md" placeholder="Search Email" aria-describedby="button-addon2">
+                                <input type="text" class="form-control !bg-light !border-0 !rounded-s-md" placeholder="{{ __('Search Email') }}" aria-describedby="button-addon2">
                                 <button aria-label="button" class="ti-btn ti-btn-light !rounded-s-none !mb-0" type="button" id="button-addon2"><i class="ri-search-line text-textmuted"></i></button>
                             </div>
                         </div>
@@ -655,7 +655,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Starred
+                                            {{ __('Starred') }}
                                         </span>
                                     </button>
                                 </div>
@@ -665,7 +665,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Archive
+                                            {{ __('Archive') }}
                                         </span>
                                     </button>
                                 </div>
@@ -675,7 +675,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Spam
+                                            {{ __('Spam') }}
                                         </span>
                                     </button>
                                 </div>
@@ -695,7 +695,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Reply
+                                            {{ __('Reply') }}
                                         </span>
                                     </button>
                                 </div>
@@ -706,11 +706,11 @@
                                         <i class="ti ti-dots-vertical"></i>
                                     </button>
                                     <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-star-line me-1 align-middle"></i>Starred</a></li>
-                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-inbox-archive-line me-1 align-middle"></i>Archive</a></li>
-                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-spam-2-line me-1 align-middle"></i>Report Spam</a></li>
+                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-star-line me-1 align-middle"></i>{{ __('Starred') }}</a></li>
+                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-inbox-archive-line me-1 align-middle"></i>{{ __('Archive') }}</a></li>
+                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-spam-2-line me-1 align-middle"></i>{{ __('Report Spam') }}</a></li>
                                         <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-delete-bin-line me-1 align-middle"></i>Delete</a></li>
-                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-reply-line me-1 align-middle"></i>Reply</a></li>
+                                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium" href="javascript:void(0);"><i class="inline-flex ri-reply-line me-1 align-middle"></i>{{ __('Reply') }}</a></li>
                                     </ul>
                                 </div>
                                 <button aria-label="button" type="button" class="ti-btn ti-btn-icon ti-btn-light ms-1">
@@ -739,10 +739,10 @@
                             <div class="mail-attachments mb-6">
                                 <div class="flex justify-between items-center">
                                     <div class="mb-0">
-                                        <span class="text-[.875rem] font-semibold dark:!text-defaulttextcolor/70"><i class="ri-attachment-2 me-1 align-middle"></i>Attachments (1.8mb):</span>
+                                        <span class="text-[.875rem] font-semibold dark:!text-defaulttextcolor/70"><i class="ri-attachment-2 me-1 align-middle"></i>{{ __('Attachments (1.8mb):') }}</span>
                                     </div>
                                     <div>
-                                        <button type="button" class="ti-btn !py-1 !px-2 !text-[0.75rem] !font-medium ti-btn-success">Download All</button>
+                                        <button type="button" class="ti-btn !py-1 !px-2 !text-[0.75rem] !font-medium ti-btn-success">{{ __('Download All') }}</button>
                                     </div>
                                 </div>
                                 <div class="mt-2 flex items-center flex-wrap">
@@ -784,7 +784,7 @@
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <span class="text-[.875rem] font-semibold"><i class="ri-reply-all-line me-1 align-middle inline-block"></i>Reply:</span>
+                                <span class="text-[.875rem] font-semibold"><i class="ri-reply-all-line me-1 align-middle inline-block"></i>{{ __('Reply:') }}</span>
                             </div>
                             <div class="mail-reply dark:border-defaultborder/10">
                                 <div id="mail-reply-editor"></div>
@@ -798,7 +798,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Print
+                                            {{ __('Print') }}
                                         </span>
                                     </button>
                                 </div>
@@ -808,7 +808,7 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Mark as read
+                                            {{ __('Mark as read') }}
                                         </span>
                                     </button>
                                 </div>
@@ -818,17 +818,17 @@
                                         <span
                                             class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm dark:bg-slate-700"
                                             role="tooltip">
-                                            Reload
+                                            {{ __('Reload') }}
                                         </span>
                                     </button>
                                 </div>
                             </div>
                             <div class="space-x-2 rtl:space-x-reverse">
                                 <button type="button" class="ti-btn ti-btn-secondary-full">
-                                    <i class="ri-share-forward-line me-1 inline-block align-middle"></i>Forward
+                                    <i class="ri-share-forward-line me-1 inline-block align-middle"></i>{{ __('Forward') }}
                                 </button>
                                 <button type="button" class="ti-btn ti-btn-danger-full ms-1">
-                                    <i class="ri-reply-all-line me-1 inline-block align-middle"></i>Reply
+                                    <i class="ri-reply-all-line me-1 inline-block align-middle"></i>{{ __('Reply') }}
                                 </button>
                             </div>
                         </div>

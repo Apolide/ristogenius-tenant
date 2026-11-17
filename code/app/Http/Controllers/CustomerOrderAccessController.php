@@ -14,7 +14,8 @@ class CustomerOrderAccessController extends Controller
     {
         abort_unless(strlen($token) === 64, 404);
         $access = CustomerOrderAccess::where('token_hash', hash('sha256', $token))->firstOrFail();
-        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, 'Link scaduto o già utilizzato.');
+        app()->setLocale($access->language);
+        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, __('Link scaduto o già utilizzato.'));
 
         return response()->view('public-orders.verify', compact('token'))->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store');
     }
@@ -26,6 +27,8 @@ class CustomerOrderAccessController extends Controller
 
     public function table(string $language, string $tableToken)
     {
+        abort_unless(array_key_exists($language, app(\App\Services\CustomerLanguageService::class)->enabled()), 404);
+        app()->setLocale($language);
         RoomTable::where('ordering_token', $tableToken)->whereHas('room', fn ($q) => $q->where('active', true))->firstOrFail();
         $menus = DigitalMenu::where('is_published', true)->where('is_visible', true)->orderBy('position')->get()->filter(fn ($m) => in_array($language, $m->enabled_languages, true));
         if ($menus->count() === 1) {

@@ -23,6 +23,7 @@ class PublicForm extends Component
 
     public MarketingForm $form;
 
+    #[\Livewire\Attributes\Locked]
     public string $language;
 
     public array $answers = [];
@@ -49,6 +50,11 @@ class PublicForm extends Component
         }
     }
 
+    public function hydrate(): void
+    {
+        app()->setLocale($this->language);
+    }
+
     public function mount(MarketingForm $form, string $language): void
     {
         abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
@@ -68,6 +74,7 @@ class PublicForm extends Component
 
     public function submit(PublicFormSubmissionService $submissions): void
     {
+        app()->setLocale($this->language);
         $bookingSlots = $this->bookingSlots();
         $rules = [];
         foreach ($this->form->fields()->where('visible', true)->get() as $f) {
@@ -161,7 +168,7 @@ class PublicForm extends Component
         if ($key === 'date' && $this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
             $rules[] = function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! app(EventScheduleService::class)->dateIsAvailable($this->form, (string) $value)) {
-                    $fail('La data selezionata non è disponibile per questo evento.');
+                    $fail(__('La data selezionata non è disponibile per questo evento.'));
                 }
             };
         }

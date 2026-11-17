@@ -126,7 +126,7 @@ class MenuIndex extends Component
         $menu = DigitalMenu::updateOrCreate(['id' => $this->menuId], ['slug' => Str::slug($this->nameIt).($this->menuId ? '' : '-'.Str::lower(Str::random(5))), 'name' => array_filter(['it' => $this->nameIt, 'en' => $this->nameEn, 'de' => $this->nameDe]), 'description' => array_filter(['it' => $this->descriptionIt, 'en' => $this->descriptionEn, 'de' => $this->descriptionDe]), 'enabled_languages' => $this->enabledLanguages, 'theme' => ['primary' => $this->primaryColor, 'accent' => $this->accentColor, 'background' => $this->backgroundColor, 'style' => 'editorial'], 'image_path' => $imagePath, 'service_charge' => $this->serviceCharge, 'is_published' => $this->isPublished, 'is_visible' => $this->isVisible]);
         $this->showMenuForm = false;
         $this->openEditor($menu->id);
-        session()->flash('success', 'Menu salvato.');
+        session()->flash('success', __('Menu salvato.'));
     }
 
     public function openEditor(string $id): void
@@ -201,7 +201,7 @@ class MenuIndex extends Component
         ]);
 
         $this->showCategoryForm = false;
-        session()->flash('success', 'Categoria aggiornata.');
+        session()->flash('success', __('Categoria aggiornata.'));
     }
 
     public function removeCategoryImage(): void
@@ -226,7 +226,7 @@ class MenuIndex extends Component
         $this->persistCategoryOrder($remainingIds);
         $this->selectedCategoryId = $remainingIds[0] ?? null;
         $this->showCategoryForm = false;
-        session()->flash('success', 'Categoria eliminata.');
+        session()->flash('success', __('Categoria eliminata.'));
     }
 
     public function moveCategory(string $categoryId, string $direction): void
@@ -296,7 +296,7 @@ class MenuIndex extends Component
     public function publish(): void
     {
         DigitalMenu::findOrFail($this->menuId)->update(['is_published' => true]);
-        session()->flash('success', 'Menu pubblicato.');
+        session()->flash('success', __('Menu pubblicato.'));
     }
 
     public function delete(string $id): void
@@ -304,7 +304,7 @@ class MenuIndex extends Component
         $menu = DigitalMenu::with('categories')->findOrFail($id);
         Storage::disk('public')->delete(array_filter([$menu->image_path, ...$menu->categories->pluck('image_path')->all()]));
         $menu->delete();
-        session()->flash('success', 'Menu eliminato.');
+        session()->flash('success', __('Menu eliminato.'));
     }
 
     private function resetMenuForm(): void
@@ -352,6 +352,6 @@ class MenuIndex extends Component
                 ->when($this->catalogSearch, fn ($query) => $query->whereTranslatedNameContains($this->catalogSearch))
                 ->orderBy('name')
                 ->paginate(20, pageName: 'catalogPage'),
-        ])->title('Gestione menu');
+        ])->title(__('Gestione menu'));
     }
 }

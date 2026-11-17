@@ -56,7 +56,7 @@ class RoomMap extends Component
             return;
         }
         if ($this->cash()) {
-            $this->addError('order', 'Nessun ordine per questo tavolo.');
+            $this->addError('order', __('Nessun ordine per questo tavolo.'));
 
             return;
         }
@@ -89,6 +89,6 @@ class RoomMap extends Component
             'bookings' => $this->selectedTable ? Booking::with('customer')->whereDate('booking_date', today())->whereIn('status', ['accepted', 'seated'])->whereHas('tables', fn ($q) => $q->where('settings_room_tables.id', $this->selectedTable))->get() : collect(),
             'mapWidth' => max(800, (int) $tables->max(fn ($t) => $t->x + $t->w) + 80),
             'mapHeight' => max(480, (int) $tables->max(fn ($t) => $t->y + $t->h) + 80),
-        ])->title($this->cash() ? 'Cassa' : 'Comande');
+        ])->title($this->cash() ? __('Cassa') : __('Comande'));
     }
 }

@@ -5,15 +5,15 @@
         <!-- Page Header -->
         <div class="md:flex block items-center justify-between mb-6 mt-[2rem]  page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Contatto</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('Contatto') }}</h5>
                 <nav>
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                               href="/"> Home <i
+                               href="/"> {{ __('Home') }} <i
                                    class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a> </li>
                         <li class="text-[12px]"> <a class="flex items-center text-textmuted"
-                               href="javascript:void(0);">Contatto
+                               href="javascript:void(0);">{{ __('Contatto') }}
                             </a> </li>
                     </ol>
                 </nav>
@@ -48,7 +48,7 @@
                 {{-- <div class="flex justify-between"> --}}
                     <div>
                         <div>
-                            <div class="box-title pb-0">ELENCO CONTATTI</div>
+                            <div class="box-title pb-0">{{ __('ELENCO CONTATTI') }}</div>
                             <p class="text-xs text-gray-500 font-normal"></p>
                         </div>
                         <!-- Campo di ricerca -->
@@ -64,12 +64,12 @@
                         <table class="table table-bordered whitespace-nowrap min-w-full">
                             <thead>
                                 <tr class="!border-defaultborder dark:!border-defaultborder/10">
-                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">Azioni</th>
+                                    <th class="border border-defaultborder dark:border-defaultborder/10 text-start">{{ __('Azioni') }}</th>
                                     <th class="border-b dark:border-defaultborder/10 text-start">ID</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">System name</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('Nome') }}</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('System name') }}</th>
                                     <th class="border-b dark:border-defaultborder/10 text-start">Email</th>
-                                    <th class="border-b dark:border-defaultborder/10 text-start">Charge enabled</th>
+                                    <th class="border-b dark:border-defaultborder/10 text-start">{{ __('Charge enabled') }}</th>
 
 
                                 </tr>
@@ -104,7 +104,7 @@
                                                         class="ti-btn ti-btn-sm hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                     <i class="las la-pen"></i>
                                                     <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                        Modifica
+                                                        {{ __('Modifica') }}
                                                     </span>
                                                 </button>
                                             </div>
@@ -113,7 +113,7 @@
                                                         class="ti-btn ti-btn-sm hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-danger text-white hover:bg-danger">
                                                     <i class="las la-trash"></i>
                                                     <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                        Elimina
+                                                        {{ __('Elimina') }}
                                                     </span>
                                                 </button>
                                             </div>
@@ -125,9 +125,9 @@
                                     <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{{ $contact->email }}</td>
                                     <td class="whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
                                         @if($contact->stripe_connect_charges_enabled)
-                                        <span class="badge bg-success/10 !text-success">SI</span>
+                                        <span class="badge bg-success/10 !text-success">{{ __('SI') }}</span>
                                         @else
-                                        <span class="badge bg-danger/10 !text-danger">NO</span>
+                                        <span class="badge bg-danger/10 !text-danger">{{ __('NO') }}</span>
                                         @endif
                                     </td>
 
@@ -141,7 +141,7 @@
 
                                 @if($contacts->isEmpty())
                                 <tr>
-                                    <td colspan="6" class="text-center text-gray-500">Nessuna contatto trovato.</td>
+                                    <td colspan="6" class="text-center text-gray-500">{{ __('Nessuna contatto trovato.') }}</td>
                                 </tr>
                                 @endif
                             </tbody>

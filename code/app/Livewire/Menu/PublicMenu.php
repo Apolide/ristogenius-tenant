@@ -11,7 +11,13 @@ class PublicMenu extends Component
 {
     public DigitalMenu $menu;
 
+    #[\Livewire\Attributes\Locked]
     public string $language;
+
+    public function hydrate(): void
+    {
+        app()->setLocale($this->language);
+    }
 
     public function mount(string $language, DigitalMenu $menu): void
     {
@@ -22,6 +28,7 @@ class PublicMenu extends Component
 
     public function render(TenantBrandingService $branding, CustomerLanguageService $languageService)
     {
+        app()->setLocale($this->language);
         $this->menu->load(['categories' => fn ($q) => $q->where('is_enabled', true)->with(['products' => fn ($q) => $q->wherePivot('is_visible', true)->where('is_active', true)->with(['recommendations' => fn ($q) => $q->where('is_active', true)->with('recommendedProduct')])])]);
 
         return view('livewire.menu.public-menu', [

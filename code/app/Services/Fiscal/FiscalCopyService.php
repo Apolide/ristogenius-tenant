@@ -27,7 +27,7 @@ class FiscalCopyService
             CashPaymentBatch::lockForUpdate()->findOrFail($batchId);
             $existing = FiscalCopyRequest::where('cash_payment_batch_id', $batchId)->first();
             if ($existing) {
-                app(FiscalSetupService::class)->check($existing->email === $email, 'Esiste già una richiesta per un altro recapito: verifica il destinatario registrato.');
+                app(FiscalSetupService::class)->check($existing->email === $email, __('Esiste già una richiesta per un altro recapito: verifica il destinatario registrato.'));
 
                 return $existing;
             }
@@ -54,10 +54,13 @@ class FiscalCopyService
                     return 0;
                 }
                 $url = URL::temporarySignedRoute('fiscal-copy.download', now()->addDays(7), ['copy' => $request->id, 'document' => $doc->id]);
-                $label = $doc->document_kind === 'invoice' ? 'Copia di cortesia fattura sandbox' : 'Documento commerciale sandbox';
+                $language = \App\Models\Customer::find($request->customer_id)?->lang
+                    ?: ($doc->order->customer_language ?: ($doc->order->customer?->lang ?? 'it'));
+                $language = array_key_exists($language, (array) config('tenant.backend_languages', [])) ? $language : 'it';
+                $label = $doc->document_kind === 'invoice' ? __('Copia di cortesia fattura sandbox', [], $language) : __('Documento commerciale sandbox', [], $language);
                 $outbox = MessageOutbox::firstOrCreate(['deduplication_key' => 'fiscal-copy:'.$request->id], ['event_type' => 'fiscal_copy', 'aggregate_type' => 'fiscal_copy', 'aggregate_id' => $request->id, 'status' => 'pending', 'attempts' => 0, 'available_at' => now(),
-                    'payload' => ['message_case' => 'fiscal_copy', 'deliveries' => [['recipient' => ['email' => $request->email], 'language' => 'it', 'name' => '', 'subject' => $label,
-                        'message' => 'Come richiesto, puoi scaricare la copia PDF dal collegamento valido per 7 giorni. Documento di prova sandbox: non certifica incassi reali.'.($doc->document_kind === 'invoice' ? ' La copia di cortesia non sostituisce la fattura elettronica trasmessa tramite SDI.' : ''), 'url' => $url]]]]);
+                    'payload' => ['message_case' => 'fiscal_copy', 'deliveries' => [['recipient' => ['email' => $request->email], 'language' => $language, 'name' => '', 'subject' => $label,
+                        'message' => __('Come richiesto, puoi scaricare la copia PDF dal collegamento valido per 7 giorni. Documento di prova sandbox: non certifica incassi reali.', [], $language).($doc->document_kind === 'invoice' ? __(' La copia di cortesia non sostituisce la fattura elettronica trasmessa tramite SDI.', [], $language) : ''), 'url' => $url]]]]);
                 $request->update(['message_outbox_id' => $outbox->id, 'queued_at' => now()]);
 
                 return 1;
