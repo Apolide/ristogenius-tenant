@@ -127,13 +127,13 @@ class BookingWaitlistIndex extends Component
         $sent = $notifications->send($entry);
 
         if ($sent === []) {
-            $this->addError('notification', __('Nessun canale disponibile: verifica i recapiti del cliente e la configurazione messaggi.'));
+            $this->addError('notification', __('bookings.no_notification_channel'));
 
             return;
         }
 
         $entry->update(['status' => 'notified', 'notified_at' => now(), 'notified_channels' => $sent]);
-        session()->flash('success', __('Cliente avvisato via ').implode(', ', $sent).'.');
+        session()->flash('success', __('bookings.customer_notified_via', ['channels' => implode(', ', $sent)]));
     }
 
     public function seat(string $id): void
