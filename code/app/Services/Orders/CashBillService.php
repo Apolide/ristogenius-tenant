@@ -21,13 +21,13 @@ class CashBillService
 
         return DB::transaction(function () use ($orderId, $mode, $count, $expectedTotal, $expectedBalance) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            $this->check($order->status === 'open' && ! $order->pendingProposal()->exists(), __('Conto non disponibile per la divisione.'));
-            $this->check($order->totalCents() === $expectedTotal && $order->balanceCents() === $expectedBalance, __('Il conto è cambiato. Verifica il residuo prima di dividerlo.'));
-            $this->check($expectedBalance > 0, __('Nessun residuo da dividere.'));
-            $this->check($mode !== 'items' || ! $order->payments()->exists(), __('La divisione per prodotti va preparata prima del primo incasso. Puoi ancora dividere il residuo per importo.'));
+            $this->check($order->status === 'open' && ! $order->pendingProposal()->exists(), __('cash_desk.messages.bill_unavailable_for_splitting'));
+            $this->check($order->totalCents() === $expectedTotal && $order->balanceCents() === $expectedBalance, __('cash_desk.messages.the_bill_changed_check_the_balance_before_splitting'));
+            $this->check($expectedBalance > 0, __('cash_desk.messages.no_remaining_balance_to_split'));
+            $this->check($mode !== 'items' || ! $order->payments()->exists(), __('cash_desk.messages.item_split_timing_help'));
             $plan = $order->billPlan()->first();
             if ($plan) {
-                $this->check(! CashPaymentBatch::whereIn('cash_bill_share_id', $plan->shares()->select('id'))->exists(), __('Una quota è già stata incassata: la divisione non può essere sostituita.'));
+                $this->check(! CashPaymentBatch::whereIn('cash_bill_share_id', $plan->shares()->select('id'))->exists(), __('cash_desk.messages.paid_share_blocks_split_replacement'));
             }
             $pricing = $this->pricing->snapshot($order);
             $values = ['mode' => $mode, 'version' => ($plan?->version ?? 0) + 1, 'pricing' => $pricing, 'pricing_hash' => $this->pricing->hash($pricing),
@@ -38,7 +38,7 @@ class CashBillService
             } else {
                 $plan = $order->billPlan()->create($values);
             }
-            $this->check($mode !== 'equal' || $expectedBalance >= $count, __('Il residuo è troppo piccolo per il numero di quote.'));
+            $this->check($mode !== 'equal' || $expectedBalance >= $count, __('cash_desk.messages.balance_too_small_for_requested_shares'));
             for ($i = 0; $i < $count; $i++) {
                 $plan->shares()->create(['position' => $i + 1, 'label' => 'Pagante '.($i + 1), 'units' => [],
                     'amount_cents' => $mode === 'equal' ? intdiv($expectedBalance, $count) + ($i < $expectedBalance % $count ? 1 : 0) : 0]);
@@ -55,8 +55,8 @@ class CashBillService
 
     public function assertCurrent(Order $order, CashBillPlan $plan, ?int $version): void
     {
-        $this->check($version !== null && $version === $plan->version, __('La divisione è cambiata. Riapri la quota prima di confermare.'));
-        $this->check(hash_equals($plan->pricing_hash, $this->pricing->hash($this->pricing->snapshot($order))), __('Il conto è stato modificato dopo la divisione. Ricrea le quote prima di incassare.'));
+        $this->check($version !== null && $version === $plan->version, __('cash_desk.messages.the_split_changed_reopen_the_share_before_confirming'));
+        $this->check(hash_equals($plan->pricing_hash, $this->pricing->hash($this->pricing->snapshot($order))), __('cash_desk.messages.bill_changed_recreate_shares'));
     }
 
     public function current(Order $order, CashBillPlan $plan): bool
@@ -70,23 +70,23 @@ class CashBillService
         Validator::make(compact('quantities', 'label'), ['quantities' => 'array|max:1000', 'quantities.*' => 'integer|min:0|max:10000', 'label' => 'required|string|max:100'])->validate();
         DB::transaction(function () use ($orderId, $shareId, $quantities, $label, $version) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            $this->check($order->status === 'open', __('Il conto è chiuso.'));
+            $this->check($order->status === 'open', __('cash_desk.messages.the_bill_is_closed'));
             $plan = $order->billPlan()->firstOrFail();
             $this->assertCurrent($order, $plan, $version);
-            $this->check($plan->mode === 'items', __('Questa divisione non è per prodotti.'));
+            $this->check($plan->mode === 'items', __('cash_desk.messages.this_is_not_an_item_based_split'));
             $share = $plan->shares()->findOrFail($shareId);
-            $this->check(! $share->is_remainder && ! $share->batches()->exists(), __('Questa quota non può essere modificata.'));
+            $this->check(! $share->is_remainder && ! $share->batches()->exists(), __('cash_desk.messages.this_share_cannot_be_edited'));
             $remainder = $plan->shares()->where('is_remainder', true)->firstOrFail();
-            $this->check(! $remainder->batches()->exists(), __('La rimanenza è già stata incassata: non puoi cambiare le assegnazioni.'));
+            $this->check(! $remainder->batches()->exists(), __('cash_desk.messages.paid_remainder_locks_assignments'));
             $others = $plan->shares()->where('id', '!=', $share->id)->where('is_remainder', false)->get()->flatMap(fn ($row) => $row->units)->all();
             $catalog = collect($plan->pricing['units']);
             $available = $catalog->whereNotIn('id', $others)->groupBy('line_id');
             $known = $catalog->pluck('line_id')->unique()->all();
             $chosen = [];
             foreach ($quantities as $line => $quantity) {
-                $this->check(in_array($line, $known, true), __('Prodotto non appartenente al conto.'));
+                $this->check(in_array($line, $known, true), __('cash_desk.messages.product_does_not_belong_to_this_bill'));
                 $pool = $available->get($line, collect());
-                $this->check($quantity <= $pool->count(), __('Quantità non disponibile: alcuni prodotti sono già assegnati ad altri paganti.'));
+                $this->check($quantity <= $pool->count(), __('cash_desk.messages.item_quantity_assigned_to_other_payers'));
                 $chosen = array_merge($chosen, $pool->take($quantity)->pluck('id')->all());
             }
             $share->update(['label' => trim($label) === $share->displayLabel() ? $share->label : trim($label), 'units' => $chosen, 'amount_cents' => (int) $catalog->whereIn('id', $chosen)->sum('amount_cents')]);
@@ -103,8 +103,8 @@ class CashBillService
         DB::transaction(function () use ($orderId, $version) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
             $plan = $order->billPlan()->firstOrFail();
-            $this->check($order->status === 'open' && $plan->version === $version, __('La divisione è cambiata o il conto è chiuso.'));
-            $this->check(! CashPaymentBatch::whereIn('cash_bill_share_id', $plan->shares()->select('id'))->exists(), __('Una quota è già stata incassata.'));
+            $this->check($order->status === 'open' && $plan->version === $version, __('cash_desk.messages.the_split_changed_or_the_bill_is_closed'));
+            $this->check(! CashPaymentBatch::whereIn('cash_bill_share_id', $plan->shares()->select('id'))->exists(), __('cash_desk.messages.a_share_has_already_been_paid'));
             $plan->delete();
         });
     }

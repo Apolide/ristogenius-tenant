@@ -33,11 +33,11 @@ class FiscalDocumentService
         app(FiscalWorkstationService::class)->assertSelection($store->id, $register);
         $profile = $this->setup->profile();
         $store->refresh();
-        $this->setup->check($profile->enabled && $store->active && $store->status === 'ONLINE' && filled($store->pem_serial), __('Sede non pronta: sincronizza e attendi il completamento dell’attivazione.'));
+        $this->setup->check($profile->enabled && $store->active && $store->status === 'ONLINE' && filled($store->pem_serial), __('fiscal.messages.location_activation_pending'));
         $cr = collect($store->registers)->firstWhere('cr_id', $register);
-        $this->setup->check($cr && ($cr['status'] ?? '') === 'ONLINE', __('Il registratore selezionato non è operativo in questa sede.'));
+        $this->setup->check($cr && ($cr['status'] ?? '') === 'ONLINE', __('fiscal.messages.selected_register_not_operational'));
         $cashier = FiscalCashier::where('fiscal_profile_id', $profile->id)->where('user_id', auth()->id())->first();
-        $this->setup->check($cashier && filled($cashier->remote_id) && strtolower($cashier->status) === 'active', __('Il tuo utente non è associato a un cassiere fiscale attivo.'));
+        $this->setup->check($cashier && filled($cashier->remote_id) && strtolower($cashier->status) === 'active', __('fiscal.messages.your_user_is_not_linked_to_an_active_fiscal_cashier'));
 
         return ['fiscal_id' => $profile->fiscal_id, 'store_id' => $store->remote_id, 'register_id' => $register, 'cashier_id' => $cashier->remote_id];
     }
@@ -52,7 +52,7 @@ class FiscalDocumentService
             $order = Order::lockForUpdate()->findOrFail($orderId);
             app(FiscalCoverageService::class)->assertWholeAvailable($orderId);
             $document = FiscalDocument::where('sale_order_id', $orderId)->lockForUpdate()->first();
-            $this->setup->check(! $document || in_array($document->status, ['draft', 'rejected'], true), __('Documento già inviato o con esito da verificare: non reinviare.'));
+            $this->setup->check(! $document || in_array($document->status, ['draft', 'rejected'], true), __('fiscal.messages.document_sent_or_pending_verification'));
             $context = $this->context($store, $register);
             $localId = $document?->id ?? (string) Str::uuid();
             $snapshot = $this->builder->build($order, $this->setup->profile(), $context + ['local_id' => $localId], $manualMethod, $voucherCount);
@@ -86,7 +86,7 @@ class FiscalDocumentService
             $batch = \App\Models\CashPaymentBatch::lockForUpdate()->findOrFail($batchId);
             app(FiscalCoverageService::class)->assertBatchAvailable($batch);
             $document = FiscalDocument::where('coverage_key', 'batch:'.$batch->id)->lockForUpdate()->first();
-            $this->setup->check(! $document || $document->document_kind === 'receipt' && in_array($document->status, ['draft', 'rejected']), __('Questo incasso ha già un documento o una richiesta da verificare.'));
+            $this->setup->check(! $document || $document->document_kind === 'receipt' && in_array($document->status, ['draft', 'rejected']), __('fiscal.messages.payment_document_exists_or_needs_verification'));
             app(FiscalBatchAllocationService::class)->ensure($order);
             $context = $this->context($store, $register);
             if (app(FiscalWorkstationService::class)->defaults()['can_switch']) {
@@ -123,10 +123,10 @@ class FiscalDocumentService
         Validator::make(['id' => $remoteId], ['id' => 'required|string|regex:/^[a-zA-Z0-9_-]{1,100}$/'])->validate();
         $operation = FiscalOperation::where('fiscal_document_id', $id)->whereNotNull('active_key')->first();
         if ($operation) {
-            $this->setup->check($this->recoverable($operation), __('Operazione ancora in corso. Attendi prima della verifica.'));
+            $this->setup->check($this->recoverable($operation), __('fiscal.messages.operation_still_in_progress_wait_before_checking'));
         }
         $result = $this->setup->read('receipt', ['id' => $remoteId]);
-        $this->setup->check(($result['id'] ?? null) === $remoteId, __('Identificativo remoto incoerente.'));
+        $this->setup->check(($result['id'] ?? null) === $remoteId, __('fiscal.messages.remote_identifier_does_not_match'));
         if ($document->remote_id === null) {
             $this->verifyRecovery($document, $result, $operation);
         }
@@ -140,22 +140,22 @@ class FiscalDocumentService
 
     private function verifyRecovery(FiscalDocument $document, array $result, ?FiscalOperation $operation): void
     {
-        $this->setup->check($operation !== null, __('Nessuna operazione incerta da riconciliare.'));
+        $this->setup->check($operation !== null, __('fiscal.messages.no_uncertain_operation_to_reconcile'));
         if ($document->type === 'sale') {
-            $this->setup->check(($result['additional_text'] ?? '') === $document->snapshot['reference'], __('Il documento remoto non contiene il riferimento univoco di questo conto.'));
+            $this->setup->check(($result['additional_text'] ?? '') === $document->snapshot['reference'], __('fiscal.messages.remote_document_missing_bill_reference'));
             $expected = array_map(fn ($item) => [$item['id'], $item['quantity'] * 100, $item['unit_cents'], $item['vat_code']], $document->snapshot['items']);
             $actual = array_map(fn ($item) => [(int) $item['id'], $this->money($item['quantity']), $this->money($item['unit_price']), $item['vat_rate_code']], $result['items'] ?? []);
-            $this->setup->check($expected === $actual, __('Le righe remote non coincidono con la richiesta originale.'));
+            $this->setup->check($expected === $actual, __('fiscal.messages.remote_lines_do_not_match_the_original_request'));
             foreach (['cash' => 'cash_payment_amount', 'card' => 'electronic_payment_amount', 'voucher' => 'ticket_restaurant_payment_amount'] as $method => $field) {
                 $this->setup->check(isset($result[$field]) && $this->money($result[$field]) === $document->snapshot['payments'][$method], 'I pagamenti remoti non coincidono con la richiesta originale.');
             }
         } else {
             $date = $result['document_date'] ?? null;
-            $this->setup->check($date && Carbon::parse($date)->gte($operation->created_at->copy()->subSeconds(5)), __('Il documento remoto precede questa operazione.'));
+            $this->setup->check($date && Carbon::parse($date)->gte($operation->created_at->copy()->subSeconds(5)), __('fiscal.messages.the_remote_document_predates_this_operation'));
             if ($document->type === 'return') {
                 $expected = collect($document->snapshot['items'])->mapWithKeys(fn ($item) => [$item['id'] => $this->money($item['quantity'])])->sortKeys()->all();
                 $actual = collect($result['items'] ?? [])->mapWithKeys(fn ($item) => [$item['id'] => $this->money($item['quantity'])])->sortKeys()->all();
-                $this->setup->check($expected === $actual, __('Le quantità rese non coincidono con questa operazione.'));
+                $this->setup->check($expected === $actual, __('fiscal.messages.returned_quantities_do_not_match_this_operation'));
             }
         }
     }
@@ -166,17 +166,17 @@ class FiscalDocumentService
         $store = FiscalStore::findOrFail($document->fiscal_store_id);
         $this->setup->check(filled($result['id'] ?? null) && ($result['fiscal_id'] ?? null) === $document->fiscal_id
             && ($result['store_id'] ?? null) === $store->remote_id && ($result['cr_id'] ?? null) === $document->snapshot['register_id']
-            && ($result['type'] ?? null) === $document->type, __('La risposta non appartiene al documento atteso.'));
-        $this->setup->check(! FiscalDocument::where('remote_id', $result['id'])->where('id', '!=', $document->id)->exists(), __('Documento remoto già associato a un’altra operazione.'));
+            && ($result['type'] ?? null) === $document->type, __('fiscal.messages.the_response_does_not_belong_to_the_expected_document'));
+        $this->setup->check(! FiscalDocument::where('remote_id', $result['id'])->where('id', '!=', $document->id)->exists(), __('fiscal.messages.remote_document_already_linked_to_another_operation'));
         if ($document->parent_id) {
             $parent = FiscalDocument::findOrFail($document->parent_id);
-            $this->setup->check(($result['parent_receipt_id'] ?? null) === $parent->remote_id, __('Documento fiscale collegato a un’altra vendita.'));
+            $this->setup->check(($result['parent_receipt_id'] ?? null) === $parent->remote_id, __('fiscal.messages.fiscal_document_linked_to_another_sale'));
         }
         if ($document->type !== 'void') {
-            $this->setup->check(isset($result['total_amount']) && $this->money($result['total_amount']) === $document->total_cents, __('Il totale del documento remoto non quadra.'));
+            $this->setup->check(isset($result['total_amount']) && $this->money($result['total_amount']) === $document->total_cents, __('fiscal.messages.the_remote_document_total_does_not_balance'));
         }
         $status = strtolower($result['status'] ?? '');
-        $this->setup->check(in_array($status, ['sent', 'ready', 'voided'], true), __('Stato fiscale non conclusivo: verifica sul servizio.'));
+        $this->setup->check(in_array($status, ['sent', 'ready', 'voided'], true), __('fiscal.messages.fiscal_status_is_not_final_check_the_service'));
         $issued = $status === 'sent' && filled($result['document_number'] ?? null);
         $document->update(['remote_id' => $result['id'], 'provider_status' => $status, 'document_number' => $result['document_number'] ?? null,
             'document_date' => $result['document_date'] ?? null, 'remote_data' => $result,
@@ -195,7 +195,7 @@ class FiscalDocumentService
     {
         $this->authorize();
         $document = $this->document($id);
-        $this->setup->check($document->document_kind === 'receipt' && $document->type === 'sale' && $document->status === 'issued' && filled($document->remote_id), __('Vendita non disponibile per il reso.'));
+        $this->setup->check($document->document_kind === 'receipt' && $document->type === 'sale' && $document->status === 'issued' && filled($document->remote_id), __('fiscal.messages.sale_unavailable_for_return'));
 
         return $this->setup->read('returnable', ['id' => $document->remote_id])['items'];
     }
@@ -206,29 +206,29 @@ class FiscalDocumentService
         Validator::make(compact('type', 'items'), ['type' => 'required|in:return,void', 'items' => 'array|max:1000',
             'items.*.id' => 'required|integer|min:1|distinct', 'items.*.quantity' => 'required|integer|min:1|max:10000'])->validate();
         $parent = $this->document($id);
-        $this->setup->check($parent->document_kind === 'receipt' && $parent->type === 'sale' && $parent->status === 'issued', __('Documento non disponibile per reso o annullamento.'));
+        $this->setup->check($parent->document_kind === 'receipt' && $parent->type === 'sale' && $parent->status === 'issued', __('fiscal.messages.document_unavailable_for_return_or_cancellation'));
         $this->refresh($id);
         $parent->refresh();
-        $this->setup->check((bool) ($parent->remote_data[$type === 'return' ? 'is_returnable' : 'is_voidable'] ?? false), __('Operazione non consentita sul documento dal fornitore.'));
+        $this->setup->check((bool) ($parent->remote_data[$type === 'return' ? 'is_returnable' : 'is_voidable'] ?? false), __('fiscal.messages.provider_does_not_allow_this_operation_on_the_document'));
         $returnable = $type === 'return' ? collect($this->returnable($id))->keyBy('id') : collect();
         $store = $this->store($parent->fiscal_store_id);
         $operation = $this->runner->run('store:'.$store->id, $type, function (FiscalOperation $operation) use ($parent, $store, $type, $items, $returnable) {
             $current = FiscalDocument::lockForUpdate()->findOrFail($parent->id);
-            $this->setup->check($current->status === 'issued', __('Lo stato del documento è cambiato.'));
-            $this->setup->check(! FiscalDocument::where('parent_id', $parent->id)->whereNotIn('status', ['issued', 'rejected'])->exists(), __('Una rettifica è ancora da verificare.'));
+            $this->setup->check($current->status === 'issued', __('fiscal.messages.the_document_status_changed'));
+            $this->setup->check(! FiscalDocument::where('parent_id', $parent->id)->whereNotIn('status', ['issued', 'rejected'])->exists(), __('fiscal.messages.an_adjustment_still_needs_verification'));
             $context = $this->context($store, $current->snapshot['register_id']);
             $total = 0;
             $requested = [];
             if ($type === 'return') {
-                $this->setup->check(count($items) > 0, __('Seleziona almeno un articolo da rendere.'));
+                $this->setup->check(count($items) > 0, __('fiscal.messages.select_at_least_one_item_to_return'));
                 foreach ($items as $item) {
                     $available = $returnable->get($item['id']);
                     $original = collect($current->snapshot['items'])->firstWhere('id', $item['id']);
-                    $this->setup->check($available && $original && $this->money($available['quantity']) - $this->money($available['returned_quantity']) >= $item['quantity'] * 100, __('Quantità resa non disponibile.'));
+                    $this->setup->check($available && $original && $this->money($available['quantity']) - $this->money($available['returned_quantity']) >= $item['quantity'] * 100, __('fiscal.messages.return_quantity_unavailable'));
                     // Also account for local returns completed after the availability GET.
                     $returned = FiscalDocument::where('parent_id', $current->id)->where('type', 'return')->where('status', 'issued')->get()
                         ->sum(fn ($child) => collect($child->snapshot['items'])->where('id', $item['id'])->sum(fn ($row) => $this->money($row['quantity'])));
-                    $this->setup->check($returned + $item['quantity'] * 100 <= $original['quantity'] * 100, __('Quantità già resa da un’altra operazione.'));
+                    $this->setup->check($returned + $item['quantity'] * 100 <= $original['quantity'] * 100, __('fiscal.messages.quantity_already_returned_by_another_operation'));
                     $total += $original['unit_cents'] * $item['quantity'];
                     $requested[] = ['id' => $item['id'], 'quantity' => FiscalMoney::decimal($item['quantity'] * 100)];
                 }
@@ -252,13 +252,13 @@ class FiscalDocumentService
         app(FiscalWorkstationService::class)->assertSelection($store->id);
         $this->runner->run('store:'.$store->id, 'close', function () use ($store) {
             $current = $store->fresh();
-            $this->setup->check($current->active && $current->status === 'ONLINE', __('Sede non operativa.'));
-            $this->setup->check($current->operational_status !== 'CLOSED', __('Sessione fiscale già chiusa. Sincronizza lo stato se il fornitore l’ha riaperta.'));
-            $this->setup->check(! FiscalDocument::where('fiscal_store_id', $store->id)->where('document_kind', 'receipt')->whereIn('status', ['submitting', 'unknown', 'pending'])->exists(), __('Verifica i documenti ancora in sospeso prima della chiusura fiscale.'));
+            $this->setup->check($current->active && $current->status === 'ONLINE', __('fiscal.messages.location_not_operational'));
+            $this->setup->check($current->operational_status !== 'CLOSED', __('fiscal.messages.fiscal_session_already_closed'));
+            $this->setup->check(! FiscalDocument::where('fiscal_store_id', $store->id)->where('document_kind', 'receipt')->whereIn('status', ['submitting', 'unknown', 'pending'])->exists(), __('fiscal.messages.check_pending_documents_before_fiscal_closing'));
 
             return ['id' => $store->remote_id];
         }, function ($result) use ($store) {
-            $this->setup->check(is_string($result['event_id'] ?? null) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/', $result['event_id']), __('Chiusura senza identificativo evento: verifica l’esito.'));
+            $this->setup->check(is_string($result['event_id'] ?? null) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/', $result['event_id']), __('fiscal.messages.closing_has_no_event_identifier_check_its_outcome'));
             $store->update(['last_closed_at' => now(), 'operational_status' => 'CLOSED']);
         });
     }
@@ -275,11 +275,11 @@ class FiscalDocumentService
     {
         $this->setup->admin();
         $operation = FiscalOperation::where('action', 'close')->whereNotNull('active_key')->findOrFail($operationId);
-        $this->setup->check($this->recoverable($operation), __('Chiusura ancora in corso.'));
+        $this->setup->check($this->recoverable($operation), __('fiscal.messages.closing_still_in_progress'));
         $store = $this->store(Str::after($operation->resource_key, 'store:'));
         $event = collect($this->storeEvents($store->id))->firstWhere('id', $eventId);
         $this->setup->check($event && $event['action'] === 'close' && $event['store_id'] === $store->remote_id
-            && $event['fiscal_id'] === $this->setup->profile()->fiscal_id && Carbon::parse($event['created_at'])->gte($operation->created_at->copy()->subSeconds(5)), __('Evento di chiusura non corrispondente all’operazione.'));
+            && $event['fiscal_id'] === $this->setup->profile()->fiscal_id && Carbon::parse($event['created_at'])->gte($operation->created_at->copy()->subSeconds(5)), __('fiscal.messages.closing_event_does_not_match_the_operation'));
         DB::transaction(function () use ($operation, $store, $event) {
             $store->update(['last_closed_at' => Carbon::parse($event['created_at']), 'operational_status' => 'CLOSED']);
             $operation->update(['active_key' => null, 'status' => 'reconciled', 'response' => ['event_id' => $event['id']], 'error' => null]);
@@ -302,7 +302,7 @@ class FiscalDocumentService
         if ($document->document_kind === 'invoice') {
             return $this->setup->read('invoice_pdf', ['id' => $document->remote_id])['pdf'];
         }
-        $this->setup->check(filled($document->remote_id), __('Documento non ancora disponibile.'));
+        $this->setup->check(filled($document->remote_id), __('fiscal.messages.document_not_yet_available'));
 
         return $this->setup->read('receipt_pdf', ['id' => $document->remote_id])['pdf'];
     }
@@ -319,7 +319,7 @@ class FiscalDocumentService
 
     private function money(mixed $value): int
     {
-        $this->setup->check(is_numeric($value) && (float) $value >= 0, __('Importo fiscale non valido.'));
+        $this->setup->check(is_numeric($value) && (float) $value >= 0, __('fiscal.messages.invalid_fiscal_amount'));
 
         return OrderService::cents(number_format((float) $value, 2, '.', ''));
     }

@@ -133,6 +133,22 @@ class ManagementPagesLocalizationTest extends TestCase
         $this->assertSame('Coperto', \App\Support\UiLabels::billItemName('product-id', 'Coperto'));
     }
 
+    public function test_persisted_fiscal_messages_translate_to_the_staff_language(): void
+    {
+        app()->setLocale('en');
+        $this->assertSame(
+            'Connection interrupted: outcome needs verification. No automatic resend.',
+            \App\Support\UiLabels::systemMessage('Connessione interrotta: esito da verificare. Nessun reinvio automatico.'),
+        );
+
+        app()->setLocale('it');
+        $this->assertSame(
+            'Connessione interrotta: esito da verificare. Nessun reinvio automatico.',
+            \App\Support\UiLabels::systemMessage('Verbindung unterbrochen: Ergebnis zu prüfen. Kein automatisches erneutes Senden.'),
+        );
+        $this->assertSame('External provider detail', \App\Support\UiLabels::systemMessage('External provider detail'));
+    }
+
     public function test_email_uses_order_language_even_when_staff_and_customer_profile_differ(): void
     {
         $customer = \App\Models\Customer::create(['firstname' => 'Anna', 'email' => 'anna@example.test', 'lang' => 'it', 'registration_source' => 'test']);

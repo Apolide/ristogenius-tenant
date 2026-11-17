@@ -21,7 +21,7 @@
         <h5 class="page-title text-[1.3125rem] font-medium"><i class="las {{ $icon }}" aria-hidden="true"></i> {{ $title }}</h5>
         <div class="flex flex-wrap items-center gap-2">
             {{ $actions ?? '' }}
-            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full ti-btn-icon text-white !m-0" title="{{ __('Aggiorna') }}" aria-label="{{ __('Aggiorna') }}"><i class="las la-redo-alt text-xl" aria-hidden="true"></i></button>
+            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full ti-btn-icon text-white !m-0" title="{{ __('cash_desk.reconciliation.refresh') }}" aria-label="{{ __('cash_desk.reconciliation.refresh') }}"><i class="las la-redo-alt text-xl" aria-hidden="true"></i></button>
         </div>
     </div>
     <div class="box service-controls-box"><div class="box-body">

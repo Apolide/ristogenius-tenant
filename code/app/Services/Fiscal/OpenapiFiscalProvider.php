@@ -17,7 +17,7 @@ class OpenapiFiscalProvider implements FiscalProvider
     {
         $token = (string) config('fiscal.openapi.token');
         if (config('fiscal.environment') !== 'sandbox' || config('fiscal.provider') !== 'openapi' || $token === '' || preg_match('/^X+$/', $token)) {
-            throw ValidationException::withMessages(['fiscal' => __('Configura OPENAPI_INVOICE_SANDBOX_TOKEN sul server. E-Receipts è disponibile qui solo in sandbox.')]);
+            throw ValidationException::withMessages(['fiscal' => __('fiscal.messages.sandbox_token_required')]);
         }
     }
 
@@ -27,7 +27,7 @@ class OpenapiFiscalProvider implements FiscalProvider
         if ($action === 'send_invoice') {
             $validation = $this->execute('validate_invoice', $data, $operationId);
             if (($validation['valid'] ?? false) !== true) {
-                throw new FiscalFailure(false, __('XML fattura rifiutato dalla validazione Openapi: correggi i dati prima di inviare.'));
+                throw new FiscalFailure(false, __('fiscal.messages.openapi_invoice_xml_validation_failed'));
             }
         }
         [$method, $path, $payload] = $this->command($action, $data);
@@ -55,7 +55,7 @@ class OpenapiFiscalProvider implements FiscalProvider
             $response = $request->send($method, self::BASE.$path, $options);
         } catch (ConnectionException) {
             $call->update(['outcome' => 'unknown', 'duration_ms' => (int) ((microtime(true) - $started) * 1000)]);
-            throw new FiscalFailure(true, __('Connessione interrotta: esito da verificare. Nessun reinvio automatico.'));
+            throw new FiscalFailure(true, __('fiscal.messages.verify_outcome_after_connection_loss'));
         }
         $call->update(['http_status' => $response->status(), 'duration_ms' => (int) ((microtime(true) - $started) * 1000)]);
         $body = $response->json();
@@ -65,17 +65,17 @@ class OpenapiFiscalProvider implements FiscalProvider
             $uncertain = ! $emailConflict && ! in_array($response->status(), [400, 401, 402, 403, 404, 405, 422, 429], true);
             $call->update(['outcome' => $uncertain ? 'unknown' : 'rejected'] + $details);
             $message = match (true) {
-                $emailConflict => __('Email già utilizzata nei sistemi Openapi: la creazione del cassiere è stata rifiutata. Se non compare fra i cassieri di questa azienda, inserisci un’email diversa nel campo Email cassiere Openapi. L’email di accesso a RistoPilot è separata.'),
-                $response->status() === 404 && $action === 'configuration' => __('Azienda non trovata o non accessibile con questo token nella sandbox Invoice. Se non è ancora stata creata, usa “Attiva azienda e prima sede sandbox”; se un invio è rimasto incerto, verificane l’esito prima di reinviare.'),
-                $response->status() === 401 => __('Autenticazione non accettata per ').$method.' '.$path.__('. Verifica token sandbox, scadenza e scope di questa rotta.'),
-                $response->status() === 422 && $action === 'configure' && $details['error_code'] === '112' => __('Il fornitore segnala una configurazione già esistente per questa partita IVA. Verifica con “Sincronizza azienda e sedi”; se non è accessibile, usa una partita IVA di test diversa oppure richiedi una verifica a Openapi.'),
-                $response->status() === 422 => __('Il servizio fiscale ha rifiutato i dati inviati.'),
-                $uncertain => __('Esito fiscale da verificare prima di procedere. Nessun reinvio automatico.'),
-                default => __('Operazione fiscale rifiutata.'),
+                $emailConflict => __('fiscal.messages.cashier_creation_rejected_duplicate_email'),
+                $response->status() === 404 && $action === 'configuration' => __('fiscal.messages.sandbox_company_unavailable'),
+                $response->status() === 401 => __('fiscal.messages.authentication_not_accepted_for').$method.' '.$path.__('fiscal.messages.check_sandbox_token_expiry_and_scopes_for_this_route'),
+                $response->status() === 422 && $action === 'configure' && $details['error_code'] === '112' => __('fiscal.messages.vat_number_already_configured'),
+                $response->status() === 422 => __('fiscal.messages.the_fiscal_service_rejected_the_submitted_data'),
+                $uncertain => __('fiscal.messages.fiscal_outcome_requires_manual_verification'),
+                default => __('fiscal.messages.fiscal_operation_rejected'),
             };
-            $message .= ' HTTP '.$response->status().($details['error_code'] !== null ? __(' · Codice Openapi ').$details['error_code'] : '').'.';
+            $message .= ' HTTP '.$response->status().($details['error_code'] !== null ? __('fiscal.messages.openapi_code').$details['error_code'] : '').'.';
             if ($details['error_message'] !== null) {
-                $message .= __(' Dettaglio Openapi: ').$details['error_message'];
+                $message .= __('fiscal.messages.openapi_details').$details['error_message'];
             }
             throw new FiscalFailure($uncertain, $message, $response->status(), $details['error_code']);
         }
@@ -85,9 +85,9 @@ class OpenapiFiscalProvider implements FiscalProvider
 
                 return ['pdf' => $response->body()];
             }
-            $message = __('Il servizio fiscale non ha restituito un file PDF. Il documento resta emesso: puoi riprovare il download o verificare con il fornitore.');
+            $message = __('fiscal.messages.issued_document_pdf_unavailable');
             if (is_array($body) && ($body['success'] ?? null) === false && $details['error_message']) {
-                $message .= __(' Dettaglio Openapi: ').$details['error_message'];
+                $message .= __('fiscal.messages.openapi_details').$details['error_message'];
             }
             $call->update(['outcome' => 'invalid_format', 'error_code' => $details['error_code'] ?? 'PDF_FORMAT', 'error_message' => $message]);
             throw new FiscalFailure(false, $message, $response->status(), $details['error_code']);
@@ -100,13 +100,13 @@ class OpenapiFiscalProvider implements FiscalProvider
         if (! is_array($body) || (($body['success'] ?? null) !== true && ! (in_array($action, ['send_invoice', 'invoice', 'validate_invoice', 'invoices'], true) && ! array_key_exists('success', $body) && is_array($body['data'] ?? null)))) {
             // Even a malformed 2xx can follow a successful fiscal mutation.
             $call->update(['outcome' => 'unknown'] + $details);
-            throw new FiscalFailure(true, __('Risposta fiscale non conclusiva: verifica l’esito prima di procedere.').($details['error_message'] ? __(' Dettaglio Openapi: ').$details['error_message'] : ''));
+            throw new FiscalFailure(true, __('fiscal.messages.inconclusive_fiscal_response').($details['error_message'] ? __('fiscal.messages.openapi_details').$details['error_message'] : ''));
         }
         try {
             $result = $this->normalize($action, $body);
         } catch (\Throwable) {
             $call->update(['outcome' => 'unknown']);
-            throw new FiscalFailure(true, __('Risposta fiscale non interpretabile: verifica l’esito.'));
+            throw new FiscalFailure(true, __('fiscal.messages.unreadable_fiscal_response'));
         }
         $call->update(['outcome' => 'succeeded']);
 
@@ -170,7 +170,7 @@ class OpenapiFiscalProvider implements FiscalProvider
                 'invoice_enabled' => ($data['customer_invoice'] ?? false) === true,
                 'stores' => array_map(fn ($store) => Arr::only($store, ['store_id', 'label', 'address', 'status', 'operational_status', 'pem_serial', 'active', 'cash_registers']), $data['stores'] ?? []),
             ],
-            'connection' => is_array($data) && array_is_list($data) ? ['authenticated' => true] : throw new FiscalFailure(true, __('Risposta di verifica connessione non valida.')),
+            'connection' => is_array($data) && array_is_list($data) ? ['authenticated' => true] : throw new FiscalFailure(true, __('fiscal.messages.invalid_connection_check_response')),
             'send_invoice', 'invoice' => Arr::only($data, ['id', 'state', 'direction', 'fiscal_id', 'type', 'document_number', 'issue_date', 'total_amount_including_tax', 'total_gross_amount', 'recipient', 'details']),
             'validate_invoice' => ['valid' => ($data['valid'] ?? false) === true, 'message' => $data['message'] ?? ''],
             'invoices' => ['documents' => array_map(fn ($row) => Arr::only($row, ['id', 'state', 'direction', 'fiscal_id', 'type', 'document_number', 'issue_date', 'total_amount_including_tax', 'total_gross_amount', 'recipient', 'details']), $data)],
@@ -181,7 +181,7 @@ class OpenapiFiscalProvider implements FiscalProvider
             'returnable' => ['items' => array_map(fn ($item) => Arr::only($item, ['id', 'quantity', 'returned_quantity', 'description', 'unit_price']), $data)],
             'close' => ['event_id' => $body['event_id'] ?? null],
             'store_events' => ['events' => array_map(fn ($event) => Arr::only($event, ['id', 'store_id', 'fiscal_id', 'action', 'created_at']), $data)],
-            default => throw new FiscalFailure(true, __('Formato della risposta fiscale non riconosciuto.')),
+            default => throw new FiscalFailure(true, __('fiscal.messages.unrecognized_fiscal_response_format')),
         };
     }
 

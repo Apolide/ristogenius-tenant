@@ -53,12 +53,12 @@ class CashReconciliationService
             $row = array_map(fn ($v) => preg_match('/^[\s]*[=+@-]/u', (string) $v) ? "'".$v : $v, $row);
             fputcsv($stream, $row, ';', '"', '');
         };
-        $write([__('Tipo'), 'ID', __('Data'), __('Ordine / Incasso'), __('Metodo / Stato'), __('Importo EUR'), __('Mancia EUR'), __('Riferimento')]);
+        $write([__('cash_desk.type'), 'ID', __('cash_desk.date'), __('cash_desk.messages.order_payment'), __('cash_desk.messages.method_status'), __('cash_desk.messages.amount_eur'), __('cash_desk.messages.tip_eur'), __('cash_desk.reference')]);
         foreach ($report['payments'] as $p) {
-            $write([__('Incasso'), $p->id, $p->created_at->toDateTimeString(), $p->order_id, $p->method, $this->decimal($p->amount_cents), $this->decimal($p->tip_cents), $p->payer]);
+            $write([__('cash_desk.payment'), $p->id, $p->created_at->toDateTimeString(), $p->order_id, $p->method, $this->decimal($p->amount_cents), $this->decimal($p->tip_cents), $p->payer]);
         }
         foreach ($report['refunds'] as $r) {
-            $write([__('Rimborso'), $r->id, $r->created_at->toDateTimeString(), $r->cash_payment_batch_id, $r->method, $this->decimal($r->amount_cents), '0,00', $r->external_reference]);
+            $write([__('cash_desk.messages.refund'), $r->id, $r->created_at->toDateTimeString(), $r->cash_payment_batch_id, $r->method, $this->decimal($r->amount_cents), '0,00', $r->external_reference]);
         }
         foreach ($report['documents'] as $d) {
             $write([$d->document_kind.':'.$d->type, $d->id, $d->created_at->toDateTimeString(), $d->order_id, $d->status, $this->decimal($d->total_cents), '0,00', $d->document_number]);

@@ -30,14 +30,14 @@ class CashRefundService
             $hash = hash('sha256', json_encode([$batchId, $amount, $method, $reason, $reference]));
             if ($existing = CashRefund::find($key)) {
                 if ($existing->request_hash !== $hash) {
-                    throw ValidationException::withMessages(['refund' => __('Richiesta rimborso già usata con dati diversi.')]);
+                    throw ValidationException::withMessages(['refund' => __('cash_desk.messages.refund_request_already_used_with_different_data')]);
                 }
 
                 return $existing;
             }
             $paid = $batch->amount_cents + $batch->tip_cents;
             if ((int) CashRefund::where('cash_payment_batch_id', $batchId)->sum('amount_cents') + $amount > $paid) {
-                throw ValidationException::withMessages(['refund' => __('Il rimborso supera l’incasso, incluse le mance.')]);
+                throw ValidationException::withMessages(['refund' => __('cash_desk.messages.refund_exceeds_the_payment_including_tips')]);
             }
             $shift = CashShift::where('active_key', 'main')->lockForUpdate()->first();
             $refund = CashRefund::create(['id' => $key, 'cash_payment_batch_id' => $batchId, 'cash_shift_id' => $shift?->id, 'user_id' => auth()->id(),

@@ -1,14 +1,14 @@
 <section class="box mt-4" aria-labelledby="fiscal-conservation-title"><div class="box-body">
     <div class="o-toolbar">
-        <h2 id="fiscal-conservation-title" class="font-semibold">{{ __('Conservazione fatture') }}</h2>
-        <span class="o-badge">{{ __('Da configurare in RistoPilot') }}</span>
+        <h2 id="fiscal-conservation-title" class="font-semibold">{{ __('fiscal.archiving.invoice_archiving') }}</h2>
+        <span class="o-badge">{{ __('fiscal.archiving.to_be_configured_in_ristopilot') }}</span>
     </div>
-    <p>{{ __('Sezione predisposta per collegare il servizio di conservazione dell’azienda e consultarne gli esiti.') }}</p>
+    <p>{{ __('fiscal.archiving.archiving_service_placeholder') }}</p>
     <ul class="mt-3 list-disc pl-5">
-        <li><strong>{{ __('Agenzia delle Entrate:') }}</strong> {{ __('servizio con adesione nel portale Fatture e Corrispettivi.') }}</li>
-        <li><strong>{{ __('Provider esterno:') }}</strong> {{ __('futura integrazione con un servizio di conservazione dedicato.') }}</li>
+        <li><strong>{{ __('fiscal.archiving.italian_revenue_agency') }}</strong> {{ __('fiscal.archiving.fiscal_portal_enrollment_required') }}</li>
+        <li><strong>{{ __('fiscal.archiving.external_provider') }}</strong> {{ __('fiscal.archiving.future_integration_with_a_dedicated_archiving_service') }}</li>
     </ul>
-    <p class="o-muted mt-3">{{ __('La trasmissione tramite SDI e la conservazione sono servizi distinti. La presenza di XML e PDF in app non attesta la conservazione a norma.') }}</p>
-    <button type="button" class="ti-btn ti-btn-light mt-3" disabled aria-describedby="fiscal-conservation-placeholder">{{ __('Configura conservazione · Prossimamente') }}</button>
-    <p id="fiscal-conservation-placeholder" class="o-muted mt-3">{{ __('Placeholder informativo. Un servizio eventualmente già attivato fuori dall’app non è ancora verificato da RistoPilot.') }}</p>
+    <p class="o-muted mt-3">{{ __('fiscal.archiving.transmission_and_archiving_scope') }}</p>
+    <button type="button" class="ti-btn ti-btn-light mt-3" disabled aria-describedby="fiscal-conservation-placeholder">{{ __('fiscal.archiving.configure_archiving_coming_soon') }}</button>
+    <p id="fiscal-conservation-placeholder" class="o-muted mt-3">{{ __('fiscal.archiving.external_archiving_verification_unavailable') }}</p>
 </div></section>
