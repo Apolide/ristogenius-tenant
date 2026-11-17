@@ -225,6 +225,10 @@ return [
         // External channels keep distinct queues/retry policies but initially
         // share one worker. Split this into one supervisor per queue when
         // provider volume or rate limits require independent scaling.
+        'supervisor-marketing-email' => [
+            'connection' => 'redis', 'queue' => [env('MARKETING_MAIL_QUEUE', 'marketing-email')],
+            'balance' => 'simple', 'processes' => 1, 'memory' => 128, 'tries' => 10000, 'timeout' => 60,
+        ],
         'supervisor-messages-external' => [
             'connection' => 'redis',
             'queue' => ['messages-telegram', 'messages-whatsapp', 'messages-sms'],
@@ -263,6 +267,7 @@ return [
             'supervisor-messages-dispatch' => [],
             'supervisor-messages-email' => [],
             'supervisor-messages-external' => [],
+            'supervisor-marketing-email' => [],
         ],
 
         'local' => [
@@ -282,6 +287,7 @@ return [
             'supervisor-messages-dispatch' => [],
             'supervisor-messages-email' => [],
             'supervisor-messages-external' => [],
+            'supervisor-marketing-email' => [],
         ],
     ],
 ];

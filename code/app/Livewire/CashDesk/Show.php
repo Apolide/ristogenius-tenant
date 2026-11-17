@@ -364,6 +364,11 @@ class Show extends Component
         session()->flash('order_notice', __('Ordine annullato.'));
     }
 
+    public function toggleCoupon(): void
+    {
+        app(\App\Services\Marketing\CouponPricing::class)->toggle(\App\Models\Order::findOrFail($this->orderId));
+    }
+
     public function render()
     {
         $order = Order::with(['courses.items.modifiers', 'courses.items.ticket', 'customer', 'payments', 'events.user'])->findOrFail($this->orderId);

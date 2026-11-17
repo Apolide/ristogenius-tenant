@@ -23,8 +23,8 @@ GITHUB
 ssh -T git@github.com-apolide
 
 - set remote
-git remote set-url origin git@github.com-apolide:Apolide/ristogenius-tenant.git
 
+git remote set-url origin git@github.com-apolide:Apolide/ristogenius-tenant.git
 
 SETUP LOCALHOST DB
 

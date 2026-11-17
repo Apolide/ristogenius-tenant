@@ -235,6 +235,7 @@ class Menu extends Component
             ->when($this->tableToken, fn ($q) => $q->where('order_id', $access->order_id), fn ($q) => $q->whereHas('order', fn ($q) => $q->whereIn('fulfillment', ['pickup', 'delivery'])))->latest()->limit(10)->get() : collect();
 
         return view('livewire.public-orders.menu', [
+            'coupons' => app(\App\Services\Marketing\CouponService::class)->visibleOnMenu($menu, $this->language),
             'menu' => $menu, 'access' => $access, 'ordering' => true, 'quote' => $quote, 'fee' => $fee, 'percentage' => $percentage, 'settings' => $settings,
             'product' => $product, 'ingredients' => $product ? DigitalMenuIngredient::all()->sortBy(fn ($i) => $i->translatedName($this->language)) : collect(),
             'submissions' => $submissions, 'recognizedName' => app(CustomerAccessService::class)->recognizedName(),

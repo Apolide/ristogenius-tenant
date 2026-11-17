@@ -37,6 +37,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('smtp-account', function () {
+            $settings = app(\App\Services\Marketing\MarketingSettings::class)->get();
+            $account = hash('sha256', config('mail.mailers.smtp.host').(config('mail.mailers.smtp.username') ?: config('mail.from.address')));
+
+            return [Limit::perMinute($settings['smtp_per_minute'])->by($account.':minute'), Limit::perHour($settings['smtp_per_hour'])->by($account.':hour')];
+        });
+        RateLimiter::for('marketing-smtp', function () {
+            $settings = app(\App\Services\Marketing\MarketingSettings::class)->get();
+
+            return Limit::perHour($settings['marketing_per_hour'])->by(hash('sha256', config('mail.mailers.smtp.host').(config('mail.mailers.smtp.username') ?: config('mail.from.address'))).':marketing');
+        });
         Gate::before(function ($user, $ability) {
             return $user->hasRole('admin') ? true : null;
         });

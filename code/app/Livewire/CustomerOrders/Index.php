@@ -63,6 +63,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function selectToday(): void
+    {
+        $this->date = today()->toDateString();
+        $this->resetPage();
+    }
+
     public function transition(string $id, string $action, string $expected): void
     {
         abort_if($this->cash(), 403);

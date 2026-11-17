@@ -1,6 +1,14 @@
-<nav class="o-toolbar" aria-label="{{ __('Tipo di conto') }}">
-    <a class="o-chip {{ request()->routeIs('cash-desk.index') ? 'active' : '' }}" href="{{ route('cash-desk.index') }}">{{ __('Sala') }}</a>
-    <a class="o-chip {{ request()->routeIs('cash-desk.customer-orders') ? 'active' : '' }}" href="{{ route('cash-desk.customer-orders') }}">{{ __('Asporto e consegne') }}</a>
-    <a class="ti-btn ti-btn-light" href="{{ route('cash-desk.shifts') }}">{{ __('Turni di cassa') }}</a>
-    @if(auth()->user()->hasRole('admin'))<a class="ti-btn ti-btn-light" href="{{ route('settings.fiscal') }}">{{ __('Configurazione fiscale') }}</a>@endif
+<nav class="service-tabs" aria-label="{{ __('Navigazione cassa') }}">
+    @foreach([
+        ['cash-desk.index', 'la-chair', __('Sala')],
+        ['cash-desk.customer-orders', 'la-shopping-bag', __('Asporto e consegne')],
+        ['cash-desk.shifts', 'la-business-time', __('Turni di cassa')],
+        ['cash-desk.history', 'la-history', __('Storico incassi')],
+        ['cash-desk.reconciliation', 'la-balance-scale', __('Riconciliazione ed esportazione')],
+    ] as [$route, $icon, $label])
+        <a class="service-tab {{ request()->routeIs($route) ? 'active' : '' }}" href="{{ route($route) }}" @if(request()->routeIs($route)) aria-current="page" @endif><i class="las {{ $icon }}" aria-hidden="true"></i> {{ $label }}</a>
+    @endforeach
+    @if(auth()->user()->hasRole('admin'))
+        <a class="service-tab {{ request()->routeIs('settings.fiscal') ? 'active' : '' }}" href="{{ route('settings.fiscal') }}" @if(request()->routeIs('settings.fiscal')) aria-current="page" @endif><i class="las la-file-invoice-dollar" aria-hidden="true"></i> {{ __('Configurazione fiscale') }}</a>
+    @endif
 </nav>

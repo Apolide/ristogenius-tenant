@@ -25,12 +25,12 @@ class FiscalReceiptBuilder
         $this->check($payments['cash'] !== array_sum($payments) || $payments['cash'] % 5 === 0, __('Il conto è stato incassato solo in contanti senza arrotondamento a 5 centesimi. La gestione dell’arrotondamento di cassa deve essere completata prima dell’emissione.'));
         $lines = [];
         foreach ($order->items()->whereNull('order_courses.rejected_at')->orderBy('order_items.id')->get() as $item) {
-            $lines[] = ['quantity' => (int) $item->quantity, 'gross' => $item->quantity * $item->unit_price_cents, 'rate' => (int) $item->vat,
+            $lines[] = ['id' => $item->id, 'quantity' => (int) $item->quantity, 'gross' => $item->quantity * $item->unit_price_cents, 'rate' => (int) $item->vat,
                 'description' => mb_substr($item->product_name, 0, 950), 'type' => $order->fulfillment === 'dine_in' ? 'service' : 'goods'];
         }
         foreach (['Coperti' => $order->covers * $order->cover_price_cents, 'Consegna' => (int) $order->delivery_fee_cents, 'Servizio' => $order->serviceFeeCents()] as $label => $gross) {
             if ($gross > 0) {
-                $lines[] = ['quantity' => 1, 'gross' => $gross, 'rate' => (int) $order->auxiliary_vat, 'description' => $label, 'type' => 'service'];
+                $lines[] = ['quantity' => 1, 'gross' => $gross, 'rate' => (int) $order->auxiliary_vat, 'id' => ['Coperti' => 'covers', 'Consegna' => 'delivery', 'Servizio' => 'service'][$label], 'description' => $label, 'type' => 'service'];
             }
         }
         $this->check(array_sum(array_column($lines, 'gross')) === (int) $order->cash_snapshot['gross_cents'], __('Le righe del conto non coincidono con la fotografia salvata.'));
@@ -40,7 +40,7 @@ class FiscalReceiptBuilder
             $weights = array_map(fn ($line) => $line['gross'], $group);
             $allocations = $this->allocate(array_sum($weights) - $tax['gross_cents'], $weights);
             foreach ($group as $key => $line) {
-                $net = $line['gross'] - $allocations[$key];
+                $net = $line['gross'] - ($order->cash_snapshot['line_discounts'][$line['id']] ?? $allocations[$key]);
                 $unit = intdiv($net, $line['quantity']);
                 $extra = $net % $line['quantity'];
                 $code = $line['rate'] === 0 ? $profile->zero_vat_code : number_format($line['rate'], 2, '.', '');

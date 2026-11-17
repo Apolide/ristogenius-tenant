@@ -39,6 +39,10 @@ class ManagementPagesLocalizationTest extends TestCase
         foreach (['kds.index', 'bookings.rooms', 'customers-orders.index', 'menu.products', 'menu.ingredients', 'menu.menus', 'cash-desk.index', 'cash-desk.history', 'cash-desk.shifts', 'cash-desk.reconciliation', 'settings.customer-orders', 'marketing.forms.index'] as $route) {
             $response = $this->actingAs($admin)->get(route($route))->assertOk();
             $this->assertSame($locale, app()->getLocale());
+            if (in_array($route, ['kds.index', 'customers-orders.index', 'cash-desk.index', 'cash-desk.history', 'cash-desk.shifts', 'cash-desk.reconciliation', 'settings.customer-orders'], true)) {
+                $response->assertSee('title="'.__('bookings.fullscreen').'"', false);
+                $response->assertSee(__('bookings.fullscreen').'</span>', false);
+            }
             foreach ($labels[$route] ?? [] as $label) {
                 $response->assertSee($label);
             }
@@ -52,7 +56,7 @@ class ManagementPagesLocalizationTest extends TestCase
     {
         return [
             ['en', [
-                'kds.index' => ['To do', 'Start preparation', 'Full screen', 'Course 1'],
+                'kds.index' => ['To do', 'Start preparation', 'Open fullscreen', 'Course 1'],
                 'bookings.rooms' => ['Dining room and bookings', 'Assign tables', 'Table bookings', 'Arrival within 60 min'],
                 'customers-orders.index' => ['Customer orders', 'Awaiting approval', 'Include history', 'Unpaid'],
                 'menu.products' => ['New product', 'Price', 'Department'],

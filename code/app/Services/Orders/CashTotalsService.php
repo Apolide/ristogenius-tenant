@@ -14,35 +14,46 @@ class CashTotalsService
             return $order->cash_snapshot;
         }
         $groups = [];
-        foreach ($order->items()->whereNull('order_courses.rejected_at')->get() as $item) {
-            $rate = (int) $item->vat;
-            $groups[$rate] = ($groups[$rate] ?? 0) + $item->quantity * $item->unit_price_cents;
+        $lines = $this->lines($order);
+        $coupon = app(\App\Services\Marketing\CouponPricing::class)->discounts($order, $lines);
+        $netWeights = [];
+        foreach ($lines as $line) {
+            $netWeights[$line['id']] = $line['gross_cents'] - ($coupon[$line['id']] ?? 0);
         }
-        $aux = $order->covers * $order->cover_price_cents + (int) $order->delivery_fee_cents + $order->serviceFeeCents();
-        $rate = (int) $order->auxiliary_vat;
-        $groups[$rate] = ($groups[$rate] ?? 0) + $aux;
+        // No implicit stacking with manual discounts: the staff must remove the coupon first.
+        if (array_sum($coupon) > 0 && $order->discount_cents > 0) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['order' => __('marketing.not_stackable')]);
+        }
+        $manual = app(\App\Services\Marketing\CouponPricing::class)->allocate(min((int) $order->discount_cents, array_sum($netWeights)), $netWeights);
+        $lineDiscounts = [];
+        foreach ($lines as $line) {
+            $discount = ($coupon[$line['id']] ?? 0) + ($manual[$line['id']] ?? 0);
+            $lineDiscounts[$line['id']] = $discount;
+            $groups[$line['rate']] = ($groups[$line['rate']] ?? 0) + $line['gross_cents'] - $discount;
+        }
         ksort($groups);
-        $gross = array_sum($groups);
-        $discount = min((int) $order->discount_cents, $gross);
-        $allocations = $remainders = [];
-        foreach ($groups as $rate => $amount) {
-            $allocations[$rate] = $gross ? intdiv($discount * $amount, $gross) : 0;
-            $remainders[$rate] = $gross ? ($discount * $amount) % $gross : 0;
-        }
-        arsort($remainders, SORT_NUMERIC);
-        $left = $discount - array_sum($allocations);
-        foreach ($remainders as $rate => $remainder) {
-            if ($left-- > 0) {
-                $allocations[$rate]++;
-            }
-        }
         $taxes = [];
         foreach ($groups as $rate => $amount) {
-            $amount -= $allocations[$rate];
             $net = intdiv($amount * 100 + intdiv(100 + $rate, 2), 100 + $rate);
-            $taxes[] = ['rate' => $rate, 'gross_cents' => $amount, 'net_cents' => $net, 'vat_cents' => $amount - $net];
+            $taxes[] = ['rate' => (int) $rate, 'gross_cents' => $amount, 'net_cents' => $net, 'vat_cents' => $amount - $net];
+        }
+        $gross = array_sum(array_column($lines, 'gross_cents'));
+
+        return ['gross_cents' => $gross, 'discount_cents' => array_sum($lineDiscounts), 'coupon_discount_cents' => array_sum($coupon), 'total_cents' => $gross - array_sum($lineDiscounts), 'taxes' => $taxes, 'line_discounts' => $lineDiscounts];
+    }
+
+    public function lines(Order $order): array
+    {
+        $lines = [];
+        foreach ($order->items()->whereNull('order_courses.rejected_at')->orderBy('order_items.id')->get() as $item) {
+            $lines[] = ['id' => $item->id, 'product_id' => $item->product_id, 'name' => $item->product_name, 'quantity' => (int) $item->quantity, 'unit_price_cents' => (int) $item->unit_price_cents, 'gross_cents' => (int) ($item->quantity * $item->unit_price_cents), 'rate' => (int) $item->vat];
+        }
+        foreach (['covers' => ['Coperto', (int) $order->covers, (int) $order->cover_price_cents], 'delivery' => ['Consegna', 1, (int) $order->delivery_fee_cents], 'service' => ['Servizio', 1, $order->serviceFeeCents()]] as $id => [$name,$quantity,$price]) {
+            if ($quantity * $price > 0) {
+                $lines[] = ['id' => $id, 'product_id' => null, 'name' => $name, 'quantity' => $quantity, 'unit_price_cents' => $price, 'gross_cents' => $quantity * $price, 'rate' => (int) $order->auxiliary_vat];
+            }
         }
 
-        return ['gross_cents' => $gross, 'discount_cents' => $discount, 'total_cents' => $gross - $discount, 'taxes' => $taxes];
+        return $lines;
     }
 }

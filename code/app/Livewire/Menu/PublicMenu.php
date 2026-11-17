@@ -32,6 +32,7 @@ class PublicMenu extends Component
         $this->menu->load(['categories' => fn ($q) => $q->where('is_enabled', true)->with(['products' => fn ($q) => $q->wherePivot('is_visible', true)->where('is_active', true)->with(['recommendations' => fn ($q) => $q->where('is_active', true)->with('recommendedProduct')])])]);
 
         return view('livewire.menu.public-menu', [
+            'coupons' => app(\App\Services\Marketing\CouponService::class)->visibleOnMenu($this->menu, $this->language),
             'branding' => $branding->branding(),
             'languages' => collect($this->menu->enabled_languages)->mapWithKeys(fn (string $code) => [$code => $languageService->meta($code)])->all(),
         ])->layout('layouts.digital-menu')->title($this->menu->translatedName($this->language));

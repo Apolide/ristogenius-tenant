@@ -1,15 +1,22 @@
 <div class="content order-workspace">
 <div class="main-content">
 @include('orders.styles')
-<div class="o-fullscreen" x-data="{ async fullscreen() { if(document.fullscreenElement) await document.exitFullscreen(); else await $el.requestFullscreen(); } }">
-<div class="o-toolbar">
-<h1 class="o-title">{{ __('KDS ·') }} {{ $departments->firstWhere('id',$departmentId)?->translatedName() ?? __('Nessun reparto produttivo') }}</h1>
-<button class="ti-btn ti-btn-light" @click="fullscreen()">{{ __('⛶ Schermo intero') }}</button>@foreach($departments as $department)<a class="o-chip {{ $departmentId === $department->id ? 'active' : '' }}" href="{{ route('kds.show',$department) }}">{{ $department->translatedName() }}</a>@endforeach
-</div>
+@include('orders.workspace-styles')
+<x-orders.workspace :title="__('KDS ·').' '.($departments->firstWhere('id',$departmentId)?->translatedName() ?? __('Nessun reparto produttivo'))" icon="la-concierge-bell">
+    <x-slot:stats>
+        <strong><i class="las la-list" aria-hidden="true"></i> {{ __('Da fare') }}: {{ $tickets->where('status', 'queued')->count() }}</strong>
+        <strong>{{ __('In preparazione') }}: {{ $tickets->where('status', 'preparing')->count() }}</strong>
+        <strong>{{ __('Pronto') }}: {{ $tickets->where('status', 'ready')->count() }}</strong>
+    </x-slot:stats>
+    <x-slot:tabs>
+        <nav class="service-tabs" aria-label="{{ __('Reparto produttivo') }}">
+            @foreach($departments as $department)<a class="service-tab {{ $departmentId === $department->id ? 'active' : '' }}" @if($departmentId === $department->id) aria-current="page" @endif href="{{ route('kds.show',$department) }}">{{ $department->translatedName() }}</a>@endforeach
+        </nav>
+    </x-slot:tabs>
 @include('orders.errors')
 <div class="o-board" wire:poll.3s>
 @foreach(['queued'=>__('Da fare'),'preparing'=>__('In preparazione'),'ready'=>__('Pronto'),'served'=>__('Servito')] as $state=>$label)
-<section>
+<section class="service-kds-column">
 <h2 class="font-semibold o-row">{{ $label }} <span class="o-badge">{{ $tickets->where('status',$state)->count() }}</span>
 </h2>
 @forelse($tickets->where('status',$state) as $ticket)<article class="o-ticket" wire:key="ticket-{{ $ticket->id }}-{{ $ticket->status }}" style="border-top-color:{{ ['queued'=>'#f59e0b','preparing'=>'#6366f1','ready'=>'#22c55e','served'=>'#94a3b8'][$state] }}">
@@ -28,6 +35,6 @@
 <p class="o-empty">{{ __('Nessuna uscita') }}</p>@endforelse
 </section>@endforeach
 </div>
-</div>
+</x-orders.workspace>
 </div>
 </div>

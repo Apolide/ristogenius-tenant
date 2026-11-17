@@ -228,6 +228,7 @@ class OrderService
             $order = $this->lockedOpen($orderId);
             $this->check($order->totalCents() === $expectedTotal, __('Il totale è cambiato. Aggiorna il conto.'));
             $this->check(! $order->pendingProposal()->exists(), __('Ritira la proposta al cliente prima di modificare lo sconto.'));
+            $this->check($value === 0 || $order->coupon_disabled || ! \App\Models\CouponUsage::where('booking_id', $order->booking_id)->exists(), __('marketing.not_stackable'));
             $gross = $order->grossCents();
             $this->check(! $percentage || $value <= 10000, __('La percentuale deve essere fra 0 e 100.'));
             $discount = $percentage ? intdiv($gross * $value + 5000, 10000) : $value;

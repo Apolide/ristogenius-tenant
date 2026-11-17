@@ -38,6 +38,6 @@ class PublicBookingShow extends Component
             )->all(),
             'editUrl' => $urls->edit($this->booking, $this->language),
             'statusLabels' => config('bookings.statuses'),
-        ])->layout('layouts.customer-booking', ['title' => __('bookings.detail')]);
+        ])->layout('layouts.customer-booking', ['title' => __('bookings.detail'), 'fullWidth' => true]);
     }
 }

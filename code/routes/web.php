@@ -21,6 +21,10 @@ use App\Livewire\Marketing\Forms\FormIndex as MarketingFormIndex;
 use App\Livewire\Marketing\Forms\FormStyleEdit as MarketingFormStyleEdit;
 use App\Livewire\Marketing\Forms\PublicForm as MarketingPublicForm;
 use App\Livewire\Marketing\Forms\SubmissionIndex as MarketingSubmissionIndex;
+use App\Livewire\Menu\IngredientIndex;
+use App\Livewire\Menu\MenuIndex;
+use App\Livewire\Menu\ProductIndex;
+use App\Livewire\Menu\PublicMenu;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -41,10 +45,6 @@ use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\RoomTables\RoomTableIndex;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
-use App\Livewire\Menu\IngredientIndex;
-use App\Livewire\Menu\MenuIndex;
-use App\Livewire\Menu\ProductIndex;
-use App\Livewire\Menu\PublicMenu;
 use App\Services\Personnel\PersonnelPermissionsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -82,16 +82,22 @@ Route::domain(env('DOMAIN'))->group(function () {
     })->name('privacy-policy');
 
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
+    Route::get('/coupons/{language}/{coupon:slug}', \App\Livewire\Marketing\Coupons\PublicCoupon::class)->middleware('throttle:60,1')->name('coupons.public');
+    Route::get('/coupon-verify/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'verify'])->middleware('throttle:30,1')->name('coupons.verify');
+    Route::post('/coupon-verify/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'confirm'])->middleware('throttle:10,1')->name('coupons.confirm');
+    Route::get('/coupon/{language}/{token}/pdf', [\App\Http\Controllers\MarketingPublicController::class, 'pdf'])->middleware('throttle:60,1')->name('coupons.pdf');
+    Route::get('/coupon/{language}/{token}/image', [\App\Http\Controllers\MarketingPublicController::class, 'image'])->middleware('throttle:60,1')->name('coupons.image');
+    Route::get('/coupon/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'card'])->middleware('throttle:60,1')->name('coupons.card');
+    Route::get('/campaign-click/{delivery}', [\App\Http\Controllers\MarketingPublicController::class, 'click'])->middleware(['signed', 'throttle:60,1'])->name('campaigns.click');
+    Route::match(['get', 'post'], '/marketing/unsubscribe/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'unsubscribe'])->middleware('throttle:30,1')->name('marketing.unsubscribe');
     Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
     Route::get('/order/{language}/{menu:slug}', \App\Livewire\PublicOrders\Menu::class)->name('public-orders.menu');
-    Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class,'table'])->name('public-orders.table');
-    Route::get('/fiscal-copy/{copy}/{document}', \App\Http\Controllers\FiscalCopyController::class)->middleware(['signed','throttle:20,1'])->name('fiscal-copy.download');
-    Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'show'])->middleware('throttle:30,1')->name('public-orders.verify');
-    Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
-    Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
-    Route::post('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'respond'])->middleware('throttle:10,1')->name('public-orders.proposal.respond');
-
-
+    Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'table'])->name('public-orders.table');
+    Route::get('/fiscal-copy/{copy}/{document}', \App\Http\Controllers\FiscalCopyController::class)->middleware(['signed', 'throttle:20,1'])->name('fiscal-copy.download');
+    Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'show'])->middleware('throttle:30,1')->name('public-orders.verify');
+    Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
+    Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class, 'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
+    Route::post('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class, 'respond'])->middleware('throttle:10,1')->name('public-orders.proposal.respond');
 
     /*
     |--------------------------------------------------------------------------
@@ -117,6 +123,13 @@ Route::domain(env('DOMAIN'))->group(function () {
             ->name('manage');
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
+            Route::get('/manage/coupons', \App\Livewire\Marketing\Coupons\CouponIndex::class)->name('coupons.index');
+            Route::get('/manage/coupons/create', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.create');
+            Route::get('/manage/coupons/{coupon}/edit', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.edit');
+            Route::get('/manage/marketing/campaigns', \App\Livewire\Marketing\Campaigns\CampaignIndex::class)->name('campaigns.index');
+            Route::get('/manage/marketing/campaigns/create', \App\Livewire\Marketing\Campaigns\CampaignEdit::class)->name('campaigns.create');
+            Route::get('/manage/marketing/campaigns/{campaign}/edit', \App\Livewire\Marketing\Campaigns\CampaignEdit::class)->name('campaigns.edit');
+            Route::get('/manage/marketing/campaigns/{campaign}/send', \App\Livewire\Marketing\Campaigns\CampaignSend::class)->name('campaigns.send');
             Route::get('/manage/contacts', ContactIndex::class);
             Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
             Route::prefix('/manage/marketing/forms')->name('marketing.forms.')->group(function (): void {
@@ -176,6 +189,7 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
             Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');
             Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
+            Route::get('/manage/settings/marketing', \App\Livewire\Marketing\Settings::class)->name('settings.marketing');
             Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
             Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');
             Route::get('/manage/settings/booking-remind-hours', BookingRemindHoursEdit::class)->name('settings.booking-remind-hours');

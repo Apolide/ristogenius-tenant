@@ -1,35 +1,33 @@
 <div class="content order-workspace">
 <div class="main-content">
 @include('orders.styles')
-<div class="o-toolbar">
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.index') }}">{{ __('← Cassa') }}</a>
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.shifts') }}">{{ __('Turni di cassa') }}</a>
-<h1 class="o-title">{{ $order->fulfillment === 'dine_in' ? __('Tavolo ').$order->table_name : $order->reference.' · '.$order->fulfillmentLabel() }} <span class="o-muted">{{ $order->room_name }}</span>
-</h1>
-<span class="o-badge">{{ ['open'=>__('Aperto'),'paid'=>__('Pagato'),'cancelled'=>__('Annullato')][$order->status] }}</span>
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.fiscal',$order) }}">{{ __('Documenti commerciali · Sandbox') }}</a>
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.print',$order) }}" target="_blank" rel="noopener">{{ __('Stampa preconto') }}</a>
-</div>
-<a class="ti-btn ti-btn-light mb-3" href="{{ route('cash-desk.reconciliation') }}">{{ __('Riconciliazione ed esportazione') }}</a>
+@include('orders.workspace-styles')
+<x-orders.workspace :title="$order->fulfillment === 'dine_in' ? __('Tavolo ').$order->table_name : $order->reference.' · '.$order->fulfillmentLabel()" icon="la-cash-register">
+    <x-slot:actions><a class="ti-btn ti-btn-light !m-0" href="{{ route('cash-desk.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('Cassa') }}</a><a class="ti-btn ti-btn-info-full !m-0" href="{{ route('cash-desk.fiscal',$order) }}"><i class="las la-file-invoice" aria-hidden="true"></i> {{ __('Documenti commerciali · Sandbox') }}</a><a class="ti-btn ti-btn-primary-full !m-0" href="{{ route('cash-desk.print',$order) }}" target="_blank" rel="noopener"><i class="las la-print" aria-hidden="true"></i> {{ __('Stampa preconto') }}</a></x-slot:actions>
+    <x-slot:stats>{{ $order->room_name }} · {{ ['open'=>__('Aperto'),'paid'=>__('Pagato'),'cancelled'=>__('Annullato')][$order->status] }}</x-slot:stats>
+    <x-slot:tabs>@include('orders.cash-tabs')</x-slot:tabs>
 @include('orders.errors')
-<div class="o-panel">
+@if($usage=\App\Models\CouponUsage::where('booking_id',$order->booking_id)->first())<div class="box mb-4"><div class="box-body"><strong>{{ $order->coupon_disabled ? __('marketing.coupon_disabled') : __('marketing.coupon') }}: {{ $usage->snapshot['translations'][app()->getLocale()]['title'] ?? $usage->snapshot['name'] }}</strong>
+@if($couponReason=app(\App\Services\Marketing\CouponPricing::class)->reason($order,$usage->snapshot))<p>{{ __('marketing.'.$couponReason) }}</p>@endif
+@if($order->status==='open' && !$order->payments->count() && !$order->cash_snapshot)<button class="ti-btn ti-btn-light" wire:click="toggleCoupon">{{ $order->coupon_disabled ? __('marketing.apply_coupon') : __('marketing.remove_coupon') }}</button>@endif</div></div>@endif
+
+<div class="box"><div class="box-body">
 <p class="o-muted mb-4">{{ __('Aperto il') }} {{ $order->created_at->format('d/m/Y H:i') }} · {{ $order->customer_name ?: $order->customer?->display_name ?: trim(($order->customer?->firstname ?? '').' '.($order->customer?->lastname ?? '')) ?: __('Senza cliente associato') }}</p>
 @include('orders.items-table')
 <div class="o-row mt-4"><strong>{{ __('Incassato sul conto:') }} {{ number_format($order->payments->sum('amount_cents')/100,2,',','.') }} €</strong><strong>{{ __('Residuo:') }} {{ number_format($balance/100,2,',','.') }} €</strong><span>{{ __('Mance:') }} {{ number_format($order->payments->sum('tip_cents')/100,2,',','.') }} €</span></div>
-@if($order->discount_cents)<p>{{ __('Sconto:') }} {{ number_format($order->effectiveDiscountCents()/100,2,',','.') }} € · {{ $order->discount_reason }}</p>@endif
+@if($order->effectiveDiscountCents())<p>{{ __('Sconto:') }} {{ number_format($order->effectiveDiscountCents()/100,2,',','.') }} € · {{ $order->discount_reason }}</p>@endif
 <details class="mt-4"><summary>{{ __('Riepilogo IVA inclusa') }}</summary>
 @foreach($totals['taxes'] as $tax)<p>{{ __('IVA') }} {{ $tax['rate'] }}{{ __('% · Imponibile') }} {{ number_format($tax['net_cents']/100,2,',','.') }} {{ __('€ · IVA') }} {{ number_format($tax['vat_cents']/100,2,',','.') }} €</p>@endforeach
 <p class="o-muted">{{ __('Riepilogo gestionale. Nessun documento fiscale emesso.') }}</p></details>
 @if($order->status === 'open' && !$order->payments->count() && !$order->pendingProposal)
-<form wire:submit="applyDiscount" class="o-panel mt-4">
-<h2 class="font-semibold">{{ __('Sconto e IVA accessori') }}</h2>
-<div class="o-toolbar mt-3"><label>{{ __('Sconto') }} <input class="o-input" wire:model="discount" inputmode="decimal"></label>
-<label><input type="checkbox" wire:model="percentage"> {{ __('Percentuale (altrimenti €)') }}</label>
-<label>{{ __('Motivo') }} <input class="o-input" wire:model="discountReason" maxlength="255" required></label>
-<label>{{ __('IVA coperti, servizio e consegna') }} <select class="o-input" wire:model="auxiliaryVat">@foreach([0,4,5,10,22] as $vat)<option value="{{ $vat }}">{{ $vat }}%</option>@endforeach</select></label>
-<button class="ti-btn ti-btn-light" wire:loading.attr="disabled">{{ __('Applica') }}</button></div>
-</form>@endif
-@if($order->pendingProposal)<p class="o-panel mt-4">{{ __('In attesa della risposta del cliente alla proposta di modifica. Incasso sospeso.') }}</p>@endif
+<form wire:submit="applyDiscount" class="box mt-4"><div class="box-header"><h2 class="box-title">{{ __('Sconto e IVA accessori') }}</h2></div><div class="box-body">
+<div class="service-form-grid mt-3"><label>{{ __('Sconto') }} <input class="form-control" wire:model="discount" inputmode="decimal"></label>
+<label><input class="form-check-input" type="checkbox" wire:model="percentage"> {{ __('Percentuale (altrimenti €)') }}</label>
+<label>{{ __('Motivo') }} <input class="form-control" wire:model="discountReason" maxlength="255" required></label>
+<label>{{ __('IVA coperti, servizio e consegna') }} <select class="form-control" wire:model="auxiliaryVat">@foreach([0,4,5,10,22] as $vat)<option value="{{ $vat }}">{{ $vat }}%</option>@endforeach</select></label>
+<button class="ti-btn ti-btn-light" wire:loading.attr="disabled"><i class="las la-check" aria-hidden="true"></i> {{ __('Applica') }}</button></div>
+</div></form>@endif
+@if($order->pendingProposal)<p class="alert alert-info mt-4">{{ __('In attesa della risposta del cliente alla proposta di modifica. Incasso sospeso.') }}</p>@endif
 @if($order->status === 'open' && !$order->pendingProposal)
 <p class="o-muted mt-4">
 @if($activeShift)
@@ -42,27 +40,26 @@
 <p class="o-muted">{{ __('Conto bloccato dopo il primo incasso. Completa il saldo per liberare il tavolo.') }}</p>
 @endif
 @if(!$plan || $canReplaceSplit)
-<div class="o-panel mt-4">
-<h2 class="font-semibold">{{ __('Come vuoi dividere il conto?') }}</h2>
-<form wire:submit="split" class="o-toolbar mt-3">
-<label>{{ __('Dividi in') }} <input class="o-input" type="number" min="2" max="100" wire:model="shares" aria-label="{{ __('Numero paganti') }}"></label>
-<label>{{ __('Modalità') }} <select class="o-input" wire:model="splitMode"><option value="equal">{{ __('Parti uguali') }}</option><option value="items">{{ __('Ognuno paga i propri prodotti') }}</option></select></label>
+<div class="box mt-4"><div class="box-header"><h2 class="box-title">{{ __('Come vuoi dividere il conto?') }}</h2></div><div class="box-body">
+<form wire:submit="split" class="service-form-grid mt-3">
+<label>{{ __('Dividi in') }} <input class="form-control" type="number" min="2" max="100" wire:model="shares" aria-label="{{ __('Numero paganti') }}"></label>
+<label>{{ __('Modalità') }} <select class="form-control" wire:model="splitMode"><option value="equal">{{ __('Parti uguali') }}</option><option value="items">{{ __('Ognuno paga i propri prodotti') }}</option></select></label>
 <button class="ti-btn ti-btn-light" wire:loading.attr="disabled">{{ __('Prepara i paganti') }}</button>
 </form>
 <p class="o-muted">{{ __('Le quote rimangono salvate anche ricaricando la pagina. Gli arrotondamenti sono distribuiti al centesimo. Per dividere per prodotti, prepara il piano prima del primo incasso.') }}</p>
-</div>
+</div></div>
 @endif
 @if(!$plan)
-<button class="ti-btn ti-btn-primary-full mt-4" wire:click="openPayment" wire:loading.attr="disabled">{{ __('Registra incasso ·') }} {{ number_format($balance/100,2,',','.') }} €</button>
+<button class="ti-btn ti-btn-primary-full mt-4" wire:click="openPayment" wire:loading.attr="disabled"><i class="las la-cash-register" aria-hidden="true"></i> {{ __('Registra incasso ·') }} {{ number_format($balance/100,2,',','.') }} €</button>
 <p class="o-muted mt-2">{{ __('Contanti, carta e buoni pasto nello stesso incasso. Puoi registrare anche un acconto senza dividere il conto.') }}</p>
 @endif
 <p class="o-muted mt-3">{{ __('Registra pagamenti già ricevuti: l’app non esegue addebiti su carte o POS.') }}</p>
 <div class="o-row mt-5">
 @if($order->fulfillment === 'dine_in' && auth()->user()->can(\App\Services\Personnel\PersonnelPermissionsService::ORDERS))
-<a class="ti-btn ti-btn-light" href="{{ route('orders.show',$order) }}">{{ __('Apri comanda') }}</a>
+<a class="ti-btn ti-btn-light" href="{{ route('orders.show',$order) }}"><i class="las la-external-link-alt" aria-hidden="true"></i> {{ __('Apri comanda') }}</a>
 @endif
 @if(!$order->payments->count())
-<button class="ti-btn ti-btn-danger" wire:click="cancel" wire:confirm="{{ __('Annullare l’ordine? Rimarrà nello storico. L’operazione è consentita solo prima della lavorazione.') }}" wire:loading.attr="disabled">{{ __('Annulla ordine') }}</button>
+<button class="ti-btn ti-btn-danger" wire:click="cancel" wire:confirm="{{ __('Annullare l’ordine? Rimarrà nello storico. L’operazione è consentita solo prima della lavorazione.') }}" wire:loading.attr="disabled"><i class="las la-ban" aria-hidden="true"></i> {{ __('Annulla ordine') }}</button>
 @endif
 </div>
 @endif
@@ -83,7 +80,7 @@
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem">
 @foreach($plan->shares as $share)
 @php($shareBalance = $share->balanceCents())
-<section class="o-panel" wire:key="bill-share-{{ $share->id }}" aria-label="{{ $share->displayLabel() }}">
+<section class="box" wire:key="bill-share-{{ $share->id }}" aria-label="{{ $share->displayLabel() }}"><div class="box-body">
 <div class="o-row"><strong>{{ $share->displayLabel() }}</strong><span class="o-badge">{{ $share->paidCents() > 0 ? __('Pagato') : ($share->amount_cents > 0 ? __('Da incassare') : __('Nessun importo')) }}</span></div>
 <p class="text-xl font-semibold mt-3">{{ number_format($share->amount_cents/100,2,',','.') }} €</p>
 <p class="o-muted">{{ __('Incassato') }} {{ number_format($share->paidCents()/100,2,',','.') }} {{ __('€ · Residuo') }} {{ number_format($shareBalance/100,2,',','.') }} €</p>
@@ -94,16 +91,16 @@
 <p class="o-line">{{ $product['quantity'] }} × {{ $product['name'] }} <strong>{{ number_format($product['amount_cents']/100,2,',','.') }} €</strong></p>
 @endforeach
 @if($order->status === 'open' && !$order->pendingProposal && $splitCurrent)
-<div class="o-toolbar mt-3">
+<div class="service-form-grid mt-3">
 @if($plan->mode === 'items' && !$share->is_remainder && !$share->paidCents() && !$remainderPaid)
-<button class="ti-btn ti-btn-light" wire:click="openAssignment('{{ $share->id }}')" wire:loading.attr="disabled">{{ __('Scegli prodotti') }}</button>
+<button class="ti-btn ti-btn-light" wire:click="openAssignment('{{ $share->id }}')" wire:loading.attr="disabled"><i class="las la-user-edit" aria-hidden="true"></i> {{ __('Scegli prodotti') }}</button>
 @endif
 @if($shareBalance > 0)
-<button class="ti-btn ti-btn-primary-full" wire:click="openPayment('{{ $share->id }}')" wire:loading.attr="disabled">{{ $share->is_remainder ? __('Incassa rimanenza') : __('Incassa quota') }}</button>
+<button class="ti-btn ti-btn-primary-full" wire:click="openPayment('{{ $share->id }}')" wire:loading.attr="disabled"><i class="las la-cash-register" aria-hidden="true"></i> {{ $share->is_remainder ? __('Incassa rimanenza') : __('Incassa quota') }}</button>
 @endif
 </div>
 @endif
-</section>
+</div></section>
 @endforeach
 </div>
 </div>
@@ -126,8 +123,8 @@
 <p class="o-muted mt-3">{{ __('Nessun pagamento ancora registrato.') }}</p>
 @endforelse
 </div>
-</div>
-<details class="o-panel mt-4">
+</div></div>
+<details class="box service-details mt-4">
 <summary class="font-semibold cursor-pointer">{{ __('Storico operazioni') }}</summary>@foreach($order->events as $event)<div class="o-line">
 <strong>{{ __('orders.events.'.$event->action) }}</strong>
 <span class="o-muted"> · {{ $event->created_at->format('d/m/Y H:i:s') }} · {{ $event->user?->name ?? __('Sistema') }}</span>@if($event->details)<p class="o-muted">@foreach(collect($event->details)->only(['course','covers','product','quantity','notes','status','amount_cents','method','payer']) as $key=>$value){{ __('orders.details.'.$key) }}: {{ $key === 'amount_cents' ? number_format($value/100,2,',','.').' €' : ($key === 'status' ? (['queued'=>__('Da fare'),'preparing'=>__('In preparazione'),'ready'=>__('Pronto'),'served'=>__('Servito')][$value] ?? $value) : ($key === 'method' ? (['manual'=>__('Manuale'),'cash'=>__('Contanti'),'card'=>__('Carta'),'voucher'=>__('Buono'),'mixed'=>__('Misto')][$value] ?? $value) : $value)) }}@if(!$loop->last) · @endif @endforeach
@@ -136,5 +133,6 @@
 </details>
 @include('orders.cash-payment-modal')
 @include('orders.cash-assignment-modal')
+</x-orders.workspace>
 </div>
 </div>

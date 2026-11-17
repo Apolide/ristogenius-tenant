@@ -1,5 +1,5 @@
-<div style="overflow:auto">
-<table class="o-table">
+<div class="table-responsive">
+<table class="table ti-custom-table w-full">
 <thead>
 <tr>
 <th>{{ __('Uscita / Prodotto') }}</th>

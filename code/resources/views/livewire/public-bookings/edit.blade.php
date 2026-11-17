@@ -1,5 +1,4 @@
-<div>
-    @include('livewire.public-bookings.partials.header')
+<x-public.page :language="$language" :language-urls="$languageUrls" language-select-id="booking-language">
     <section class="box"><div class="box-header"><h2 class="box-title">{{ __('public_bookings.edit_title') }}</h2></div><div class="box-body">
         @if ($errors->any())<div class="alert alert-danger mb-5">{{ $errors->first() }}</div>@endif
         <form wire:submit="save">
@@ -12,4 +11,4 @@
             <div class="flex flex-wrap gap-3 mt-6"><button type="submit" class="ti-btn ti-btn-primary">{{ __('public_bookings.save_changes') }}</button>@if($canCancel)<button type="button" wire:click="cancelBooking" wire:confirm="{{ __('public_bookings.cancel_booking_confirm') }}" class="ti-btn ti-btn-danger-full">{{ __('public_bookings.cancel_booking') }}</button>@endif<a href="{{ $viewUrl }}" class="ti-btn ti-btn-light">{{ __('public_bookings.cancel') }}</a></div>
         </form>
     </div></section>
-</div>
+</x-public.page>

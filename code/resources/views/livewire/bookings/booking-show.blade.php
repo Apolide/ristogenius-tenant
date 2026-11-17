@@ -1,4 +1,10 @@
 <div class="content"><div class="main-content">
+        <div class="box"><div class="box-body">
+        @if($usage=$booking->couponUsage)<p><strong>{{ __('marketing.coupon') }}: {{ $usage->snapshot['translations'][app()->getLocale()]['title'] ?? $usage->snapshot['name'] }}</strong></p><p>{{ __('marketing.personal_notice') }}</p>
+        @else @if($booking->customer_id)<form wire:submit="applyCoupon" class="flex flex-wrap gap-3"><label>{{ __('marketing.coupon') }}<select class="form-control" wire:model="couponAssignmentId"><option value="">—</option>@foreach(\App\Models\CouponAssignment::where('customer_id',$booking->customer_id)->whereNull('revoked_at')->get() as $a)<option value="{{ $a->id }}">{{ $a->snapshot['translations'][app()->getLocale()]['title'] ?? $a->snapshot['name'] }}</option>@endforeach</select></label><label>{{ __('marketing.children') }}<input class="form-control" type="number" min="0" wire:model="couponChildren"></label><button class="ti-btn ti-btn-light">{{ __('marketing.apply_coupon') }}</button></form>@endif @endif
+        @error('coupon')<p class="text-danger">{{ $message }}</p>@enderror
+        </div></div>
+
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5><nav class="text-xs"><a class="text-primary" href="/">{{ __('Home') }}</a> / {{ __('bookings.detail') }}</nav></div>
         <a href="{{ route('bookings.show', $booking) }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Aggiorna') }}"><i class="las text-xl la-redo-alt"></i></a>

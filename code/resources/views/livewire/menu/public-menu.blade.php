@@ -33,6 +33,7 @@
         }
     </style>
 
+    @if($coupons->isNotEmpty())<section class="mx-auto max-w-5xl px-5 py-4" aria-label="{{ __('marketing.coupons') }}"><h2 class="font-semibold">{{ __('marketing.coupons') }}</h2><div class="flex flex-wrap gap-3 mt-2">@foreach($coupons as $coupon)<a class="rounded border bg-white px-4 py-3" href="{{ route('coupons.public',['language'=>$language,'coupon'=>$coupon->slug]) }}">{{ $coupon->title($language) }}</a>@endforeach</div></section>@endif
     <header class="dm-hero relative min-h-[21rem] overflow-hidden text-white">
         @if($menu->image_path)
             <img src="{{ Storage::url($menu->image_path) }}" alt="" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high">

@@ -1,5 +1,6 @@
 <div class="content">
     <div class="main-content">
+        <a class="ti-btn ti-btn-light mb-4" href="{{ route('settings.marketing') }}">{{ __('marketing.settings') }}</a>
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
                 <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('reservation_settings.index.title') }}</h5>

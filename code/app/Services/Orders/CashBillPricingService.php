@@ -10,20 +10,7 @@ class CashBillPricingService
     public function snapshot(Order $order): array
     {
         $totals = app(CashTotalsService::class)->snapshot($order);
-        $lines = [];
-        foreach ($order->items()->whereNull('order_courses.rejected_at')->orderBy('order_items.id')->get() as $item) {
-            $lines[] = ['id' => $item->id, 'name' => $item->product_name, 'quantity' => (int) $item->quantity,
-                'gross_cents' => (int) ($item->quantity * $item->unit_price_cents), 'rate' => (int) $item->vat];
-        }
-        if ($order->covers > 0 && $order->cover_price_cents > 0) {
-            $lines[] = ['id' => 'covers', 'name' => 'Coperto', 'quantity' => (int) $order->covers,
-                'gross_cents' => (int) ($order->covers * $order->cover_price_cents), 'rate' => (int) $order->auxiliary_vat];
-        }
-        foreach (['delivery' => ['Consegna', (int) $order->delivery_fee_cents], 'service' => ['Servizio', $order->serviceFeeCents()]] as $key => [$name, $amount]) {
-            if ($amount > 0) {
-                $lines[] = ['id' => $key, 'name' => $name, 'quantity' => 1, 'gross_cents' => $amount, 'rate' => (int) $order->auxiliary_vat];
-            }
-        }
+        $lines = app(CashTotalsService::class)->lines($order);
         $this->check(count($lines) <= 1000 && array_sum(array_column($lines, 'quantity')) <= 10000, __('Troppi prodotti per la ripartizione per articolo.'));
         $this->check(array_sum(array_column($lines, 'gross_cents')) === (int) $totals['gross_cents'], __('Le righe non coincidono con il conto salvato.'));
         $units = [];
@@ -46,7 +33,7 @@ class CashBillPricingService
                 }
             }
             foreach ($group as $key => $line) {
-                $net = $line['gross_cents'] - $allocated[$key];
+                $net = $line['gross_cents'] - ($totals['line_discounts'][$line['id']] ?? $allocated[$key]);
                 $base = intdiv($net, $line['quantity']);
                 $remainder = $net % $line['quantity'];
                 for ($i = 0; $i < $line['quantity']; $i++) {

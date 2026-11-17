@@ -11,6 +11,11 @@ class CustomerService
 {
     public function getCustomers(array $filters = []): LengthAwarePaginator
     {
+        return $this->query($filters)->paginate(10)->withQueryString();
+    }
+
+    public function query(array $filters = []): Builder
+    {
         return Customer::query()
             ->with(['region', 'province', 'comune'])
             ->when($this->filled($filters, 'search'), function (Builder $query) use ($filters) {
@@ -42,9 +47,7 @@ class CustomerService
             ->when($this->filled($filters, 'birthMonth'), fn (Builder $query) => $query->whereMonth('birthdate', (int) $filters['birthMonth']))
             ->when($this->filled($filters, 'birthDay'), fn (Builder $query) => $query->whereDay('birthdate', (int) $filters['birthDay']))
             ->orderByDesc('last_action_at')
-            ->orderByDesc('created_at')
-            ->paginate(10)
-            ->withQueryString();
+            ->orderByDesc('created_at');
     }
 
     public function getCustomerById(string $id): Customer

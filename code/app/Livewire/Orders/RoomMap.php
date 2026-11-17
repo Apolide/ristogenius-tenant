@@ -43,6 +43,21 @@ class RoomMap extends Component
         $this->roomId = $this->roomId ?: (string) Room::where('active', true)->orderBy('order')->value('id');
     }
 
+    public function previousDay(): void
+    {
+        $this->date = \Carbon\Carbon::parse($this->date)->subDay()->toDateString();
+    }
+
+    public function nextDay(): void
+    {
+        $this->date = \Carbon\Carbon::parse($this->date)->addDay()->toDateString();
+    }
+
+    public function selectToday(): void
+    {
+        $this->date = today()->toDateString();
+    }
+
     public function selectTable(string $id): void
     {
         $table = RoomTable::where('room_id', $this->roomId)->findOrFail($id);

@@ -33,3 +33,8 @@ Schedule::command('customer-orders:prune-access')->dailyAt('03:45')->withoutOver
 Schedule::command('fiscal:sync-invoices')->everyFiveMinutes()->withoutOverlapping();
 
 Schedule::command('fiscal:queue-copies')->everyMinute()->withoutOverlapping();
+
+Artisan::command('marketing:dispatch-due', function () {
+    $this->info((string) app(\App\Services\Marketing\CampaignService::class)->dispatchDue());
+})->purpose('Queue due marketing campaign deliveries');
+Schedule::command('marketing:dispatch-due')->everyMinute()->withoutOverlapping();

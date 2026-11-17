@@ -93,7 +93,7 @@ class Order extends Model
     {
         return $this->cash_snapshot !== null
             ? (int) $this->cash_snapshot['discount_cents']
-            : min((int) $this->discount_cents, $this->grossCents());
+            : (int) app(\App\Services\Orders\CashTotalsService::class)->snapshot($this)['discount_cents'];
     }
 
     public function balanceCents(): int
@@ -107,7 +107,7 @@ class Order extends Model
             return (int) $this->cash_snapshot['total_cents'];
         }
 
-        return max(0, $this->grossCents() - (int) $this->discount_cents);
+        return (int) app(\App\Services\Orders\CashTotalsService::class)->snapshot($this)['total_cents'];
     }
 
     public function grossCents(): int

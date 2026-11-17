@@ -148,6 +148,6 @@ class PublicBookingEdit extends Component
             'viewUrl' => $urls->view($this->booking, $this->language),
             'slots' => $bookings->availableSlots($this->booking_date, $this->pax, $this->booking->id),
             'canCancel' => in_array($this->booking->status, self::CUSTOMER_CANCELABLE_STATUSES, true),
-        ])->layout('layouts.customer-booking', ['title' => __('public_bookings.edit_title')]);
+        ])->layout('layouts.customer-booking', ['title' => __('public_bookings.edit_title'), 'fullWidth' => true]);
     }
 }
