@@ -511,6 +511,31 @@ class CampaignsAndCouponsTest extends TestCase
         $this->assertStringContainsString('https://ristogenius.com', $clean);
     }
 
+    public function test_campaign_and_coupon_editors_accept_greek_content(): void
+    {
+        config(['tenant.customer_languages' => 'it,en,gr']);
+
+        Livewire::test(CampaignEdit::class)
+            ->assertSee('Ελληνικά')
+            ->set('data.name', 'Campagna greca')
+            ->set('data.enabled_languages', ['gr'])
+            ->set('data.translations.gr.subject', 'Νέα από το εστιατόριο')
+            ->set('data.translations.gr.html', '<p>Σας περιμένουμε!</p>')
+            ->call('save')->assertHasNoErrors();
+
+        Livewire::test(CouponEdit::class)
+            ->assertSee('Ελληνικά')
+            ->set('data.name', 'Offerta greca')
+            ->set('data.slug', 'offerta-greca')
+            ->set('data.enabled_languages', ['gr'])
+            ->set('data.translations.gr.title', 'Ειδική προσφορά')
+            ->set('data.translations.gr.description', '<p>Κερδίστε έκπτωση.</p>')
+            ->call('save')->assertHasNoErrors();
+
+        $this->assertSame('Νέα από το εστιατόριο', MarketingCampaign::sole()->translations['gr']['subject']);
+        $this->assertSame('Ειδική προσφορά', Coupon::sole()->translations['gr']['title']);
+    }
+
     public function test_coupon_editor_saves_and_preserves_unlimited_uses(): void
     {
         Livewire::test(CouponEdit::class)->set('data.name', 'New')->set('data.slug', 'new-coupon')->set('data.enabled_languages', ['en'])->set('data.translations.en.title', 'New offer')->set('data.translations.en.description', '<p>Description</p>')->set('usageMode', 'unlimited')->call('save')->assertHasNoErrors();

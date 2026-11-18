@@ -51,7 +51,7 @@ class ManagementPagesLocalizationTest extends TestCase
         }
         $this->get(route('customers-orders.show', $order))->assertOk()->assertSee($labels['detail']);
         Livewire::actingAs($admin)->test(IngredientIndex::class)->call('create')
-            ->assertSee($labels['ingredient_dialog'])->call('save')->assertHasErrors('nameIt');
+            ->assertSee($labels['ingredient_dialog'])->call('save')->assertHasErrors('name.it');
     }
 
     public static function languages(): array

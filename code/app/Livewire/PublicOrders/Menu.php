@@ -101,7 +101,8 @@ class Menu extends Component
     private function context(): DigitalMenu
     {
         $menu = DigitalMenu::findOrFail($this->menuId);
-        abort_unless($menu->is_published && $menu->is_visible && in_array($this->language, $menu->enabled_languages, true), 404);
+        abort_unless($menu->is_published && $menu->is_visible && in_array($this->language, $menu->enabled_languages, true)
+            && isset(app(CustomerLanguageService::class)->enabled()[$this->language]), 404);
         if ($this->tableToken) {
             RoomTable::where('ordering_token', $this->tableToken)->whereHas('room', fn ($q) => $q->where('active', true))->firstOrFail();
         } else {
@@ -242,7 +243,7 @@ class Menu extends Component
             'neighborhoods' => CustomerOrderNeighborhood::where('active', true)->orderBy('name')->get(),
             'slots' => $this->tableToken ? [] : app(AvailabilityService::class)->slots($this->date, $this->type),
             'branding' => app(TenantBrandingService::class)->branding(),
-            'languages' => collect($menu->enabled_languages)->mapWithKeys(fn ($code) => [$code => app(CustomerLanguageService::class)->meta($code)])->all(),
+            'languages' => array_intersect_key(app(CustomerLanguageService::class)->enabled(), array_flip($menu->enabled_languages)),
         ])->layout('layouts.digital-menu')->title($menu->translatedName($this->language));
     }
 }

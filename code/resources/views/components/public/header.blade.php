@@ -17,7 +17,7 @@
                     >
                         @foreach ($languageUrls as $code => $url)
                             @php($meta = app(\App\Services\CustomerLanguageService::class)->meta($code))
-                            <option value="{{ $url }}" @selected($language === $code)>{{ $meta['flag'] }} {{ strtoupper($code) }}</option>
+                            <option value="{{ $url }}" @selected($language === $code)>{{ $meta['flag'] }} {{ $meta['label'] }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -1,11 +1,13 @@
+@php($pickerLocale = $language !== 'en' && is_file(public_path("assets/libs/flatpickr/l10n/{$language}.js")) ? $language : 'default')
+
 @once
     @push('styles')
         <link rel="stylesheet" href="/assets/libs/flatpickr/flatpickr.min.css">
     @endpush
     @push('scripts')
         <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
-        @if (in_array($language, ['it', 'de'], true))
-            <script src="/assets/libs/flatpickr/l10n/{{ $language }}.js"></script>
+        @if ($pickerLocale !== 'default')
+            <script src="/assets/libs/flatpickr/l10n/{{ $pickerLocale }}.js"></script>
         @endif
     @endpush
 @endonce
@@ -23,7 +25,7 @@
                @if ($enabledDates !== null)
                enable: @js($enabledDates),
                @endif
-               locale: @js(in_array($language, ['it', 'de'], true) ? $language : 'default'),
+               locale: @js($pickerLocale),
                disableMobile: true,
                onDayCreate: (date, dateString, instance, dayElement) => {
                    if (@js($enabledDates !== null) && !dayElement.classList.contains('flatpickr-disabled')) {

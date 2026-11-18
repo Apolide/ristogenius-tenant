@@ -53,7 +53,7 @@
                                             @keydown.arrow-right.prevent="language = '{{ $languageCodes[($loop->index + 1) % $loop->count] }}'; $nextTick(() => document.getElementById('fidelity-tab-' + language).focus())"
                                             class="ti-btn !mb-0 inline-flex items-center gap-2 rounded-lg !px-4 !py-2 text-sm font-semibold transition"
                                             :class="language === '{{ $code }}' ? 'ti-btn-primary-full shadow-sm' : 'ti-btn-light text-defaulttextcolor'">
-                                            <span aria-hidden="true">{{ $meta['flag'] }}</span>{{ $meta['label'] }}
+                                            <x-language-label :meta="$meta" />
                                         </button>
                                     @endforeach
                                 </div>

@@ -9,7 +9,7 @@
    </tbody></table></div><div class="mt-4">{{ $ingredients->links() }}</div></div></div>
   @if($showForm)
       <div class="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-black/50 px-3 pb-3 pt-20 sm:px-4 sm:pb-4" wire:click.self="$set('showForm', false)">
-          <div x-data="{ activeLanguage: 'it' }" class="box flex max-h-[calc(100dvh-6rem)] w-full max-w-5xl flex-col overflow-hidden !mb-0">
+          <div x-data="{ activeLanguage: '{{ $defaultLanguage }}' }" class="box flex max-h-[calc(100dvh-6rem)] w-full max-w-5xl flex-col overflow-hidden !mb-0">
               <div class="box-header z-10 flex shrink-0 items-center justify-between gap-4 border-b border-defaultborder bg-white dark:bg-bodybg">
                   <h3 class="box-title !mb-0">{{ $editingId ? __('menu.ingredients.edit_ingredient') : __('menu.ingredients.new_ingredient') }}</h3>
                   <button type="button" wire:click="$set('showForm', false)" class="ti-btn ti-btn-icon ti-btn-light ms-auto shrink-0 !mb-0" aria-label="{{ __('menu.common.close') }}">
@@ -28,37 +28,26 @@
 
                           <div class="-mx-1 overflow-x-auto px-1">
                               <nav role="tablist" aria-label="{{ __('menu.ingredients.ingredient_languages') }}" class="--prevent-on-load-init flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
-                                  @foreach ([
-                                      'it' => ['flag' => '🇮🇹', 'label' => 'Italiano'],
-                                      'en' => ['flag' => '🇬🇧', 'label' => 'English'],
-                                      'de' => ['flag' => '🇩🇪', 'label' => 'Deutsch'],
-                                  ] as $language => $meta)
+                                  @foreach($languageMeta as $language => $meta)
                                       <button type="button" role="tab"
                                               :aria-selected="activeLanguage === '{{ $language }}'"
                                               @click="activeLanguage = '{{ $language }}'"
                                               class="ti-btn !mb-0 inline-flex items-center justify-center gap-2 rounded-lg !px-4 !py-2 text-sm font-semibold transition"
                                               :class="activeLanguage === '{{ $language }}' ? 'ti-btn-primary-full shadow-sm' : 'ti-btn-light text-defaulttextcolor'">
-                                          <span>{{ $meta['flag'] }}</span>
-                                          <span>{{ $meta['label'] }}</span>
+                                          <x-language-label :meta="$meta" />
                                       </button>
                                   @endforeach
                               </nav>
                           </div>
 
                           <div class="mt-3 rounded border border-defaultborder bg-defaultbackground p-3">
-                              <div x-cloak x-show="activeLanguage === 'it'" x-transition.opacity role="tabpanel">
-                                  <label for="ingredient-name-it" class="sr-only">{{ __('menu.ingredients.name_in_italian') }}</label>
-                                  <input id="ingredient-name-it" wire:model="nameIt" class="form-control" autocomplete="off">
-                                  @error('nameIt')<span class="mt-1 block text-xs text-danger">{{ $message }}</span>@enderror
+                              @foreach($languageMeta as $language => $meta)
+<div x-cloak x-show="activeLanguage === '{{ $language }}'" x-transition.opacity role="tabpanel">
+                                  <label for="ingredient-name-{{ $language }}" class="sr-only">{{ __('menu.common.name') }} ({{ $meta['label'] }})</label>
+                                  <input id="ingredient-name-{{ $language }}" wire:model="name.{{ $language }}" class="form-control" autocomplete="off">
+                                  @error('name.'.$language)<span class="mt-1 block text-xs text-danger">{{ $message }}</span>@enderror
                               </div>
-                              <div x-cloak x-show="activeLanguage === 'en'" x-transition.opacity role="tabpanel">
-                                  <label for="ingredient-name-en" class="sr-only">{{ __('menu.ingredients.name_in_english') }}</label>
-                                  <input id="ingredient-name-en" wire:model="nameEn" class="form-control" autocomplete="off">
-                              </div>
-                              <div x-cloak x-show="activeLanguage === 'de'" x-transition.opacity role="tabpanel">
-                                  <label for="ingredient-name-de" class="sr-only">{{ __('menu.ingredients.name_in_german') }}</label>
-                                  <input id="ingredient-name-de" wire:model="nameDe" class="form-control" autocomplete="off">
-                              </div>
+@endforeach
                           </div>
                       </section>
 

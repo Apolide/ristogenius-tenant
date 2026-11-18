@@ -2,6 +2,8 @@
 
 namespace App\Services\Personnel;
 
+use App\Services\CustomerLanguageService;
+
 class PersonnelService
 {
     public const DEFAULT_LANGUAGE = 'it';
@@ -26,7 +28,7 @@ class PersonnelService
      */
     public function languages(): array
     {
-        return collect((array) config('tenant.backend_languages', []))
+        return collect(app(CustomerLanguageService::class)->backend())
             ->mapWithKeys(fn (array $meta, string $code): array => [
                 $code => trim(($meta['flag'] ?? '').' '.($meta['label'] ?? strtoupper($code))),
             ])

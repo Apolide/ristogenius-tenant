@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\FidelityProgram;
 use App\Models\FidelityReward;
-use App\Services\CustomerLanguageService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +21,7 @@ class FidelityCardSeeder extends Seeder
                 'balance_subject' => 'balance_subject',
                 'balance_body' => 'balance_body',
             ];
-            foreach (array_keys(CustomerLanguageService::LANGUAGES) as $language) {
+            foreach (array_keys(config('locales')) as $language) {
                 foreach ($fields as $field => $translation) {
                     $copy[$language][$field] = $program->copyFor($field, $language) ?? __('fidelity.'.$translation, [], $language);
                 }

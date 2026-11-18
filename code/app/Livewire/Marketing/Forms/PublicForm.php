@@ -68,7 +68,8 @@ class PublicForm extends Component
 
     public function mount(MarketingForm $form, string $language): void
     {
-        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
+        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true)
+            && isset(app(CustomerLanguageService::class)->enabled()[$language]), 404);
         $this->form = $form;
         $this->idempotencyKey = (string) \Illuminate\Support\Str::uuid();
         $this->language = $language;

@@ -1,4 +1,4 @@
-<div class="content"><div class="main-content" x-data="{ language: 'it' }">
+<div class="content"><div class="main-content" x-data="{ language: '{{ array_key_first($languageMeta) }}' }">
 <div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('coupons.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('marketing.coupons') }}</a><h5 class="page-title">{{ __('marketing.coupon_editor') }}</h5></div>
 @include('marketing.errors')
 @if($coupon && $coupon->assigned_count)<p class="alert alert-info">{{ __('marketing.version_notice') }}</p>@endif
@@ -14,7 +14,7 @@
 </div></div>
 <div class="box"><div class="box-header"><h2 class="box-title">{{ __('marketing.language') }}</h2></div><div class="box-body space-y-6">
 @include('livewire.marketing.partials.language-tabs')
-@foreach(['it','en','de'] as $l)<section x-show="language==='{{ $l }}'" @if($l!=='it') x-cloak @endif role="tabpanel" id="marketing-panel-{{ $l }}" aria-labelledby="marketing-tab-{{ $l }}" class="space-y-4 border border-defaultborder rounded p-4">
+@foreach(array_keys($languageMeta) as $l)<section x-show="language==='{{ $l }}'" @unless($loop->first) x-cloak @endunless role="tabpanel" id="marketing-panel-{{ $l }}" aria-labelledby="marketing-tab-{{ $l }}" class="space-y-4 border border-defaultborder rounded p-4">
 <label class="block mb-2 font-medium">{{ __('marketing.title') }}<input class="form-control mt-2" wire:model="data.translations.{{ $l }}.title" maxlength="255"></label>
 <label class="block mb-2 font-medium">{{ __('marketing.description') }}</label><x-marketing.editor path="data.translations.{{ $l }}.description" :value="$data['translations'][$l]['description'] ?? ''"/>
 <label class="block mb-2 font-medium">{{ __('marketing.terms') }}</label><x-marketing.editor path="data.translations.{{ $l }}.terms" :value="$data['translations'][$l]['terms'] ?? ''"/>

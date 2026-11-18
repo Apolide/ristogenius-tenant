@@ -7,6 +7,7 @@ use App\Models\CouponAssignment;
 use App\Models\DigitalMenu;
 use App\Models\DigitalMenuProduct;
 use App\Models\MarketingForm;
+use App\Services\CustomerLanguageService;
 use App\Services\Marketing\CouponService;
 use App\Services\Marketing\MarketingAccess;
 use App\Services\Marketing\MarketingContent;
@@ -59,11 +60,13 @@ class CouponEdit extends Component
         if (is_string($coupon)) {
             $coupon = Coupon::findOrFail($coupon);
         }
-        $this->data = ['name' => '', 'slug' => '', 'translations' => array_fill_keys(['it', 'en', 'de'], ['title' => '', 'description' => '', 'terms' => '']), 'enabled_languages' => ['it', 'en', 'de'], 'rules' => ['weekdays' => [], 'min_pax' => 1, 'max_pax' => null, 'max_uses' => 1],
+        $languages = array_keys(app(CustomerLanguageService::class)->enabled());
+        $this->data = ['name' => '', 'slug' => '', 'translations' => array_fill_keys($languages, ['title' => '', 'description' => '', 'terms' => '']), 'enabled_languages' => $languages, 'rules' => ['weekdays' => [], 'min_pax' => 1, 'max_pax' => null, 'max_uses' => 1],
             'benefit' => ['type' => 'percent', 'value' => 1000, 'product_ids' => [], 'quantity' => 1, 'quantity_basis' => 'fixed', 'basis' => 'package', 'max_discount' => null], 'fields' => CouponService::fields(), 'is_active' => false, 'show_in_menu' => false, 'marketing_form_id' => null, 'claim_until' => null, 'valid_from' => null, 'valid_until' => null, 'max_assignments' => null, 'max_total_uses' => null];
         if ($coupon?->exists) {
             $this->couponId = $coupon->id;
             $this->data = array_replace($this->data, $coupon->only(array_keys($this->data)));
+            $this->data['enabled_languages'] = array_values(array_intersect($this->data['enabled_languages'], $languages));
             $this->data['claim_until'] = $coupon->claim_until?->format('Y-m-d\TH:i');
             $this->data['valid_from'] = $coupon->valid_from?->toDateString();
             $this->data['valid_until'] = $coupon->valid_until?->toDateString();
@@ -77,16 +80,16 @@ class CouponEdit extends Component
 
     public function addOption(int $index): void
     {
-        foreach (['it', 'en', 'de'] as $l) {
+        foreach (array_keys(app(CustomerLanguageService::class)->enabled()) as $l) {
             $this->data['fields'][$index]['options'][$l][] = '';
         }
     }
 
     public function removeOption(int $index, int $option): void
     {
-        foreach (['it', 'en', 'de'] as $l) {
+        foreach (array_keys(app(CustomerLanguageService::class)->enabled()) as $l) {
             unset($this->data['fields'][$index]['options'][$l][$option]);
-            $this->data['fields'][$index]['options'][$l] = array_values($this->data['fields'][$index]['options'][$l]);
+            $this->data['fields'][$index]['options'][$l] = array_values($this->data['fields'][$index]['options'][$l] ?? []);
         }
     }
 
@@ -147,7 +150,7 @@ class CouponEdit extends Component
     public function addDraftOption(string $prefix): void
     {
         abort_unless(in_array($prefix, ['newField', 'editingField'], true), 422);
-        foreach (['it', 'en', 'de'] as $language) {
+        foreach (array_keys(app(CustomerLanguageService::class)->enabled()) as $language) {
             $this->{$prefix}['options'][$language][] = '';
         }
     }
@@ -155,9 +158,9 @@ class CouponEdit extends Component
     public function removeDraftOption(string $prefix, int $index): void
     {
         abort_unless(in_array($prefix, ['newField', 'editingField'], true), 422);
-        foreach (['it', 'en', 'de'] as $language) {
+        foreach (array_keys(app(CustomerLanguageService::class)->enabled()) as $language) {
             unset($this->{$prefix}['options'][$language][$index]);
-            $this->{$prefix}['options'][$language] = array_values($this->{$prefix}['options'][$language]);
+            $this->{$prefix}['options'][$language] = array_values($this->{$prefix}['options'][$language] ?? []);
         }
     }
 
@@ -187,7 +190,7 @@ class CouponEdit extends Component
         }
         $rules = [
             'data.name' => 'required|string|max:255', 'data.slug' => ['required', 'alpha_dash', 'max:120', Rule::unique('coupons', 'slug')->ignore($this->couponId)],
-            'data.enabled_languages' => 'required|array|min:1', 'data.enabled_languages.*' => 'in:it,en,de',
+            'data.enabled_languages' => 'required|array|min:1', 'data.enabled_languages.*' => ['required', Rule::in(array_keys(app(CustomerLanguageService::class)->enabled()))],
             'data.translations' => 'required|array', 'data.translations.*.title' => 'nullable|string|max:255', 'data.translations.*.description' => 'nullable|string|max:50000', 'data.translations.*.terms' => 'nullable|string|max:20000',
             'data.rules' => 'required|array', 'data.rules.weekdays' => 'array', 'data.rules.weekdays.*' => 'integer|between:1,7', 'data.rules.min_pax' => 'required|integer|min:1|max:1000', 'data.rules.max_pax' => 'nullable|integer|gte:data.rules.min_pax|max:1000', 'data.rules.max_uses' => 'nullable|integer|min:1|max:100000',
             'data.benefit.type' => 'required|in:gift,percent,amount,fixed_price', 'data.benefit.value' => 'required|integer|min:0|max:100000000', 'data.benefit.product_ids' => 'array', 'data.benefit.product_ids.*' => 'uuid|exists:digital_menu_products,id',
@@ -244,8 +247,8 @@ class CouponEdit extends Component
         $this->redirectRoute('coupons.edit', ['coupon' => $coupon]);
     }
 
-    public function render()
+    public function render(CustomerLanguageService $languages)
     {
-        return view('livewire.marketing.coupons.edit', ['forms' => MarketingForm::whereIn('type', ['booking', 'event'])->where('accepts_coupons', true)->get(), 'menus' => DigitalMenu::all(), 'products' => DigitalMenuProduct::orderBy('id')->get(), 'coupon' => $this->couponId ? Coupon::find($this->couponId) : null, 'assignments' => $this->couponId ? CouponAssignment::with('customer')->where('coupon_id', $this->couponId)->whereHas('customer', fn ($q) => $q->where(fn ($q) => $q->where('display_name', 'like', '%'.$this->assignmentSearch.'%')->orWhere('email', 'like', '%'.$this->assignmentSearch.'%')))->latest()->paginate(15, ['*'], 'assignmentsPage') : collect()])->title(__('marketing.coupon_editor'));
+        return view('livewire.marketing.coupons.edit', ['languageMeta' => $languages->enabled(), 'forms' => MarketingForm::whereIn('type', ['booking', 'event'])->where('accepts_coupons', true)->get(), 'menus' => DigitalMenu::all(), 'products' => DigitalMenuProduct::orderBy('id')->get(), 'coupon' => $this->couponId ? Coupon::find($this->couponId) : null, 'assignments' => $this->couponId ? CouponAssignment::with('customer')->where('coupon_id', $this->couponId)->whereHas('customer', fn ($q) => $q->where(fn ($q) => $q->where('display_name', 'like', '%'.$this->assignmentSearch.'%')->orWhere('email', 'like', '%'.$this->assignmentSearch.'%')))->latest()->paginate(15, ['*'], 'assignmentsPage') : collect()])->title(__('marketing.coupon_editor'));
     }
 }

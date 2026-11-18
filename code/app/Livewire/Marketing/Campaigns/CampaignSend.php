@@ -4,9 +4,11 @@ namespace App\Livewire\Marketing\Campaigns;
 
 use App\Models\CampaignRun;
 use App\Models\MarketingCampaign;
+use App\Services\CustomerLanguageService;
 use App\Services\Marketing\CampaignService;
 use App\Services\Marketing\MarketingAccess;
 use App\Services\Marketing\MarketingMailer;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -38,8 +40,9 @@ class CampaignSend extends Component
 
     public function testEmail(): void
     {
-        $this->validate(['testEmail' => 'required|email', 'language' => 'in:it,en,de']);
         $c = MarketingCampaign::findOrFail($this->campaignId);
+        $allowed = array_intersect($c->enabled_languages, array_keys(app(CustomerLanguageService::class)->enabled()));
+        $this->validate(['testEmail' => 'required|email', 'language' => ['required', Rule::in($allowed)]]);
         app(CampaignService::class)->validateTarget($c->snapshot(), $this->language);
         $content = app(CampaignService::class)->content($c->snapshot(), $this->language, $this->testEmail);
         app(MarketingMailer::class)->enqueue('campaign-test:'.\Illuminate\Support\Str::uuid(), $this->testEmail, $this->language, $content['subject'], '', $content['url'] ?? '', $content);

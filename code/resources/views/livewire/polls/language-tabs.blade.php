@@ -3,7 +3,7 @@
         <button type="button" role="tab" @click="language = @js($language)" :aria-selected="language === @js($language)"
                 :class="language === @js($language) ? 'ti-btn-primary-full' : 'ti-btn-light'"
                 class="ti-btn !mb-0 shrink-0">
-            {{ $meta['flag'] }} {{ $meta['label'] }}
+            <x-language-label :meta="$meta" />
         </button>
     @endforeach
 </div>

@@ -57,7 +57,7 @@ class PublicGiftCardController extends Controller
 
     private function languageUrls(CustomerLanguageService $languages): array
     {
-        $enabled = array_intersect_key($languages->enabled(), CustomerLanguageService::LANGUAGES);
+        $enabled = $languages->enabled();
 
         return array_map(
             fn (string $language) => route('gift-cards.public', $language),

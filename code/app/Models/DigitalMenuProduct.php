@@ -53,8 +53,9 @@ class DigitalMenuProduct extends Model
 
     public static function allergenLabel(string $value, string $locale): string
     {
-        foreach (['it', 'en', 'de'] as $sourceLocale) {
-            $code = array_search($value, __('menu.allergens', [], $sourceLocale), true);
+        foreach (array_keys(config('locales')) as $sourceLocale) {
+            $labels = __('menu.allergens', [], $sourceLocale);
+            $code = is_array($labels) ? array_search($value, $labels, true) : false;
 
             if ($code !== false) {
                 return __('menu.allergens.'.$code, [], $locale);

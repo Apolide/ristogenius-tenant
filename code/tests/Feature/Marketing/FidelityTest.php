@@ -123,6 +123,28 @@ class FidelityTest extends TestCase
         $this->assertModelExists($form);
     }
 
+    public function test_management_shows_greek_and_saves_its_public_copy(): void
+    {
+        $this->withoutVite();
+        config(['tenant.customer_languages' => 'it,gr', 'tenant.backend_languages' => 'it,gr']);
+        $this->admin();
+        auth()->user()->update(['lang' => 'gr']);
+
+        $this->get(route('fidelity.manage.index'))->assertOk()
+            ->assertSee('id="fidelity-tab-gr"', false)
+            ->assertSee('🇬🇷')
+            ->assertSee('Ελληνικά');
+        $this->assertSame('gr', app()->getLocale());
+
+        $this->post(route('fidelity.manage.update'), [
+            'active' => '1', 'starting_points' => 0, 'rate' => '1.00',
+            'copy' => ['gr' => ['form' => 'Αποκτήστε τη δική σας κάρτα επιβράβευσης.']],
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->get(route('fidelity.subscribe', ['language' => 'gr']))->assertOk()
+            ->assertSee('Αποκτήστε τη δική σας κάρτα επιβράβευσης.');
+    }
+
     public function test_language_tabs_configure_public_copy_and_activation_email_in_the_selected_language(): void
     {
         $this->withoutVite();

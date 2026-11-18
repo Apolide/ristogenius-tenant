@@ -5,9 +5,11 @@ namespace App\Livewire\Menu;
 use App\Models\DigitalMenu;
 use App\Models\DigitalMenuCategory;
 use App\Models\DigitalMenuProduct;
+use App\Services\CustomerLanguageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -28,17 +30,9 @@ class MenuIndex extends Component
 
     public bool $showMenuForm = false;
 
-    public string $nameIt = '';
+    public array $name = [];
 
-    public string $nameEn = '';
-
-    public string $nameDe = '';
-
-    public string $descriptionIt = '';
-
-    public string $descriptionEn = '';
-
-    public string $descriptionDe = '';
+    public array $description = [];
 
     public array $enabledLanguages = ['it'];
 
@@ -58,11 +52,7 @@ class MenuIndex extends Component
 
     public ?string $existingMenuImagePath = null;
 
-    public string $newCategoryIt = '';
-
-    public string $newCategoryEn = '';
-
-    public string $newCategoryDe = '';
+    public array $newCategory = [];
 
     public $newCategoryImage;
 
@@ -70,17 +60,9 @@ class MenuIndex extends Component
 
     public ?string $editingCategoryId = null;
 
-    public string $categoryNameIt = '';
+    public array $categoryName = [];
 
-    public string $categoryNameEn = '';
-
-    public string $categoryNameDe = '';
-
-    public string $categoryDescriptionIt = '';
-
-    public string $categoryDescriptionEn = '';
-
-    public string $categoryDescriptionDe = '';
+    public array $categoryDescription = [];
 
     public bool $categoryIsEnabled = true;
 
@@ -98,11 +80,9 @@ class MenuIndex extends Component
     {
         $menu = DigitalMenu::findOrFail($id);
         $this->menuId = $menu->id;
-        foreach (['it' => 'It', 'en' => 'En', 'de' => 'De'] as $lang => $suffix) {
-            $this->{'name'.$suffix} = $menu->name[$lang] ?? '';
-            $this->{'description'.$suffix} = $menu->description[$lang] ?? '';
-        }
-        $this->enabledLanguages = $menu->enabled_languages;
+        $this->name = $menu->name ?? [];
+        $this->description = $menu->description ?? [];
+        $this->enabledLanguages = array_values(array_intersect($menu->enabled_languages, array_keys(app(CustomerLanguageService::class)->enabled())));
         $this->isPublished = $menu->is_published;
         $this->isVisible = $menu->is_visible;
         $this->serviceCharge = (float) $menu->service_charge;
@@ -115,7 +95,10 @@ class MenuIndex extends Component
 
     public function saveMenu(): void
     {
-        $this->validate(['nameIt' => ['required', 'string', 'max:180'], 'enabledLanguages' => ['required', 'array', 'min:1'], 'enabledLanguages.*' => ['in:it,en,de'], 'serviceCharge' => ['numeric', 'min:0'], 'primaryColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'accentColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'backgroundColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'menuImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192']]);
+        $defaultLanguage = app(CustomerLanguageService::class)->default();
+        $this->validate(['name' => ['array:'.implode(',', array_keys(config('locales')))], 'name.*' => ['nullable', 'string', 'max:180'],
+            'name.'.$defaultLanguage => ['required', 'string', 'max:180'],
+            'description' => ['array:'.implode(',', array_keys(config('locales')))], 'description.*' => ['nullable', 'string', 'max:10000'], 'enabledLanguages' => ['required', 'array', 'min:1'], 'enabledLanguages.*' => [Rule::in(array_keys(app(CustomerLanguageService::class)->enabled()))], 'serviceCharge' => ['numeric', 'min:0'], 'primaryColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'accentColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'backgroundColor' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'], 'menuImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192']]);
         $imagePath = $this->existingMenuImagePath;
         if ($this->menuImage) {
             if ($imagePath) {
@@ -123,7 +106,7 @@ class MenuIndex extends Component
             }
             $imagePath = $this->menuImage->store('digital-menu/menus', 'public');
         }
-        $menu = DigitalMenu::updateOrCreate(['id' => $this->menuId], ['slug' => Str::slug($this->nameIt).($this->menuId ? '' : '-'.Str::lower(Str::random(5))), 'name' => array_filter(['it' => $this->nameIt, 'en' => $this->nameEn, 'de' => $this->nameDe]), 'description' => array_filter(['it' => $this->descriptionIt, 'en' => $this->descriptionEn, 'de' => $this->descriptionDe]), 'enabled_languages' => $this->enabledLanguages, 'theme' => ['primary' => $this->primaryColor, 'accent' => $this->accentColor, 'background' => $this->backgroundColor, 'style' => 'editorial'], 'image_path' => $imagePath, 'service_charge' => $this->serviceCharge, 'is_published' => $this->isPublished, 'is_visible' => $this->isVisible]);
+        $menu = DigitalMenu::updateOrCreate(['id' => $this->menuId], ['slug' => Str::slug($this->name[$defaultLanguage]).($this->menuId ? '' : '-'.Str::lower(Str::random(5))), 'name' => array_filter($this->name, fn ($value) => $value !== null && $value !== ''), 'description' => array_filter($this->description, fn ($value) => $value !== null && $value !== ''), 'enabled_languages' => $this->enabledLanguages, 'theme' => ['primary' => $this->primaryColor, 'accent' => $this->accentColor, 'background' => $this->backgroundColor, 'style' => 'editorial'], 'image_path' => $imagePath, 'service_charge' => $this->serviceCharge, 'is_published' => $this->isPublished, 'is_visible' => $this->isVisible]);
         $this->showMenuForm = false;
         $this->openEditor($menu->id);
         session()->flash('success', __('menu.management.menu_saved'));
@@ -151,10 +134,12 @@ class MenuIndex extends Component
 
     public function createCategory(): void
     {
-        $this->validate(['newCategoryIt' => ['required', 'string', 'max:150'], 'newCategoryImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
-        $category = DigitalMenuCategory::create(['digital_menu_id' => $this->menuId, 'name' => array_filter(['it' => $this->newCategoryIt, 'en' => $this->newCategoryEn, 'de' => $this->newCategoryDe]), 'image_path' => $this->newCategoryImage?->store('digital-menu/categories', 'public'), 'position' => DigitalMenuCategory::where('digital_menu_id', $this->menuId)->max('position') + 1]);
+        $defaultLanguage = app(CustomerLanguageService::class)->default();
+        $this->validate(['newCategory' => ['array:'.implode(',', array_keys(config('locales')))], 'newCategory.*' => ['nullable', 'string', 'max:150'],
+            'newCategory.'.$defaultLanguage => ['required', 'string', 'max:150'], 'newCategoryImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
+        $category = DigitalMenuCategory::create(['digital_menu_id' => $this->menuId, 'name' => array_filter($this->newCategory, fn ($value) => $value !== null && $value !== ''), 'image_path' => $this->newCategoryImage?->store('digital-menu/categories', 'public'), 'position' => DigitalMenuCategory::where('digital_menu_id', $this->menuId)->max('position') + 1]);
         $this->selectedCategoryId = $category->id;
-        $this->reset(['newCategoryIt', 'newCategoryEn', 'newCategoryDe', 'newCategoryImage']);
+        $this->reset(['newCategory', 'newCategoryImage']);
     }
 
     public function editCategory(string $categoryId): void
@@ -162,10 +147,8 @@ class MenuIndex extends Component
         $this->resetValidation();
         $category = DigitalMenuCategory::where('digital_menu_id', $this->menuId)->findOrFail($categoryId);
         $this->editingCategoryId = $category->id;
-        foreach (['it' => 'It', 'en' => 'En', 'de' => 'De'] as $language => $suffix) {
-            $this->{'categoryName'.$suffix} = $category->name[$language] ?? '';
-            $this->{'categoryDescription'.$suffix} = $category->description[$language] ?? '';
-        }
+        $this->categoryName = $category->name ?? [];
+        $this->categoryDescription = $category->description ?? [];
         $this->categoryIsEnabled = $category->is_enabled;
         $this->existingCategoryImagePath = $category->image_path;
         $this->reset('categoryImage');
@@ -174,13 +157,11 @@ class MenuIndex extends Component
 
     public function saveCategory(): void
     {
+        $defaultLanguage = app(CustomerLanguageService::class)->default();
         $this->validate([
-            'categoryNameIt' => ['required', 'string', 'max:150'],
-            'categoryNameEn' => ['nullable', 'string', 'max:150'],
-            'categoryNameDe' => ['nullable', 'string', 'max:150'],
-            'categoryDescriptionIt' => ['nullable', 'string', 'max:1000'],
-            'categoryDescriptionEn' => ['nullable', 'string', 'max:1000'],
-            'categoryDescriptionDe' => ['nullable', 'string', 'max:1000'],
+            'categoryName' => ['array:'.implode(',', array_keys(config('locales')))], 'categoryName.*' => ['nullable', 'string', 'max:150'],
+            'categoryName.'.$defaultLanguage => ['required', 'string', 'max:150'],
+            'categoryDescription' => ['array:'.implode(',', array_keys(config('locales')))], 'categoryDescription.*' => ['nullable', 'string', 'max:1000'],
             'categoryImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
@@ -194,8 +175,8 @@ class MenuIndex extends Component
         }
 
         $category->update([
-            'name' => array_filter(['it' => $this->categoryNameIt, 'en' => $this->categoryNameEn, 'de' => $this->categoryNameDe]),
-            'description' => array_filter(['it' => $this->categoryDescriptionIt, 'en' => $this->categoryDescriptionEn, 'de' => $this->categoryDescriptionDe]),
+            'name' => array_filter($this->categoryName, fn ($value) => $value !== null && $value !== ''),
+            'description' => array_filter($this->categoryDescription, fn ($value) => $value !== null && $value !== ''),
             'image_path' => $imagePath,
             'is_enabled' => $this->categoryIsEnabled,
         ]);
@@ -309,8 +290,8 @@ class MenuIndex extends Component
 
     private function resetMenuForm(): void
     {
-        $this->reset(['menuId', 'nameIt', 'nameEn', 'nameDe', 'descriptionIt', 'descriptionEn', 'descriptionDe', 'serviceCharge', 'isPublished', 'menuImage', 'existingMenuImagePath']);
-        $this->enabledLanguages = ['it'];
+        $this->reset(['menuId', 'name', 'description', 'serviceCharge', 'isPublished', 'menuImage', 'existingMenuImagePath']);
+        $this->enabledLanguages = [app(CustomerLanguageService::class)->default()];
         $this->isVisible = true;
         $this->primaryColor = '#0f766e';
         $this->accentColor = '#d97706';
@@ -340,11 +321,13 @@ class MenuIndex extends Component
         });
     }
 
-    public function render()
+    public function render(CustomerLanguageService $languages)
     {
         $menu = $this->menuId ? DigitalMenu::with(['categories.products.recommendations.recommendedProduct'])->find($this->menuId) : null;
 
         return view('livewire.menu.menu-index', [
+            'languageMeta' => $languages->enabled(),
+            'defaultLanguage' => $languages->default(),
             'menus' => DigitalMenu::withCount(['categories'])->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->orderBy('position')->get(),
             'menu' => $menu,
             'products' => DigitalMenuProduct::query()

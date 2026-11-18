@@ -7,11 +7,13 @@ use App\Models\Coupon;
 use App\Models\MarketingCampaign;
 use App\Models\MarketingForm;
 use App\Models\Province;
+use App\Services\CustomerLanguageService;
 use App\Services\Marketing\CampaignAudience;
 use App\Services\Marketing\CampaignService;
 use App\Services\Marketing\MarketingAccess;
 use App\Services\Marketing\MarketingContent;
 use App\Services\Marketing\MarketingSettings;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -40,10 +42,12 @@ class CampaignEdit extends Component
         if (is_string($campaign)) {
             $campaign = MarketingCampaign::findOrFail($campaign);
         }
-        $this->data = ['name' => '', 'type' => 'information', 'translations' => array_fill_keys(['it', 'en', 'de'], ['subject' => '', 'preheader' => '', 'html' => '', 'whatsapp' => '', 'telegram' => '', 'sms' => '', 'button' => '']), 'enabled_languages' => ['it', 'en', 'de'], 'target_url' => null, 'coupon_id' => null, 'marketing_form_id' => null];
+        $languages = array_keys(app(CustomerLanguageService::class)->enabled());
+        $this->data = ['name' => '', 'type' => 'information', 'translations' => array_fill_keys($languages, ['subject' => '', 'preheader' => '', 'html' => '', 'whatsapp' => '', 'telegram' => '', 'sms' => '', 'button' => '']), 'enabled_languages' => $languages, 'target_url' => null, 'coupon_id' => null, 'marketing_form_id' => null];
         if ($campaign?->exists) {
             $this->campaignId = $campaign->id;
             $this->data = array_replace($this->data, $campaign->only(array_keys($this->data)));
+            $this->data['enabled_languages'] = array_values(array_intersect($this->data['enabled_languages'], $languages));
             $this->filters = $campaign->filters ?? [];
         }
     }
@@ -85,11 +89,12 @@ class CampaignEdit extends Component
     public function save(): void
     {
         $max = app(MarketingSettings::class)->get();
-        $rules = ['data.name' => 'required|string|max:255', 'data.type' => 'in:information,coupon,booking,coupon_booking,link', 'data.enabled_languages' => 'required|array|min:1', 'data.enabled_languages.*' => 'in:it,en,de',
+        $languages = array_keys(app(CustomerLanguageService::class)->enabled());
+        $rules = ['data.name' => 'required|string|max:255', 'data.type' => 'in:information,coupon,booking,coupon_booking,link', 'data.enabled_languages' => 'required|array|min:1', 'data.enabled_languages.*' => ['required', Rule::in($languages)],
             'data.translations' => 'required|array', 'data.translations.*.subject' => 'nullable|string|max:255', 'data.translations.*.preheader' => 'nullable|string|max:255', 'data.translations.*.html' => 'nullable|string|max:100000', 'data.translations.*.button' => 'nullable|string|max:100',
             'data.translations.*.whatsapp' => ['nullable', 'string', app(MarketingContent::class)->textLength($max['whatsapp_max'])], 'data.translations.*.telegram' => ['nullable', 'string', app(MarketingContent::class)->textLength($max['telegram_max'])], 'data.translations.*.sms' => ['nullable', 'string', app(MarketingContent::class)->textLength($max['sms_max'])],
             'data.target_url' => 'nullable|url:http,https|max:2000', 'data.coupon_id' => 'nullable|uuid|exists:coupons,id', 'data.marketing_form_id' => 'nullable|uuid|exists:marketing_forms,id', 'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120', 'filters' => 'array'];
-        foreach (array_intersect((array) ($this->data['enabled_languages'] ?? []), ['it', 'en', 'de']) as $lang) {
+        foreach (array_intersect((array) ($this->data['enabled_languages'] ?? []), $languages) as $lang) {
             $rules["data.translations.$lang.subject"] = 'required|string|max:255';
             $rules["data.translations.$lang.html"] = ['required', 'string', 'max:100000', function ($attribute, $value, $fail) {
                 $text = html_entity_decode(strip_tags(app(MarketingContent::class)->clean($value)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -126,11 +131,11 @@ class CampaignEdit extends Component
         $this->redirectRoute('campaigns.edit', ['campaign' => $c]);
     }
 
-    public function render()
+    public function render(CustomerLanguageService $languages)
     {
         $campaign = $this->campaignId ? MarketingCampaign::find($this->campaignId) : null;
         $audience = app(CampaignAudience::class);
 
-        return view('livewire.marketing.campaigns.edit', ['campaign' => $campaign, 'selectedRecipients' => $campaign ? $audience->selected($campaign)->orderBy('customers.id')->paginate(15, ['customers.*'], 'selectedPage') : null, 'coupons' => Coupon::all(), 'forms' => MarketingForm::whereIn('type', ['booking', 'event'])->get(), 'limits' => app(MarketingSettings::class)->get(), 'customers' => app(CampaignAudience::class)->query($this->filters)->orderBy('customers.id')->paginate(15), 'eligibleCount' => app(CampaignAudience::class)->query($this->filters)->count(), 'provinces' => Province::orderBy('name')->get(), 'cities' => ! empty($this->filters['provinceSelected']) ? Comuni::where('province_id', $this->filters['provinceSelected'])->orderBy('name')->get() : collect()])->title(__('marketing.campaign_editor'));
+        return view('livewire.marketing.campaigns.edit', ['languageMeta' => $languages->enabled(), 'campaign' => $campaign, 'selectedRecipients' => $campaign ? $audience->selected($campaign)->orderBy('customers.id')->paginate(15, ['customers.*'], 'selectedPage') : null, 'coupons' => Coupon::all(), 'forms' => MarketingForm::whereIn('type', ['booking', 'event'])->get(), 'limits' => app(MarketingSettings::class)->get(), 'customers' => app(CampaignAudience::class)->query($this->filters)->orderBy('customers.id')->paginate(15), 'eligibleCount' => app(CampaignAudience::class)->query($this->filters)->count(), 'provinces' => Province::orderBy('name')->get(), 'cities' => ! empty($this->filters['provinceSelected']) ? Comuni::where('province_id', $this->filters['provinceSelected'])->orderBy('name')->get() : collect()])->title(__('marketing.campaign_editor'));
     }
 }

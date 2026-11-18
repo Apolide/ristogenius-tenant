@@ -8,6 +8,7 @@ use App\Models\MessageOutbox;
 use App\Models\Order;
 use App\Models\OrderCourse;
 use App\Models\User;
+use App\Services\CustomerLanguageService;
 use App\Services\Notification\NotificationService;
 use App\Services\Personnel\PersonnelPermissionsService as Permissions;
 
@@ -125,6 +126,6 @@ class OrderNotifications
     {
         $language = strtolower($language ?? 'it');
 
-        return array_key_exists($language, (array) config('tenant.backend_languages', [])) ? $language : 'it';
+        return array_key_exists($language, app(CustomerLanguageService::class)->backend()) ? $language : 'it';
     }
 }

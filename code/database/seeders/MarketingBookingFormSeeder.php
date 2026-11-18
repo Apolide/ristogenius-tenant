@@ -22,7 +22,6 @@ class MarketingBookingFormSeeder extends Seeder
         }
 
         $languages = array_keys(app(CustomerLanguageService::class)->enabled());
-        $languages = $languages ?: ['it'];
 
         $content = [
             'it' => [
@@ -36,6 +35,10 @@ class MarketingBookingFormSeeder extends Seeder
             'de' => [
                 'title' => 'Tisch reservieren',
                 'description' => 'Füllen Sie das Formular aus, um Ihre Reservierungsanfrage zu senden.',
+            ],
+            'gr' => [
+                'title' => 'Κάντε κράτηση τραπεζιού',
+                'description' => 'Συμπληρώστε τη φόρμα για να υποβάλετε το αίτημα κράτησής σας.',
             ],
             'fr' => [
                 'title' => 'Réserver une table',

@@ -70,7 +70,7 @@ Route::domain(env('DOMAIN'))->group(function () {
 
     Route::get('/privacy-policy', function (Request $request) {
         $language = strtolower((string) $request->query('language', app()->getLocale()));
-        if (! in_array($language, ['it', 'en', 'de'], true)) {
+        if (! array_key_exists($language, config('locales')) || ! view()->exists("legal.privacy-policy-{$language}")) {
             $language = 'it';
         }
         app()->setLocale($language);

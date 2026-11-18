@@ -6,6 +6,7 @@ use App\Models\CashPaymentBatch;
 use App\Models\FiscalCopyRequest;
 use App\Models\FiscalDocument;
 use App\Models\MessageOutbox;
+use App\Services\CustomerLanguageService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
@@ -56,7 +57,7 @@ class FiscalCopyService
                 $url = URL::temporarySignedRoute('fiscal-copy.download', now()->addDays(7), ['copy' => $request->id, 'document' => $doc->id]);
                 $language = \App\Models\Customer::find($request->customer_id)?->lang
                     ?: ($doc->order->customer_language ?: ($doc->order->customer?->lang ?? 'it'));
-                $language = array_key_exists($language, (array) config('tenant.backend_languages', [])) ? $language : 'it';
+                $language = array_key_exists($language, app(CustomerLanguageService::class)->backend()) ? $language : 'it';
                 $label = $doc->document_kind === 'invoice' ? __('fiscal.messages.sandbox_invoice_courtesy_copy', [], $language) : __('fiscal.messages.sandbox_receipt', [], $language);
                 $outbox = MessageOutbox::firstOrCreate(['deduplication_key' => 'fiscal-copy:'.$request->id], ['event_type' => 'fiscal_copy', 'aggregate_type' => 'fiscal_copy', 'aggregate_id' => $request->id, 'status' => 'pending', 'attempts' => 0, 'available_at' => now(),
                     'payload' => ['message_case' => 'fiscal_copy', 'deliveries' => [['recipient' => ['email' => $request->email], 'language' => $language, 'name' => '', 'subject' => $label,

@@ -12,27 +12,38 @@
         @if (session('success')) <div class="alert alert-success mb-5">{{ session('success') }}</div> @endif
         @error('field') <div class="alert alert-danger mb-5">{{ $message }}</div> @enderror
 
-        @php($firstLanguage = $form->enabled_languages[0] ?? 'it')
+        @php($firstLanguage = $enabledLanguages[0] ?? array_key_first($languageMeta))
         <form wire:submit="saveDetails" x-data="{ activeLanguage: '{{ $firstLanguage }}' }" class="box">
             <div class="box-header"><div class="box-title">{{ __('marketing_forms.form_content') }}</div></div>
             <div class="box-body space-y-6">
+                <fieldset>
+                    <legend class="mb-2 font-medium">{{ __('marketing_forms.languages') }}</legend>
+                    <div class="flex flex-wrap gap-4">
+                        @foreach ($languageMeta as $language => $meta)
+                            <label class="inline-flex items-center gap-2">
+                                <input type="checkbox" wire:model="enabledLanguages" value="{{ $language }}" class="form-check-input">
+                                <x-language-label :meta="$meta" />
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('enabledLanguages') <span class="text-danger">{{ $message }}</span> @enderror
+                    @error('enabledLanguages.*') <span class="text-danger">{{ $message }}</span> @enderror
+                </fieldset>
                 <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
                     <div role="tablist" aria-label="{{ __('marketing_forms.languages') }}" class="--prevent-on-load-init flex min-w-max gap-2 rounded-xl border border-defaultborder bg-defaultbackground p-1">
-                        @foreach ($form->enabled_languages as $language)
-                            @php($meta = $languageMeta[$language] ?? ['flag' => '🌐', 'label' => strtoupper($language)])
+                        @foreach ($languageMeta as $language => $meta)
                             <button type="button" role="tab"
                                     :aria-selected="activeLanguage === '{{ $language }}'"
                                     @click="activeLanguage = '{{ $language }}'"
                                     class="ti-btn !mb-0 inline-flex items-center justify-center gap-2 rounded-lg !px-4 !py-2 text-sm font-semibold transition"
                                     :class="activeLanguage === '{{ $language }}' ? 'ti-btn-primary-full shadow-sm' : 'ti-btn-light text-defaulttextcolor'">
-                                <span>{{ $meta['flag'] }}</span>
-                                <span>{{ $meta['label'] }}</span>
+                                <x-language-label :meta="$meta" />
                             </button>
                         @endforeach
                     </div>
                 </div>
 
-                @foreach ($form->enabled_languages as $language)
+                @foreach (array_keys($languageMeta) as $language)
                     <section x-show="activeLanguage === '{{ $language }}'" x-transition.opacity role="tabpanel" class="border border-defaultborder rounded p-4">
                         <div class="mb-4">
                             <label class="block mb-2 font-medium" for="title-{{ $language }}">{{ __('marketing_forms.form_title') }}</label>
@@ -230,7 +241,7 @@
         if (!window.tinymce) {
             console.error('TinyMCE non caricato');
         } else {
-            const languages = @js($form->enabled_languages);
+            const languages = @js(array_keys($languageMeta));
             const editorFields = @js(in_array($form->type, ['booking', 'event'], true) ? ['description', 'booking_policy'] : ['description']);
             const editorTargets = {};
 

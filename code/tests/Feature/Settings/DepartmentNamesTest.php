@@ -21,8 +21,24 @@ class DepartmentNamesTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_greek_department_names_are_available_and_searchable(): void
+    {
+        config(['tenant.backend_languages' => 'it,gr']);
+
+        Livewire::test(DepartmentCreate::class)->call('createDepartment')
+            ->assertSee('Ελληνικά')
+            ->set('name', 'Cucina')
+            ->set('nameTranslations.gr', 'Κουζίνα')
+            ->call('save')->assertHasNoErrors();
+
+        $department = Department::sole();
+        $this->assertSame('Κουζίνα', $department->translatedName('gr'));
+        $this->assertSame($department->id, app(DepartmentService::class)->getDepartments('Κουζίνα')->first()->id);
+    }
+
     public function test_translated_names_can_be_created_edited_and_cleared(): void
     {
+        config(['tenant.backend_languages' => 'it,en,de', 'tenant.customer_languages' => 'it,en,de']);
         Livewire::test(DepartmentCreate::class)->call('createDepartment')
             ->set('name', 'Cucina')->set('nameTranslations.en', ' Kitchen ')->set('nameTranslations.de', 'Küche')
             ->call('save')->assertHasNoErrors()->assertSet('nameTranslations', ['en' => '', 'de' => '']);
