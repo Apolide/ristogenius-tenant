@@ -5,7 +5,7 @@
                 <h2 id="table-picker-title" class="text-lg font-bold sm:text-xl">{{ __('bookings.tables.title') }}</h2>
                 <p class="text-xs text-textmuted">{{ __('bookings.tables.description') }}</p>
             </div>
-            <button type="button" wire:click="{{ $closeAction }}" class="ti-btn ti-btn-light ti-btn-icon !m-0" aria-label="Chiudi"><i class="las la-times text-xl"></i></button>
+            <button type="button" wire:click="{{ $closeAction }}" class="ti-btn ti-btn-light ti-btn-icon !m-0" aria-label="{{ __('bookings.close') }}"><i class="las la-times text-xl"></i></button>
         </div>
 
         <div class="mt-3">

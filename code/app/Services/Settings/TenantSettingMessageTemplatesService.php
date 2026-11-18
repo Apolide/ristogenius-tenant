@@ -189,22 +189,12 @@ class TenantSettingMessageTemplatesService
 
     public function tenantLanguages(): array
     {
-        $languages = explode(',', (string) config('tenant.customer_languages', 'it,en'));
-        $languages = array_values(array_unique(array_filter(array_map(
-            fn (string $language) => strtolower(trim($language)),
-            $languages
-        ))));
-
-        return $languages ?: ['it', 'en'];
+        return array_keys($this->languageMeta());
     }
 
     public function languageMeta(): array
     {
-        $languages = app(CustomerLanguageService::class);
-
-        return collect($this->tenantLanguages())->mapWithKeys(
-            fn (string $language): array => [$language => $languages->meta($language)]
-        )->all();
+        return app(CustomerLanguageService::class)->enabled();
     }
 
     public function messageTemplates(?string $search = null): array

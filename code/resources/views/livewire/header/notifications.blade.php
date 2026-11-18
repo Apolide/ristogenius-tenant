@@ -1,7 +1,7 @@
 <div class="header-element py-[1rem] px-[0.65rem] notifications-dropdown header-notification hs-dropdown ti-dropdown !hidden md:!flex"
 wire:ignore.self wire:poll.15s data-hs-dropdown-placement="bottom-right">
 <button id="dropdown-notification" type="button"
-  aria-label="Notifiche: {{ $unreadCount }} non lette" class="hs-dropdown-toggle relative ti-dropdown-toggle !p-0 !border-0 flex-shrink-0  !rounded-full !shadow-none align-middle text-xs">
+  aria-label="{{ __('interface.notification_count', ['count' => $unreadCount]) }}" class="hs-dropdown-toggle relative ti-dropdown-toggle !p-0 !border-0 flex-shrink-0  !rounded-full !shadow-none align-middle text-xs">
   <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" height="24px" viewBox="0 0 24 24"
     width="24px" fill="currentColor">
     <path d="M0 0h24v24H0V0z" fill="none" />
@@ -22,8 +22,8 @@ wire:ignore.self wire:poll.15s data-hs-dropdown-placement="bottom-right">
 
   <div class="menu-header-content bg-primary text-white">
     <div class="flex items-center justify-between">
-      <h6 class="mb-0 text-[.9375rem] font-semibold text-white">Notifiche</h6>
-      <button type="button" class="badge !rounded-full bg-warning !text-[0.7rem] !font-medium text-black cursor-pointer" id="mark-all-read" wire:click="markAllRead">Segna come lette</button>
+      <h6 class="mb-0 text-[.9375rem] font-semibold text-white">{{ __('interface.notifications') }}</h6>
+      <button type="button" class="badge !rounded-full bg-warning !text-[0.7rem] !font-medium text-black cursor-pointer" id="mark-all-read" wire:click="markAllRead">{{ __('interface.mark_all_read') }}</button>
       {{-- <span class="badge !rounded-full bg-warning !text-[0.7rem] !font-medium text-black">Mark All Read</span> --}}
     </div>
     {{-- <p class="dropdown-title-text subtext mb-0 text-white opacity-[0.6] pb-0 text-[0.75rem] ">You have 6
@@ -34,20 +34,23 @@ wire:ignore.self wire:poll.15s data-hs-dropdown-placement="bottom-right">
     @forelse ($notifications as $notification)
       <li class="dropdown-item px-3" wire:key="notification-{{ $notification->id }}">
         <a href="{{ $notification->url }}" wire:click.prevent="open({{ $notification->id }})" class="flex items-center gap-3 w-full py-2">
-          <span class="avatar avatar-md avatar-rounded flex-shrink-0 {{ $notification->pivot->read_at ? 'bg-light' : 'bg-success' }}">
-            <i class="la {{ str_starts_with($notification->type, 'customer_order.proposal_') ? 'la-comment' : (str_starts_with($notification->type, 'table_order.') ? 'la-utensils' : 'la-bell') }} text-[1.25rem]" aria-hidden="true"></i>
+          <span class="avatar avatar-md avatar-rounded flex-shrink-0 {{ $notification->pivot->read_at ? 'bg-secondary' : 'bg-success' }}">
+            <i class="la {{ $notification->icon() }} text-[1.25rem]" aria-hidden="true"></i>
           </span>
           <div class="min-w-0 whitespace-normal">
-            <h5 class="notification-label text-defaulttextcolor mb-1 {{ $notification->pivot->read_at ? '' : 'font-semibold' }}">{{ $notification->title }}</h5>
-            <p class="text-xs mb-1">{{ $notification->message }}</p>
-            <div class="notification-subtext">{{ $notification->created_at->diffForHumans() }}{{ $notification->pivot->read_at ? '' : ' · Non letta' }}</div>
+            <h5 class="notification-label text-defaulttextcolor mb-1 {{ $notification->pivot->read_at ? '' : 'font-semibold' }}">{{ $notification->translatedTitle() }}</h5>
+            <p class="text-xs mb-1">{{ $notification->translatedMessage() }}</p>
+            <div class="notification-subtext">{{ $notification->created_at->diffForHumans() }}{{ $notification->pivot->read_at ? '' : ' · '.__('interface.unread') }}</div>
           </div>
         </a>
       </li>
     @empty
-      <li class="px-3 py-4 text-center text-muted">Nessuna notifica</li>
+      <li class="px-3 py-4 text-center text-muted">{{ __('interface.empty') }}</li>
     @endforelse
   </ul>
-  <div class="text-center dropdown-footer text-muted text-xs py-2">Ultime 30 notifiche · {{ $unreadCount }} non lette</div>
+  <div class="text-center dropdown-footer text-muted text-xs py-2">
+    <div>{{ __('interface.notification_footer', ['count' => $unreadCount]) }}</div>
+    <a href="{{ route('notifications.index') }}" class="inline-block mt-1 font-semibold text-primary">{{ __('interface.view_all_notifications') }}</a>
+  </div>
 </div>
 </div>

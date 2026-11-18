@@ -34,20 +34,20 @@ class Shifts extends Component
     public function open(): void
     {
         app(CashShiftService::class)->open($this->cents('opening'));
-        session()->flash('order_notice', 'Turno aperto.');
+        session()->flash('order_notice', __('cash_desk.shift_opened'));
     }
 
     public function close(string $id): void
     {
         app(CashShiftService::class)->close($id, $this->cents('counted'), $this->notes);
         $this->reset('counted', 'notes');
-        session()->flash('order_notice', 'Turno chiuso e riconciliato.');
+        session()->flash('order_notice', __('cash_desk.shift_closed_and_reconciled'));
     }
 
     public function closeFiscal(string $storeId): void
     {
         app(\App\Services\Fiscal\FiscalDocumentService::class)->close($storeId);
-        session()->flash('order_notice', 'Chiusura fiscale sandbox registrata.');
+        session()->flash('order_notice', __('cash_desk.sandbox_fiscal_closing_recorded'));
     }
 
     public function render()
@@ -58,6 +58,6 @@ class Shifts extends Component
         return view('livewire.cash-desk.shifts', [
             'fiscalStores' => \App\Models\FiscalStore::where('active', true)->get(), 'active' => $active, 'breakdown' => $breakdown,
             'shifts' => CashShift::whereNotNull('closed_at')->latest('closed_at')->paginate(15),
-        ])->title('Turni di cassa');
+        ])->title(__('cash_desk.cash_shifts'));
     }
 }

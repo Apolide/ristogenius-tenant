@@ -18,6 +18,22 @@ class CustomerLanguageServiceTest extends TestCase
         $this->assertSame('🇬🇧', $languages['en']['flag']);
     }
 
+    public function test_public_and_backend_language_lists_are_independent_and_use_the_shared_catalog(): void
+    {
+        config([
+            'tenant.customer_languages' => 'EN, gr, es, en, xx',
+            'tenant.backend_languages' => 'it, gr, fr',
+        ]);
+
+        $languages = app(CustomerLanguageService::class);
+
+        $this->assertSame(['en', 'gr', 'es'], array_keys($languages->enabled()));
+        $this->assertSame(['it', 'gr', 'fr'], array_keys($languages->backend()));
+        $this->assertSame(['label' => 'Ελληνικά', 'flag' => '🇬🇷'], $languages->enabled()['gr']);
+        $this->assertSame($languages->enabled()['gr'], $languages->backend()['gr']);
+        $this->assertSame('el', $languages->htmlLocale('gr'));
+    }
+
     public function test_it_provides_safe_metadata_for_an_unknown_language(): void
     {
         $this->assertSame(

@@ -82,7 +82,7 @@
                                     @endif
 
                                     <button class="cursor-pointer ms-6 text-sm text-red-500" wire:click="confirmApiTokenDeletion({{ $token->id }})">
-                                        {{ __('Delete') }}
+                                        {{ __('interface.delete_action') }}
                                     </button>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@
 
         <x-slot name="footer">
             <x-secondary-button wire:click="$set('displayingToken', false)" wire:loading.attr="disabled">
-                {{ __('Close') }}
+                {{ __('interface.close_dialog') }}
             </x-secondary-button>
         </x-slot>
     </x-dialog-modal>
@@ -162,7 +162,7 @@
             </x-secondary-button>
 
             <x-danger-button class="ms-3" wire:click="deleteApiToken" wire:loading.attr="disabled">
-                {{ __('Delete') }}
+                {{ __('interface.delete_action') }}
             </x-danger-button>
         </x-slot>
     </x-confirmation-modal>

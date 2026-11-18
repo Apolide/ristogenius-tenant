@@ -1,5 +1,4 @@
-<div>
-    @include('livewire.public-bookings.partials.header')
+<x-public.page :language="$language" :language-urls="$languageUrls" language-select-id="booking-language">
     @if(session('success'))<div class="alert alert-success mb-5">{{ session('success') }}</div>@endif
     <section class="box"><div class="box-header"><h2 class="box-title">{{ __('public_bookings.title') }}</h2></div><div class="box-body">
         @php($status = $statusLabels[$booking->status] ?? ['color' => 'secondary'])
@@ -20,4 +19,4 @@
             <a href="{{ $editUrl }}" class="ti-btn ti-btn-warning-full mt-6">{{ __('public_bookings.edit') }}</a>
         @endunless
     </div></section>
-</div>
+</x-public.page>

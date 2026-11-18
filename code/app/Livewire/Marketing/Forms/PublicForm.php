@@ -23,11 +23,23 @@ class PublicForm extends Component
 
     public MarketingForm $form;
 
+    #[\Livewire\Attributes\Locked]
     public string $language;
 
     public array $answers = [];
 
     public bool $submitted = false;
+
+    #[\Livewire\Attributes\Locked]
+    public string $idempotencyKey;
+
+    #[\Livewire\Attributes\Locked]
+    public ?string $couponToken = null;
+
+    public function couponAssignment(): ?\App\Models\CouponAssignment
+    {
+        return $this->couponToken ? app(\App\Services\Marketing\CouponService::class)->fromToken($this->couponToken) : null;
+    }
 
     public function updatedAnswers(mixed $value, string $key): void
     {
@@ -49,11 +61,23 @@ class PublicForm extends Component
         }
     }
 
+    public function hydrate(): void
+    {
+        app()->setLocale($this->language);
+    }
+
     public function mount(MarketingForm $form, string $language): void
     {
-        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
+        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true)
+            && isset(app(CustomerLanguageService::class)->enabled()[$language]), 404);
         $this->form = $form;
+        $this->idempotencyKey = (string) \Illuminate\Support\Str::uuid();
         $this->language = $language;
+        $this->couponToken = request()->query('coupon');
+        if ($assignment = $this->couponAssignment()) {
+            abort_unless($form->accepts_coupons && ($assignment->snapshot['marketing_form_id'] ?? null) === $form->id, 404);
+            $this->answers = ['name' => $assignment->customer->display_name, 'email' => $assignment->customer->email, 'phone' => $assignment->customer->phone];
+        }
 
         if ($form->fields()->where('visible', true)->where('key', 'phone')->exists()) {
             $this->answers['phone_region'] = strtoupper((string) config('app.default_phone_region', 'IT'));
@@ -68,6 +92,7 @@ class PublicForm extends Component
 
     public function submit(PublicFormSubmissionService $submissions): void
     {
+        app()->setLocale($this->language);
         $bookingSlots = $this->bookingSlots();
         $rules = [];
         foreach ($this->form->fields()->where('visible', true)->get() as $f) {
@@ -104,6 +129,11 @@ class PublicForm extends Component
         if ($this->form->fields()->where('visible', true)->where('key', 'phone')->exists()) {
             $rules['answers.phone_region'] = ['required_with:answers.phone', Rule::in(array_column(app(PhoneCountryService::class)->countries(), 'region'))];
         }
+        if ($assignment = $this->couponAssignment()) {
+            if (($assignment->snapshot['benefit']['quantity_basis'] ?? 'fixed') === 'children') {
+                $rules['answers.children'] = 'required|integer|min:0|lte:answers.guests';
+            }
+        }
         $payload = $this->validate($rules)['answers'];
         if (array_key_exists('phone', $payload)) {
             $payload['phone'] = app(PhoneNumberService::class)->normalize($payload['phone'], $payload['phone_region'] ?? 'IT');
@@ -114,7 +144,7 @@ class PublicForm extends Component
                 $payload[$field->key] = $payload[$field->key]->store("marketing-forms/{$this->form->id}", 'local');
             }
         }
-        $submissions->submit($this->form, $payload, $this->language);
+        $submissions->submit($this->form, $payload, $this->language, $this->couponAssignment(), $this->idempotencyKey);
         $this->submitted = true;
         $this->answers = [];
     }
@@ -161,7 +191,7 @@ class PublicForm extends Component
         if ($key === 'date' && $this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
             $rules[] = function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! app(EventScheduleService::class)->dateIsAvailable($this->form, (string) $value)) {
-                    $fail('La data selezionata non è disponibile per questo evento.');
+                    $fail(__('marketing_forms.event_date_unavailable'));
                 }
             };
         }

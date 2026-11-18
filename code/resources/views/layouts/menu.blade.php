@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" dir="ltr" data-nav-layout="vertical" class="light" data-header-styles="light" data-menu-styles="light" loader="true">
+<html lang="{{ app(\App\Services\CustomerLanguageService::class)->htmlLocale() }}" dir="ltr" data-nav-layout="vertical" class="light" data-header-styles="light" data-menu-styles="light" loader="true">
 
 <head>
     <meta charset="UTF-8">

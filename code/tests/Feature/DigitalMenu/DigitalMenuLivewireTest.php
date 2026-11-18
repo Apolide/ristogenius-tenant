@@ -26,8 +26,8 @@ class DigitalMenuLivewireTest extends TestCase
     {
         Livewire::test(IngredientIndex::class)
             ->call('create')
-            ->set('nameIt', 'Burrata pugliese')
-            ->set('nameEn', 'Apulian burrata')
+            ->set('name.it', 'Burrata pugliese')
+            ->set('name.en', 'Apulian burrata')
             ->set('unit', 'pz')
             ->set('stockQuantity', 12)
             ->set('minimumQuantity', 3)
@@ -61,9 +61,9 @@ class DigitalMenuLivewireTest extends TestCase
 
         Livewire::test(ProductIndex::class)
             ->call('create')
-            ->set('nameIt', 'Polpo alla brace')
-            ->set('nameEn', 'Grilled octopus')
-            ->set('descriptionIt', 'Polpo locale e crema di patate')
+            ->set('name.it', 'Polpo alla brace')
+            ->set('name.en', 'Grilled octopus')
+            ->set('description.it', 'Polpo locale e crema di patate')
             ->set('price', 20)
             ->set('vat', 10)
             ->set('departmentId', $department->id)
@@ -82,14 +82,39 @@ class DigitalMenuLivewireTest extends TestCase
         $this->assertSame(['molluschi'], $product->allergens);
     }
 
+    public function test_product_editor_renders_saves_and_searches_greek_translations(): void
+    {
+        config(['tenant.customer_languages' => 'it,en,gr']);
+
+        Livewire::test(ProductIndex::class)
+            ->call('create')
+            ->assertSee('🇬🇷')
+            ->assertSee('Ελληνικά')
+            ->set('name.it', 'Polpo')
+            ->set('name.gr', 'Χταπόδι')
+            ->set('description.gr', 'Στη σχάρα')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $product = DigitalMenuProduct::sole();
+        $this->assertSame('Χταπόδι', $product->translatedName('gr'));
+        $this->assertSame('Στη σχάρα', $product->translatedDescription('gr'));
+        $this->assertTrue(DigitalMenuProduct::query()->whereTranslatedNameContains('ΧΤΑΠΌΔΙ')->exists());
+
+        Livewire::test(ProductIndex::class)
+            ->call('edit', $product->id)
+            ->assertSet('name.gr', 'Χταπόδι')
+            ->assertSet('description.gr', 'Στη σχάρα');
+    }
+
     public function test_product_validation_requires_an_italian_name_and_valid_price(): void
     {
         Livewire::test(ProductIndex::class)
             ->call('create')
-            ->set('nameIt', '')
+            ->set('name.it', '')
             ->set('price', -1)
             ->call('save')
-            ->assertHasErrors(['nameIt' => 'required', 'price' => 'min']);
+            ->assertHasErrors(['name.it' => 'required', 'price' => 'min']);
     }
 
     public function test_images_can_be_uploaded_for_products_menus_and_categories(): void
@@ -98,7 +123,7 @@ class DigitalMenuLivewireTest extends TestCase
 
         Livewire::test(ProductIndex::class)
             ->call('create')
-            ->set('nameIt', 'Frittura di mare')
+            ->set('name.it', 'Frittura di mare')
             ->set('price', 18)
             ->set('image', UploadedFile::fake()->image('frittura.jpg', 1200, 900))
             ->call('save')
@@ -109,11 +134,11 @@ class DigitalMenuLivewireTest extends TestCase
 
         $component = Livewire::test(MenuIndex::class)
             ->call('create')
-            ->set('nameIt', 'Menu Tramonto')
+            ->set('name.it', 'Menu Tramonto')
             ->set('menuImage', UploadedFile::fake()->image('tramonto.jpg', 1600, 900))
             ->call('saveMenu')
             ->assertHasNoErrors()
-            ->set('newCategoryIt', 'Dal mare')
+            ->set('newCategory.it', 'Dal mare')
             ->set('newCategoryImage', UploadedFile::fake()->image('mare.jpg', 1200, 600))
             ->call('createCategory')
             ->assertHasNoErrors();
@@ -126,8 +151,8 @@ class DigitalMenuLivewireTest extends TestCase
         $component
             ->call('editCategory', $category->id)
             ->assertSet('showCategoryForm', true)
-            ->set('categoryNameEn', 'From the sea')
-            ->set('categoryDescriptionIt', 'Il pescato della costa')
+            ->set('categoryName.en', 'From the sea')
+            ->set('categoryDescription.it', 'Il pescato della costa')
             ->set('categoryIsEnabled', false)
             ->set('categoryImage', UploadedFile::fake()->image('mare-nuovo.jpg', 1200, 600))
             ->call('saveCategory')
@@ -166,15 +191,15 @@ class DigitalMenuLivewireTest extends TestCase
 
         $component = Livewire::test(MenuIndex::class)
             ->call('create')
-            ->set('nameIt', 'Menu Ristorante')
-            ->set('nameEn', 'Restaurant menu')
+            ->set('name.it', 'Menu Ristorante')
+            ->set('name.en', 'Restaurant menu')
             ->set('enabledLanguages', ['it', 'en'])
             ->set('serviceCharge', 2.50)
             ->call('saveMenu')
             ->assertHasNoErrors()
             ->assertSet('mode', 'editor')
-            ->set('newCategoryIt', 'Primi')
-            ->set('newCategoryEn', 'First courses')
+            ->set('newCategory.it', 'Primi')
+            ->set('newCategory.en', 'First courses')
             ->call('createCategory');
 
         $menu = DigitalMenu::where('name->it', 'Menu Ristorante')->firstOrFail();
@@ -253,16 +278,26 @@ class DigitalMenuLivewireTest extends TestCase
         $menu = $this->menu();
         $category = DigitalMenuCategory::create(['digital_menu_id' => $menu->id, 'name' => ['it' => 'Secondi', 'en' => 'Mains'], 'position' => 0]);
         $product = $this->product('Pescato del giorno', 24);
+        $product->update(['allergens' => ['Weichtiere']]);
         $category->products()->attach($product->id, ['position' => 0, 'is_visible' => true]);
 
         $this->get(route('menu.public', ['language' => 'it', 'menu' => $menu]))
             ->assertOk()
             ->assertSee('Menu Mare')
             ->assertSee('Pescato del giorno')
+            ->assertSee('molluschi')
             ->assertSee('id="menu-language"', false)
             ->assertSee('dm-product-card', false)
             ->assertSee('dm-nav', false)
             ->assertSee(route('menu.public', ['language' => 'en', 'menu' => $menu]), false);
+
+        $settings = app(\App\Services\PublicOrders\OrderingSettings::class);
+        $settings->save(array_replace($settings->get(), ['enabled' => true]));
+        $this->get(route('menu.public', ['language' => 'en', 'menu' => $menu]))
+            ->assertOk()
+            ->assertSee('Order for pickup or delivery')
+            ->assertSee('molluscs')
+            ->assertDontSee('Ordina per ritiro o consegna');
 
         $this->get(route('menu.public', ['language' => 'de', 'menu' => $menu]))->assertNotFound();
         $menu->update(['is_published' => false]);

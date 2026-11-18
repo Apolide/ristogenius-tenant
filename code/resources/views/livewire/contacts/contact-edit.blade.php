@@ -6,7 +6,7 @@
             <div class="box-header border-none">
                 <div class="flex justify-between">
                     <div>
-                        <div class="box-title pb-0">MODIFICA {{$name}}</div>
+                        <div class="box-title pb-0">{{ __('contacts.edit') }} {{$name}}</div>
                         {{-- <p class="text-xs text-gray-500 font-normal">Gestisci i tuoi prodotti qui.</p> --}}
                     </div>
                     
@@ -19,14 +19,14 @@
                     <input hidden wire:model="contactId" type="hidden" id="contactId" name="contactId" value="{{$contactId}}">
 
                     <div class="w-full mb-5">
-                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome</label>
-                        <input disabled wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="Scegli un nome per il contatto">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('interface.name') }}</label>
+                        <input disabled wire:model="name" type="text" name="name" id="name" class="form-control" placeholder="{{ __('contacts.choose_a_contact_name') }}">
                         @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="system_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nome di sistema</label>
-                        <input disabled wire:model="system_name" type="text" name="system_name" id="system_name" class="form-control" placeholder="Nome di sistema">
+                        <label for="system_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.system_name') }}</label>
+                        <input disabled wire:model="system_name" type="text" name="system_name" id="system_name" class="form-control" placeholder="{{ __('contacts.system_name') }}">
                         @error('system_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
@@ -37,31 +37,31 @@
                     </div>
 
                     <div class="w-full mb-5">
-                        <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefono</label>
-                        <input required wire:model="phone" type="text" name="phone" id="phone" class="form-control" placeholder="Telefono">
+                        <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.phone') }}</label>
+                        <input required wire:model="phone" type="text" name="phone" id="phone" class="form-control" placeholder="{{ __('contacts.phone') }}">
                         @error('phone') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
         
                     <div class="w-full mb-5">
-                        <label for="company_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ragione sociale</label>
-                        <input required wire:model="company_name" type="text" name="company_name" id="company_name" class="form-control" placeholder="Ragione sociale">
+                        <label for="company_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.company_name') }}</label>
+                        <input required wire:model="company_name" type="text" name="company_name" id="company_name" class="form-control" placeholder="{{ __('contacts.company_name') }}">
                         @error('company_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="piva" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Partita iva</label>
-                        <input required wire:model="piva" type="text" name="piva" id="piva" class="form-control" placeholder="Partita iva">
+                        <label for="piva" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.vat_number') }}</label>
+                        <input required wire:model="piva" type="text" name="piva" id="piva" class="form-control" placeholder="{{ __('contacts.vat_number') }}">
                         @error('piva') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="w-full mb-5">
                         @if (!$this->riferimento_mandato)
-                            <button wire:click="generateRandomString" wire:loading.attr="disabled" type="button" class="ti-btn ti-btn-primary ti-btn-wave me-[0.375rem]">Genera riferimento</button>
+                            <button wire:click="generateRandomString" wire:loading.attr="disabled" type="button" class="ti-btn ti-btn-primary ti-btn-wave me-[0.375rem]">{{ __('contacts.generate_reference') }}</button>
 
                         @endif
-                        <label for="riferimento_mandato" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Riferimento mandato</label>
-                        <input required wire:model="riferimento_mandato" type="text" name="riferimento_mandato" id="riferimento_mandato" class="form-control" placeholder="Riferimento mandato">
+                        <label for="riferimento_mandato" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.mandate_reference') }}</label>
+                        <input required wire:model="riferimento_mandato" type="text" name="riferimento_mandato" id="riferimento_mandato" class="form-control" placeholder="{{ __('contacts.mandate_reference') }}">
                         @error('riferimento_mandato') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
@@ -70,9 +70,9 @@
         
                     <div class="grid md:grid-cols-3 grid-cols-1 gap-5">
                         <div class="w-full mb-5">
-                            <label for="region" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Regione @if(!$region_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
+                            <label for="region" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.region') }} @if(!$region_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
                             <select required wire:model.live="region_id" id="region" class="form-control">
-                                <option value="">-- Seleziona Regione --</option>
+                                <option value="">{{ __('contacts.select_region') }}</option>
                                 @foreach($regions as $region)
                                     <option @if($region_id == $region["id"]) selected @endif value="{{ $region['id'] }}">{{ $region['name'] }}</option>
                                 @endforeach
@@ -82,9 +82,9 @@
         
                         @if(!empty($provinces))
                             <div class="w-full mb-5">
-                                <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Provincia @if(!$province_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
+                                <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.province') }} @if(!$province_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
                                 <select @if ($province_id) disabled @else required @endif wire:model.live="province_id" id="province" class="form-control">
-                                    <option value="">-- Seleziona Provincia --</option>
+                                    <option value="">{{ __('contacts.select_province') }}</option>
                                     @foreach($provinces as $province)
                                         <option @if($province_id == $province["id"]) selected @endif value="{{ $province['id'] }}">{{ $province['name'] }}</option>
                                     @endforeach
@@ -95,9 +95,9 @@
                 
                         @if(!empty($comunis))
                             <div class="w-full mb-5">
-                                <label for="comuni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Comune @if(!$comuni_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
+                                <label for="comuni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.municipality') }} @if(!$comuni_id)<span class="text-danger">*</span>@else<i class="las la-check text-success"></i>@endif</label>
                                 <select @if ($comuni_id) disabled @else required @endif wire:model.live="comuni_id" id="comuni" class="form-control">
-                                    <option value="">-- Seleziona Comune --</option>
+                                    <option value="">{{ __('contacts.select_municipality') }}</option>
                                     @foreach($comunis as $comuni)
                                         <option @if($comuni_id == $comuni["id"]) selected @endif value="{{ $comuni['id'] }}">{{ $comuni['name'] }}</option>
                                     @endforeach
@@ -109,39 +109,39 @@
         
         
                     <div class="w-full mb-5">
-                        <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Indirizzo</label>
-                        <input required wire:model="address" type="text" name="address" id="address" class="form-control" placeholder="Indirizzo">
+                        <label for="address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.address') }}</label>
+                        <input required wire:model="address" type="text" name="address" id="address" class="form-control" placeholder="{{ __('contacts.address') }}">
                         @error('address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="legal_officer" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rappresentante legale</label>
-                        <input required wire:model="legal_officer" type="text" name="legal_officer" id="legal_officer" class="form-control" placeholder="Rappresentante legale">
+                        <label for="legal_officer" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.legal_representative') }}</label>
+                        <input required wire:model="legal_officer" type="text" name="legal_officer" id="legal_officer" class="form-control" placeholder="{{ __('contacts.legal_representative') }}">
                         @error('legal_officer') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="legal_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Indirizzo reappresentante legale</label>
-                        <input required wire:model="legal_address" type="text" name="legal_address" id="legal_address" class="form-control" placeholder="Indirizzo reappresentante legale">
+                        <label for="legal_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.legal_representative_address') }}</label>
+                        <input required wire:model="legal_address" type="text" name="legal_address" id="legal_address" class="form-control" placeholder="{{ __('contacts.legal_representative_address') }}">
                         @error('legal_address') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="legal_phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Telefono reappresentante legale</label>
-                        <input required wire:model="legal_phone" type="text" name="legal_phone" id="legal_phone" class="form-control" placeholder="Telefono reappresentante legale">
+                        <label for="legal_phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.legal_representative_phone') }}</label>
+                        <input required wire:model="legal_phone" type="text" name="legal_phone" id="legal_phone" class="form-control" placeholder="{{ __('contacts.legal_representative_phone') }}">
                         @error('legal_phone') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
         
                     <div class="w-full mb-5">
-                        <label for="legal_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email reappresentante legale</label>
-                        <input required wire:model="legal_email" type="email" name="legal_email" id="legal_email" class="form-control" placeholder="Email reappresentante legale">
+                        <label for="legal_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('contacts.legal_representative_email') }}</label>
+                        <input required wire:model="legal_email" type="email" name="legal_email" id="legal_email" class="form-control" placeholder="{{ __('contacts.legal_representative_email') }}">
                         @error('legal_email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
-                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">Salva</button>
+                    <button wire:target="update" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">{{ __('interface.save') }}</button>
 
                     <button wire:click="abort()" type="button" class="ti-btn ti-btn-light mr-3">
-                        Annulla
+                        {{ __('contacts.cancel') }}
                     </button>
 
                 

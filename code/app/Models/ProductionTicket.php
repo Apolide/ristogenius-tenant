@@ -25,6 +25,6 @@ class ProductionTicket extends Model
 
     public function statusLabel(): string
     {
-        return ['queued' => 'Da fare', 'preparing' => 'In preparazione', 'ready' => 'Pronto', 'served' => 'Servito', 'cancelled' => 'Annullato'][$this->status] ?? $this->status;
+        return ['queued' => __('cash_desk.bill.to_do'), 'preparing' => __('cash_desk.bill.preparing'), 'ready' => __('cash_desk.bill.ready'), 'served' => __('cash_desk.bill.served'), 'cancelled' => __('cash_desk.cancelled')][$this->status] ?? $this->status;
     }
 }

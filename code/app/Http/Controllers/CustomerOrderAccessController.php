@@ -10,13 +10,18 @@ use Illuminate\Http\Request;
 
 class CustomerOrderAccessController extends Controller
 {
-    public function show(string $token)
+    public function show(Request $request, string $token)
     {
         abort_unless(strlen($token) === 64, 404);
         $access = CustomerOrderAccess::where('token_hash', hash('sha256', $token))->firstOrFail();
-        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, 'Link scaduto o già utilizzato.');
+        $languages = array_intersect_key(app(\App\Services\CustomerLanguageService::class)->enabled(), array_flip(DigitalMenu::findOrFail($access->menu_id)->enabled_languages));
+        $language = $request->query('language', $access->language);
+        abort_unless(array_key_exists($language, $languages), 404);
+        app()->setLocale($language);
+        $languageUrls = collect($languages)->mapWithKeys(fn ($meta, $code) => [$code => route('public-orders.verify', ['token' => $token, 'language' => $code])])->all();
+        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, __('public_orders.messages.link_expired_or_already_used'));
 
-        return response()->view('public-orders.verify', compact('token'))->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store');
+        return response()->view('public-orders.verify', compact('token', 'languageUrls'))->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store');
     }
 
     public function redeem(Request $request, string $token)
@@ -26,6 +31,8 @@ class CustomerOrderAccessController extends Controller
 
     public function table(string $language, string $tableToken)
     {
+        abort_unless(array_key_exists($language, app(\App\Services\CustomerLanguageService::class)->enabled()), 404);
+        app()->setLocale($language);
         RoomTable::where('ordering_token', $tableToken)->whereHas('room', fn ($q) => $q->where('active', true))->firstOrFail();
         $menus = DigitalMenu::where('is_published', true)->where('is_visible', true)->orderBy('position')->get()->filter(fn ($m) => in_array($language, $m->enabled_languages, true));
         if ($menus->count() === 1) {

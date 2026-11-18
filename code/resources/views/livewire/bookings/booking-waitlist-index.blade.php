@@ -2,8 +2,8 @@
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.waitlist_page.title') }}</h5></div>
         <div class="flex gap-3">
-            <a href="{{ route('bookings.index') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="Prenotazioni"><i class="las text-3xl la-calendar"></i></a>
-            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Aggiorna lista"><i class="las text-3xl la-redo-alt"></i></button>
+            <a href="{{ route('bookings.index') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="{{ __('bookings.title') }}"><i class="las text-3xl la-calendar"></i></a>
+            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('bookings.waitlist_page.refresh') }}"><i class="las text-3xl la-redo-alt"></i></button>
         </div>
     </div>
 
@@ -42,9 +42,9 @@
                     @forelse($entries as $entry)
                         <tr>
                             <td><div class="flex gap-2">
-                                <button wire:click="notify('{{ $entry->id }}')" wire:confirm="Avvisare il cliente che il tavolo è pronto?" class="ti-btn ti-btn-icon bg-warning text-white" title="Avvisa cliente"><i class="las la-bell text-2xl"></i></button>
-                                <button wire:click="seat('{{ $entry->id }}')" wire:confirm="Confermi che il cliente è stato accomodato?" class="ti-btn ti-btn-icon bg-success text-white" title="Accomoda"><i class="las la-chair text-2xl"></i></button>
-                                <button wire:click="cancel('{{ $entry->id }}')" wire:confirm="Rimuovere il cliente dalla lista?" class="ti-btn ti-btn-icon bg-danger text-white" title="Rimuovi"><i class="las la-times text-2xl"></i></button>
+                                <button wire:click="notify('{{ $entry->id }}')" wire:confirm="{{ __('bookings.confirm_table_ready_notification') }}" class="ti-btn ti-btn-icon bg-warning text-white" title="{{ __('bookings.waitlist_page.notify') }}"><i class="las la-bell text-2xl"></i></button>
+                                <button wire:click="seat('{{ $entry->id }}')" wire:confirm="{{ __('bookings.confirm_customer_seated') }}" class="ti-btn ti-btn-icon bg-success text-white" title="{{ __('bookings.seat_guests') }}"><i class="las la-chair text-2xl"></i></button>
+                                <button wire:click="cancel('{{ $entry->id }}')" wire:confirm="{{ __('bookings.confirm_waitlist_removal') }}" class="ti-btn ti-btn-icon bg-danger text-white" title="{{ __('bookings.waitlist_page.remove') }}"><i class="las la-times text-2xl"></i></button>
                             </div></td>
                             <td><b>{{ $entry->customer->display_name }}</b><br><small>{{ $entry->customer->phone ?: $entry->customer->email }}</small></td>
                             <td>{{ $entry->pax }}</td>

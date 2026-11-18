@@ -75,7 +75,7 @@
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-warning text-white hover:bg-warning">
                                                         <i class="las text-3xl la-pen"></i>
                                                         <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                            Modifica
+                                                            {{ __('interface.edit') }}
                                                         </span>
                                                     </button>
                                                 </div>
@@ -84,7 +84,7 @@
                                                             class="ti-btn ti-btn-icon hs-tooltip-toggle inline-flex items-center gap-x-2 text-sm font-semibold rounded-sm bg-danger text-white hover:bg-danger">
                                                         <i class="las text-3xl la-trash"></i>
                                                         <span class="hs-tooltip-content ti-main-tooltip-content py-1 px-2 !bg-black !text-xs !font-medium !text-white shadow-sm" role="tooltip">
-                                                            Elimina
+                                                            {{ __('interface.delete') }}
                                                         </span>
                                                     </button>
                                                 </div>

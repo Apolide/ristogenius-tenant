@@ -39,8 +39,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             MarketingBookingFormSeeder::class,
+            SurveySeeder::class,
             JobApplicationFormSeeder::class,
             CateringOrderFormSeeder::class,
+            FidelityCardSeeder::class,
         ]);
 
         // php artisan db:seed --class=LocationSeeder

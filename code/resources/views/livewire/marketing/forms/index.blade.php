@@ -12,16 +12,18 @@
 
         <div class="box">
             <div class="box-body">
-                <input wire:model.live.debounce.300ms="search" class="form-control mb-3" placeholder="Cerca form">
+                <input wire:model.live.debounce.300ms="search" class="form-control mb-3" placeholder="{{ __('marketing_forms.search_forms') }}">
                 <div class="table-responsive">
                     <table class="table table-bordered min-w-full">
-                        <thead><tr><th>Azioni</th><th>Titolo</th><th>Tipo</th><th>Link</th><th>Stato</th></tr></thead>
+                        <thead><tr><th>{{ __('marketing_forms.actions') }}</th><th>{{ __('marketing_forms.form_title') }}</th><th>{{ __('marketing_forms.type') }}</th><th>Link</th><th>{{ __('marketing_forms.status') }}</th></tr></thead>
                         <tbody>
                             @forelse ($forms as $form)
                                 <tr>
                                     <td><div class="flex gap-3">
                                         <a class="ti-btn ti-btn-icon bg-warning text-white" href="{{ route('marketing.forms.edit', $form) }}"><i class="las la-pen"></i></a>
-                                        <button wire:click="delete('{{ $form->id }}')" wire:confirm="Eliminare il form?" class="ti-btn ti-btn-icon bg-danger text-white"><i class="las la-trash"></i></button>
+                                        @unless($form->isPrimaryBookingForm())
+                                            <button wire:click="delete('{{ $form->id }}')" wire:confirm="{{ __('marketing_forms.delete_the_form') }}" class="ti-btn ti-btn-icon bg-danger text-white"><i class="las la-trash"></i></button>
+                                        @endunless
                                     </div></td>
                                     <td>{{ $form->title() }}</td>
                                     <td>{{ $form->type }}</td>
@@ -30,16 +32,16 @@
                                             @foreach ($form->enabled_languages as $language)
                                                 @php($meta = $languageMeta[$language] ?? ['flag' => '🌐', 'label' => strtoupper($language)])
                                                 <a href="{{ route('marketing.forms.public', ['language' => $language, 'form' => $form->slug]) }}" target="_blank" rel="noopener noreferrer"
-                                                   class="ti-btn ti-btn-light ti-btn-sm" title="{{ $meta['label'] }}" aria-label="Apri il form in {{ $meta['label'] }}">
+                                                   class="ti-btn ti-btn-light ti-btn-sm" title="{{ $meta['label'] }}" aria-label="{{ __('marketing_forms.open_form_in_language', ['language' => $meta['label']]) }}">
                                                     <span class="text-xl">{{ $meta['flag'] }}</span>
                                                 </a>
                                             @endforeach
                                         </div>
                                     </td>
-                                    <td>{{ $form->is_active ? 'Attivo' : 'Disattivo' }}</td>
+                                    <td>{{ $form->is_active ? __('marketing_forms.active') : __('marketing_forms.disabled') }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="text-center">Nessun form.</td></tr>
+                                <tr><td colspan="5" class="text-center">{{ __('marketing_forms.no_forms') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

@@ -48,14 +48,14 @@ class FormStyleEdit extends Component
         $this->form->update($update);
         $this->form->refresh();
         $this->backgroundImage = null;
-        session()->flash('success', 'Stile del form aggiornato.');
+        session()->flash('success', __('marketing_forms.form_style_updated'));
     }
 
     public function resetStyle(FormStyleService $styles): void
     {
         $this->form->update(['style_settings' => null]);
         $this->style = $styles->defaults();
-        session()->flash('success', 'Stile predefinito ripristinato.');
+        session()->flash('success', __('marketing_forms.default_style_restored'));
     }
 
     public function removeBackground(FormPublicAssetService $assets): void
@@ -63,7 +63,7 @@ class FormStyleEdit extends Component
         $assets->deleteBackground($this->form);
         $this->form->update(['image_path' => null]);
         $this->form->refresh();
-        session()->flash('success', 'Immagine di sfondo rimossa.');
+        session()->flash('success', __('marketing_forms.background_image_removed'));
     }
 
     public function render(FormStyleService $styles, FormPublicAssetService $assets)
@@ -72,6 +72,6 @@ class FormStyleEdit extends Component
             'defaults' => $styles->defaults(),
             'imageRules' => config('marketing_form_style.image'),
             'backgroundUrl' => $assets->backgroundUrl($this->form),
-        ])->title('Stile form');
+        ])->title(__('marketing_forms.form_style'));
     }
 }

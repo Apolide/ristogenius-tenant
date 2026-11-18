@@ -25,7 +25,7 @@ class DepartmentDelete extends Component
         $department = $departmentService->getDepartmentById($id);
 
         $this->departmentId = $department->id;
-        $this->departmentName = $department->name;
+        $this->departmentName = $department->translatedName();
         $this->isVisible = true;
         $this->dispatch('hide-listing');
     }

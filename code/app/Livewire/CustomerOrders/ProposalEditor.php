@@ -71,7 +71,7 @@ class ProposalEditor extends Component
         $line = ['original_item_id' => null, 'category_id' => $parts[0], 'product_id' => $parts[1], 'quantity' => 1, 'notes' => '', 'added' => [], 'removed' => []];
         app(OrderProposalService::class)->priceLines($order, [$line]);
         if (count($this->lines) >= 100) {
-            $this->addError('lines', 'Massimo 100 righe.');
+            $this->addError('lines', __('customer_orders.messages.maximum_100_lines'));
 
             return;
         }
@@ -110,7 +110,7 @@ class ProposalEditor extends Component
     {
         $this->resetValidation();
         app(OrderProposalService::class)->create($this->orderId, $this->lines, ['date' => $this->date, 'time' => $this->time, 'notes' => $this->notes], $this->message, $this->displayedTotal, $this->fingerprint);
-        session()->flash('order_notice', 'Proposta inviata al cliente via email. L’ordine resta invariato fino alla conferma.');
+        session()->flash('order_notice', __('customer_orders.messages.proposal_emailed_to_the_customer_the_order_remains_unchanged_until'));
         $this->redirectRoute('customers-orders.show', ['order' => $this->orderId]);
     }
 
@@ -130,7 +130,7 @@ class ProposalEditor extends Component
             $previewError = $e->validator->errors()->first();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
             $this->displayedTotal = 0;
-            $previewError = 'Un prodotto non è più disponibile. Riapri la proposta.';
+            $previewError = __('customer_orders.messages.a_product_is_no_longer_available_reopen_the_proposal');
         }
         $categories = DigitalMenuCategory::where('is_enabled', true)->whereHas('menu', fn ($q) => $q->where('is_visible', true)->where('is_published', true))
             ->with(['menu', 'products' => fn ($q) => $q->where('is_active', true)->where('disallow_takeaway', false)->wherePivot('is_visible', true)])->get();
@@ -149,6 +149,6 @@ class ProposalEditor extends Component
             'order' => $order, 'priced' => $priced, 'preview' => $preview, 'previewError' => $previewError ?? null,
             'choices' => $choices, 'slots' => app(AvailabilityService::class)->slots($this->date, $order->fulfillment),
             'ingredientProduct' => $ingredientProduct, 'ingredients' => $ingredientProduct ? DigitalMenuIngredient::all()->sortBy(fn ($i) => $i->translatedName()) : collect(),
-        ])->title('Proponi modifica · '.$order->reference);
+        ])->title(__('customer_orders.messages.propose_change').$order->reference);
     }
 }

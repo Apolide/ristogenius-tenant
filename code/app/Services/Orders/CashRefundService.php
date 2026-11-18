@@ -6,6 +6,7 @@ use App\Models\CashPaymentBatch;
 use App\Models\CashRefund;
 use App\Models\CashShift;
 use App\Models\Order;
+use App\Services\Fidelity\FidelityCheckout;
 use App\Services\Personnel\PersonnelPermissionsService as Permissions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -24,24 +25,26 @@ class CashRefundService
 
         return DB::transaction(function () use ($batchId, $key, $amount, $method, $reason, $reference) {
             $batch = CashPaymentBatch::findOrFail($batchId);
-            Order::lockForUpdate()->findOrFail($batch->order_id);
+            $order = Order::lockForUpdate()->findOrFail($batch->order_id);
             $batch = CashPaymentBatch::lockForUpdate()->findOrFail($batchId);
             $hash = hash('sha256', json_encode([$batchId, $amount, $method, $reason, $reference]));
             if ($existing = CashRefund::find($key)) {
                 if ($existing->request_hash !== $hash) {
-                    throw ValidationException::withMessages(['refund' => 'Richiesta rimborso già usata con dati diversi.']);
+                    throw ValidationException::withMessages(['refund' => __('cash_desk.messages.refund_request_already_used_with_different_data')]);
                 }
 
                 return $existing;
             }
             $paid = $batch->amount_cents + $batch->tip_cents;
             if ((int) CashRefund::where('cash_payment_batch_id', $batchId)->sum('amount_cents') + $amount > $paid) {
-                throw ValidationException::withMessages(['refund' => 'Il rimborso supera l’incasso, incluse le mance.']);
+                throw ValidationException::withMessages(['refund' => __('cash_desk.messages.refund_exceeds_the_payment_including_tips')]);
             }
             $shift = CashShift::where('active_key', 'main')->lockForUpdate()->first();
             $refund = CashRefund::create(['id' => $key, 'cash_payment_batch_id' => $batchId, 'cash_shift_id' => $shift?->id, 'user_id' => auth()->id(),
                 'amount_cents' => $amount, 'method' => $method, 'reason' => $reason, 'external_reference' => $reference ?: null, 'request_hash' => $hash]);
             $batch->order->events()->create(['user_id' => auth()->id(), 'action' => 'cash_refund_recorded', 'details' => ['refund' => $key, 'amount_cents' => $amount, 'method' => $method]]);
+
+            app(FidelityCheckout::class)->refund($order, $refund);
 
             return $refund;
         });

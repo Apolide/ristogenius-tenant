@@ -13,6 +13,18 @@ class CashBillShare extends Model
 
     protected $casts = ['units' => 'array', 'is_remainder' => 'boolean', 'amount_cents' => 'integer'];
 
+    public function displayLabel(): string
+    {
+        if ($this->is_remainder && $this->label === 'Rimanenza / ultimo pagante') {
+            return __('cash_desk.remainder_last_payer');
+        }
+        if (preg_match('/^Pagante ([0-9]+)$/', $this->label, $match)) {
+            return __('cash_desk.payer_number', ['number' => $match[1]]);
+        }
+
+        return $this->label;
+    }
+
     public function batches()
     {
         return $this->hasMany(CashPaymentBatch::class);

@@ -36,13 +36,13 @@ class Show extends Component
     public function withdrawProposal(string $id): void
     {
         app(\App\Services\PublicOrders\OrderProposalService::class)->withdraw($this->orderId, $id);
-        session()->flash('order_notice', 'Proposta ritirata. L’ordine originale è rimasto invariato.');
+        session()->flash('order_notice', __('customer_orders.messages.proposal_withdrawn_the_original_order_remains_unchanged'));
     }
 
     public function pay(): void
     {
         app(OrderService::class)->pay($this->orderId, 'cash', $this->displayedTotal);
-        session()->flash('order_notice', 'Pagamento registrato.');
+        session()->flash('order_notice', __('cash_desk.payment_recorded'));
     }
 
     public function render()
@@ -50,6 +50,6 @@ class Show extends Component
         $order = Order::with(['courses.items.modifiers', 'courses.items.ticket', 'payments', 'events.user', 'pendingProposal', 'proposals.creator'])->findOrFail($this->orderId);
         $this->displayedTotal = $order->totalCents();
 
-        return view('livewire.customer-orders.show', compact('order'))->title('Ordine '.$order->reference);
+        return view('livewire.customer-orders.show', compact('order'))->title(__('customer_orders.messages.order').$order->reference);
     }
 }

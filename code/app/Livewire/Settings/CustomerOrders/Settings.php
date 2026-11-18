@@ -72,7 +72,7 @@ class Settings extends Component
         $data['delivery_fee_cents'] = OrderService::cents($this->fee);
         $data['delivery_free_over_cents'] = OrderService::cents($this->freeOver);
         app(OrderingSettings::class)->save($data);
-        session()->flash('order_notice', 'Impostazioni salvate.');
+        session()->flash('order_notice', __('customer_orders.messages.settings_saved'));
     }
 
     public function editArea(int $id): void
@@ -114,7 +114,7 @@ class Settings extends Component
     {
         $this->validate(['weekday' => 'required|integer|between:1,7', 'opens' => 'required|date_format:H:i', 'closes' => 'required|date_format:H:i|different:opens', 'pickup' => 'boolean', 'delivery' => 'boolean']);
         if (! $this->pickup && ! $this->delivery) {
-            $this->addError('pickup', 'Abilita almeno un servizio.');
+            $this->addError('pickup', __('customer_orders.messages.enable_at_least_one_service'));
 
             return;
         }
@@ -162,6 +162,6 @@ class Settings extends Component
 
     public function render()
     {
-        return view('livewire.settings.customer-orders.settings', ['areas' => CustomerOrderNeighborhood::orderBy('name')->get(), 'schedules' => CustomerOrderSchedule::orderBy('weekday')->orderBy('opens_at')->get(), 'closures' => CustomerOrderClosure::orderByDesc('starts_at')->get()])->title('Impostazioni Ordini Clienti');
+        return view('livewire.settings.customer-orders.settings', ['areas' => CustomerOrderNeighborhood::orderBy('name')->get(), 'schedules' => CustomerOrderSchedule::orderBy('weekday')->orderBy('opens_at')->get(), 'closures' => CustomerOrderClosure::orderByDesc('starts_at')->get()])->title(__('customer_orders.messages.customer_order_settings'));
     }
 }

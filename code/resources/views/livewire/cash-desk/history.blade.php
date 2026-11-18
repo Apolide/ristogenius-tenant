@@ -1,40 +1,41 @@
 <div class="content order-workspace">
 <div class="main-content">
 @include('orders.styles')
-<div class="o-toolbar">
-<a href="{{ route('cash-desk.index') }}" class="ti-btn ti-btn-light">← Cassa</a>
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.shifts') }}">Turni di cassa</a>
-<h1 class="o-title">Storico ordini</h1><select class="o-input" wire:model.live="type" aria-label="Tipo ordine"><option value="">Tutti i tipi</option><option value="dine_in">Sala</option><option value="pickup">Ritiro</option><option value="delivery">Consegna</option></select>
-<input aria-label="Data" type="date" wire:model.live="date" class="o-input">
-<select aria-label="Stato" wire:model.live="status" class="o-input">
-<option value="">Tutti gli stati</option>
-<option value="open">Aperti</option>
-<option value="paid">Pagati</option>
-<option value="cancelled">Annullati</option>
+@include('orders.workspace-styles')
+<x-orders.workspace :title="__('cash_desk.history.order_history')" icon="la-history">
+    <x-slot:actions><a class="ti-btn ti-btn-light !m-0" href="{{ route('cash-desk.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('cash_desk.cash_desk') }}</a></x-slot:actions>
+    <x-slot:stats>{{ __('cash_desk.history.orders') }} {{ $orders->total() }}</x-slot:stats>
+    <x-slot:tabs>@include('orders.cash-tabs')</x-slot:tabs>
+    <x-slot:controls><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><select class="form-control" wire:model.live="type" aria-label="{{ __('cash_desk.history.order_type') }}"><option value="">{{ __('cash_desk.history.all_types') }}</option><option value="dine_in">{{ __('cash_desk.dining_room') }}</option><option value="pickup">{{ __('cash_desk.history.pickup') }}</option><option value="delivery">{{ __('cash_desk.delivery') }}</option></select>
+<input aria-label="{{ __('cash_desk.date') }}" type="date" wire:model.live="date" class="form-control">
+<select aria-label="{{ __('cash_desk.history.status') }}" wire:model.live="status" class="form-control">
+<option value="">{{ __('cash_desk.history.all_statuses') }}</option>
+<option value="open">{{ __('cash_desk.history.open') }}</option>
+<option value="paid">{{ __('cash_desk.history.paid') }}</option>
+<option value="cancelled">{{ __('cash_desk.history.cancelled') }}</option>
 </select>
-<input aria-label="Cerca tavolo, sala o cliente" type="search" placeholder="Tavolo, sala o cliente…" wire:model.live.debounce.300ms="search" class="o-input">
-</div>
-<a class="ti-btn ti-btn-light mb-3" href="{{ route('cash-desk.reconciliation') }}">Riconciliazione ed esportazione</a>
+<input aria-label="{{ __('cash_desk.history.search_table_room_or_customer') }}" type="search" placeholder="{{ __('cash_desk.history.table_room_or_customer') }}" wire:model.live.debounce.300ms="search" class="form-control">
+</div></x-slot:controls>
 @include('orders.errors')
-<div class="o-panel mb-4"><h2 class="font-semibold">Incassi registrati il {{ $date }} · tutti gli ordini</h2>
-@forelse($dailyPayments as $row)<p>{{ ['cash'=>'Contanti','card'=>'Carta','voucher'=>'Buoni pasto','manual'=>'Manuale'][$row->method] ?? $row->method }}: {{ number_format($row->amount/100,2,',','.') }} € · Mance {{ number_format($row->tips/100,2,',','.') }} €</p>@empty<p>Nessun incasso nella giornata.</p>@endforelse
-<p class="o-muted">Incassi senza turno: {{ number_format($unassigned/100,2,',','.') }} €. Il riepilogo usa la data di incasso; l’elenco sotto usa la data di servizio e gli altri filtri.</p></div>
-<div class="o-panel">
+<div class="box mb-4"><div class="box-header"><h2 class="box-title">{{ __('cash_desk.history.payments_recorded_on') }} {{ $date }} {{ __('cash_desk.history.all_orders') }}</h2></div><div class="box-body">
+@forelse($dailyPayments as $row)<p>{{ ['cash'=>__('cash_desk.cash'),'card'=>__('cash_desk.card'),'voucher'=>__('cash_desk.meal_vouchers'),'manual'=>__('cash_desk.manual')][$row->method] ?? $row->method }}: {{ number_format($row->amount/100,2,',','.') }} {{ __('cash_desk.tips') }} {{ number_format($row->tips/100,2,',','.') }} €</p>@empty<p>{{ __('cash_desk.history.no_payments_on_this_day') }}</p>@endforelse
+<p class="o-muted">{{ __('cash_desk.history.payments_without_a_shift') }} {{ number_format($unassigned/100,2,',','.') }} {{ __('cash_desk.history.history_summary_and_list_date_help') }}</p></div></div>
+<div class="box"><div class="box-body">
 <div class="o-row mb-4">
-<strong>Ordini: {{ $orders->total() }}</strong>
-<strong>Incassato sugli ordini filtrati: {{ number_format($paidCents/100,2,',','.') }} €</strong>
+<strong>{{ __('cash_desk.history.orders') }} {{ $orders->total() }}</strong>
+<strong>{{ __('cash_desk.history.payments_on_filtered_orders') }} {{ number_format($paidCents/100,2,',','.') }} €</strong>
 </div>
-<div style="overflow:auto">
-<table class="o-table">
+<div class="table-responsive">
+<table class="table ti-custom-table w-full">
 <thead>
 <tr>
-<th>Tavolo / Sala</th>
-<th>Ora</th>
-<th>Cliente</th>
-<th>Prodotti</th>
-<th>Stato</th>
-<th>Totale</th>
-<th>Pagato</th>
+<th>{{ __('cash_desk.history.table_room') }}</th>
+<th>{{ __('cash_desk.history.time') }}</th>
+<th>{{ __('cash_desk.history.customer') }}</th>
+<th>{{ __('cash_desk.history.products') }}</th>
+<th>{{ __('cash_desk.history.status') }}</th>
+<th>{{ __('cash_desk.history.total') }}</th>
+<th>{{ __('cash_desk.paid') }}</th>
 <th>
 </th>
 </tr>
@@ -48,21 +49,22 @@
 <td>@foreach($order->courses as $course)@foreach($course->items as $item)<p>{{ $item->quantity }} × {{ $item->product_name }}</p>@endforeach @endforeach
 </td>
 <td>
-<span class="o-badge">{{ ['open'=>'Aperto','paid'=>'Pagato','cancelled'=>'Annullato'][$order->status] }}</span>
+<span class="o-badge">{{ ['open'=>__('cash_desk.open'),'paid'=>__('cash_desk.paid'),'cancelled'=>__('cash_desk.cancelled')][$order->status] }}</span>
 </td>
 <td>{{ number_format($order->totalCents()/100,2,',','.') }} €</td>
 <td>{{ number_format($order->payments->sum('amount_cents')/100,2,',','.') }} €</td>
 <td>
-<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.show',$order) }}">Dettaglio</a>
+<a class="ti-btn ti-btn-light" href="{{ route('cash-desk.show',$order) }}"><i class="las la-eye" aria-hidden="true"></i> {{ __('cash_desk.history.details') }}</a>
 </td>
 </tr>@empty
 <tr>
-<td colspan="8" class="o-empty">Nessun ordine per i filtri selezionati.</td>
+<td colspan="8" class="o-empty">{{ __('cash_desk.history.no_orders_match_the_selected_filters') }}</td>
 </tr>@endforelse
 </tbody>
 </table>
 </div>
 <div class="mt-4">{{ $orders->links() }}</div>
-</div>
+</div></div>
+</x-orders.workspace>
 </div>
 </div>
