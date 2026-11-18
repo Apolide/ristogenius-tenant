@@ -13,4 +13,10 @@ return [
     'import' => ['title' => 'IMPORT CUSTOMERS FROM CSV', 'file' => 'CSV file', 'sync' => 'Synchronize', 'loading' => 'Uploading...', 'documentation' => 'DOCUMENTATION', 'heading' => 'Import customers via CSV', 'intro' => 'This screen prepares bulk customer uploads. The import functionality will be implemented later.', 'recommended' => 'Recommended fields', 'field' => 'Field', 'description' => 'Description', 'example' => 'Example', 'firstname' => 'Customer first name.', 'lastname' => 'Customer last name.', 'phone' => 'Phone number in international format where possible.', 'email' => 'Customer email address.', 'birthdate' => 'Date of birth in ISO format.'],
     'history' => ['title' => 'Customer booking history (:count)', 'finalized' => 'Completed', 'canceled' => 'Canceled/deleted', 'denied' => 'Denied', 'no_show' => 'No show', 'date' => 'Date', 'time' => 'Time', 'pax' => 'Pax', 'status' => 'Status', 'notes' => 'Notes', 'empty' => 'No bookings for this customer.'],
     'messages' => ['created' => 'Customer created successfully.', 'updated' => 'Customer updated successfully.', 'deleted' => 'Customer deleted successfully.', 'marketing_pending' => 'The marketing feature will be implemented later.', 'import_pending' => 'CSV customer import is ready: synchronization will be implemented later.'],
+    'blacklist' => 'Blacklist',
+    'blacklist_label' => 'Blacklist:',
+    'loyalty' => 'Loyalty',
+    'marketing' => 'Marketing:',
+    'phone_already_assigned' => 'This phone number is already linked to a customer.',
+    'telegram' => 'Telegram:',
 ];

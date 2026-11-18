@@ -75,4 +75,8 @@ return array_replace_recursive($it, [
     'waitlist_label' => 'Warteliste',
     'walk_in_label' => 'Neuer Laufgast',
     'yes' => 'Ja',
+    'back_office' => 'Verwaltung',
+    'history_created' => 'Reservierung erstellt',
+    'history_deleted' => 'Reservierung gelöscht',
+    'history_updated' => 'Reservierung aktualisiert',
 ]);

@@ -16,7 +16,7 @@ class NotificationController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return response()->json(['message' => __('Non autenticato')], 401);
+            return response()->json(['message' => __('interface.unauthenticated')], 401);
         }
 
         $notifications = $user->unreadNotifications()->orderBy('notifications.created_at', 'desc')->limit(4)->get();

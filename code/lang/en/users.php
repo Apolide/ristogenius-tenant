@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'active' => 'Active',
+    'add_user' => 'Add user',
+    'breadcrumb' => 'Breadcrumb',
+    'edit' => 'Edit',
+    'edit_user' => 'Edit user',
+    'email_placeholder' => 'email',
+    'learn_more' => 'Learn more',
+    'name_placeholder' => 'name',
+    'new_user' => 'NEW USER',
+    'next' => 'Next',
+    'page_navigation' => 'Page navigation',
+    'photo' => 'photo',
+    'previous' => 'Previous',
+    'role' => 'Role',
+    'search' => 'Search',
+    'select_role' => 'Select role',
+    'status' => 'Status',
+    'user' => 'User',
+    'user_list' => 'USER LIST',
+    'user_list_label' => 'User list',
+    'user_management' => 'User management',
+    'user_management_table' => 'User management table.',
+    'users' => 'Users',
+];

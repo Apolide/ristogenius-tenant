@@ -4,8 +4,8 @@
             <div class="box-header border-none">
                 <div class="flex justify-between">
                     <div>
-                        <div class="box-title pb-0">{{ __('ELIMINA CONTATTO') }}</div>
-                        <p class="text-xs text-gray-500 font-normal">{{ __('Sei sicuro di voler eliminare questo contatto?') }}</p>
+                        <div class="box-title pb-0">{{ __('contacts.delete_dialog_title') }}</div>
+                        <p class="text-xs text-gray-500 font-normal">{{ __('contacts.confirm_delete') }}</p>
                     </div>
                 </div>
             </div>
@@ -13,10 +13,10 @@
             <div class="box-body">
                 <div class="flex space-x-2">
                     <button wire:click="delete" class="ti-btn ti-btn-danger-full ti-btn-wave me-[0.375rem]">
-                        {{ __('Sì, elimina') }}
+                        {{ __('contacts.confirm_delete_action') }}
                     </button>
                     <button wire:click="abort()" type="button" class="ti-btn ti-btn-light">
-                        {{ __('Annulla') }}
+                        {{ __('contacts.cancel') }}
                      </button>
                 </div>
             </div>

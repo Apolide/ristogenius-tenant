@@ -42,17 +42,17 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>{{ __('firstname') }}</code></td>
+                            <td><code>{{ __('customers.form.firstname') }}</code></td>
                             <td>{{ __('customers.import.firstname') }}</td>
                             <td>Mario</td>
                         </tr>
                         <tr>
-                            <td><code>{{ __('lastname') }}</code></td>
+                            <td><code>{{ __('customers.form.lastname') }}</code></td>
                             <td>{{ __('customers.import.lastname') }}</td>
                             <td>Rossi</td>
                         </tr>
                         <tr>
-                            <td><code>{{ __('phone') }}</code></td>
+                            <td><code>{{ __('customers.form.phone') }}</code></td>
                             <td>{{ __('customers.import.phone') }}</td>
                             <td>+393331112222</td>
                         </tr>
@@ -62,7 +62,7 @@
                             <td>mario.rossi@example.com</td>
                         </tr>
                         <tr>
-                            <td><code>{{ __('birthdate') }}</code></td>
+                            <td><code>{{ __('customers.form.birthdate') }}</code></td>
                             <td>{{ __('customers.import.birthdate') }}</td>
                             <td>1985-04-20</td>
                         </tr>

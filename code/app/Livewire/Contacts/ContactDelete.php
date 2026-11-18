@@ -33,7 +33,7 @@ class ContactDelete extends Component
 
         $contactService->deleteContact($this->contactId);
 
-        session()->flash('message', __('Contact eliminato con successo.'));
+        session()->flash('message', __('contacts.deleted'));
         $this->contactId = null;
         $this->isVisible = false;
         $this->dispatch('show-listing');

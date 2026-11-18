@@ -13,4 +13,10 @@ return [
     'import' => ['title' => 'KUNDEN AUS CSV IMPORTIEREN', 'file' => 'CSV-Datei', 'sync' => 'Synchronisieren', 'loading' => 'Wird hochgeladen...', 'documentation' => 'DOKUMENTATION', 'heading' => 'Kunden über CSV importieren', 'intro' => 'Diese Seite bereitet den Massenimport von Kunden vor. Die Importfunktion wird später implementiert.', 'recommended' => 'Empfohlene Felder', 'field' => 'Feld', 'description' => 'Beschreibung', 'example' => 'Beispiel', 'firstname' => 'Vorname des Kunden.', 'lastname' => 'Nachname des Kunden.', 'phone' => 'Telefonnummer möglichst im internationalen Format.', 'email' => 'E-Mail-Adresse des Kunden.', 'birthdate' => 'Geburtsdatum im ISO-Format.'],
     'history' => ['title' => 'Reservierungshistorie des Kunden (:count)', 'finalized' => 'Abgeschlossen', 'canceled' => 'Storniert/gelöscht', 'denied' => 'Abgelehnt', 'no_show' => 'No show', 'date' => 'Datum', 'time' => 'Uhrzeit', 'pax' => 'Personen', 'status' => 'Status', 'notes' => 'Notizen', 'empty' => 'Keine Reservierungen für diesen Kunden.'],
     'messages' => ['created' => 'Kunde erfolgreich erstellt.', 'updated' => 'Kunde erfolgreich aktualisiert.', 'deleted' => 'Kunde erfolgreich gelöscht.', 'marketing_pending' => 'Die Marketingfunktion wird später implementiert.', 'import_pending' => 'Der CSV-Kundenimport ist vorbereitet: Die Synchronisierung wird später implementiert.'],
+    'blacklist' => 'Sperrliste',
+    'blacklist_label' => 'Sperrliste:',
+    'loyalty' => 'Kundenbindung',
+    'marketing' => 'Marketing:',
+    'phone_already_assigned' => 'Diese Telefonnummer ist bereits einem Kunden zugeordnet.',
+    'telegram' => 'Telegram:',
 ];

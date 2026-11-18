@@ -73,4 +73,8 @@ return [
     'waitlist_label' => 'Lista d\'attesa',
     'walk_in_label' => 'Nuovo Walk In',
     'yes' => 'Sì',
+    'back_office' => 'Backoffice',
+    'history_created' => 'Prenotazione inserita',
+    'history_deleted' => 'Prenotazione eliminata',
+    'history_updated' => 'Prenotazione modificata',
 ];

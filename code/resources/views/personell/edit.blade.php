@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="w-full mb-3">
-                        <label for="email" class="block mb-2 text-sm font-medium">{{ __('E-mail') }}</label>
+                        <label for="email" class="block mb-2 text-sm font-medium">{{ __('interface.email') }}</label>
                         <input required wire:model="email" type="email" id="email" class="form-control">
                         @error('email') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
                     </div>

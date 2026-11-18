@@ -75,4 +75,8 @@ return array_replace_recursive($it, [
     'waitlist_label' => 'Waiting list',
     'walk_in_label' => 'New walk-in',
     'yes' => 'Yes',
+    'back_office' => 'Back office',
+    'history_created' => 'Booking created',
+    'history_deleted' => 'Booking deleted',
+    'history_updated' => 'Booking updated',
 ]);
