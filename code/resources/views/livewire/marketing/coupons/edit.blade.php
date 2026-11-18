@@ -1,5 +1,5 @@
 <div class="content"><div class="main-content" x-data="{ language: 'it' }">
-<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('coupons.index') }}">← {{ __('marketing.coupons') }}</a><h5 class="page-title">{{ __('marketing.coupon_editor') }}</h5></div>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('coupons.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('marketing.coupons') }}</a><h5 class="page-title">{{ __('marketing.coupon_editor') }}</h5></div>
 @include('marketing.errors')
 @if($coupon && $coupon->assigned_count)<p class="alert alert-info">{{ __('marketing.version_notice') }}</p>@endif
 <form wire:submit="save" class="space-y-5">

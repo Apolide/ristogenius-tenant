@@ -1,5 +1,5 @@
 <div class="content"><div class="main-content">
-<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn bg-warning text-white" href="{{ route('campaigns.edit',$campaign) }}">← {{ __('marketing.edit') }}</a><h5 class="page-title">{{ __('marketing.send') }} · {{ $campaign->name }}</h5></div>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn bg-warning text-white" href="{{ route('campaigns.edit',$campaign) }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('marketing.edit') }}</a><h5 class="page-title">{{ __('marketing.send') }} · {{ $campaign->name }}</h5></div>
 @include('marketing.errors')
 <div class="box"><div class="box-body space-y-4"><label class="block mb-2 font-medium">{{ __('marketing.language') }}<select class="form-control mt-2" wire:model.live="language">@foreach($campaign->enabled_languages as $l)<option value="{{ $l }}">{{ strtoupper($l) }}</option>@endforeach</select></label>
 <h2 class="box-title">{{ $preview['subject'] }}</h2><p>{{ $preview['preheader'] }}</p>@if($preview['image'])<img class="max-h-60" src="{{ $preview['image'] }}" alt="{{ $preview['subject'] }}">@endif

@@ -112,7 +112,7 @@ class FormEdit extends Component
         $this->form->update(['schedule' => $schedule]);
         $this->form->refresh();
         $this->eventSchedule = $schedule;
-        session()->flash('success', __('Disponibilità dell’evento aggiornata.'));
+        session()->flash('success', __('marketing_forms.event_availability_updated'));
     }
 
     public function saveDetails(): void
@@ -129,7 +129,7 @@ class FormEdit extends Component
         $this->validate($rules);
         $this->form->update(['translations' => $this->translations]);
         $this->form->refresh();
-        session()->flash('success', __('Dati del form aggiornati.'));
+        session()->flash('success', __('marketing_forms.form_data_updated'));
     }
 
     public function addField(CustomerLanguageService $languages): void
@@ -213,7 +213,7 @@ class FormEdit extends Component
         ]);
 
         $this->cancelEditingField();
-        session()->flash('success', __('Campo personalizzato aggiornato.'));
+        session()->flash('success', __('marketing_forms.custom_field_updated'));
     }
 
     private function localizedOptions(array $options): array
@@ -228,7 +228,7 @@ class FormEdit extends Component
     {
         $field = $this->form->fields()->findOrFail($id);
         if ($field->required) {
-            $this->addError('field', __('Un campo obbligatorio non può essere eliminato. Rendilo prima facoltativo.'));
+            $this->addError('field', __('marketing_forms.required_field_cannot_be_deleted'));
 
             return;
         }

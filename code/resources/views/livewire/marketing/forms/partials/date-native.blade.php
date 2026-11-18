@@ -4,5 +4,5 @@
        min="{{ $minimumDate }}" @if($maximumDate) max="{{ $maximumDate }}" @endif
        @required($field->required)>
 @if ($eventMode === 'dates')
-    <p class="mt-1 text-xs text-textmuted">{{ __('Date disponibili:') }} {{ implode(', ', $eventSchedule['dates'] ?? []) }}</p>
+    <p class="mt-1 text-xs text-textmuted">{{ __('marketing_forms.available_dates_label') }} {{ implode(', ', $eventSchedule['dates'] ?? []) }}</p>
 @endif

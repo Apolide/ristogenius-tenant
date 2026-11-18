@@ -1,5 +1,5 @@
 <div class="content"><div class="main-content" x-data="{language:'it'}" @campaign-invalid-language="language = $event.detail.language">
-<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('campaigns.index') }}">← {{ __('marketing.campaigns') }}</a><h5 class="page-title">{{ __('marketing.campaign_editor') }}</h5>@if($campaign)<a class="ti-btn ti-btn-primary-full" href="{{ route('campaigns.send',$campaign) }}"><i class="las la-paper-plane" aria-hidden="true"></i> {{ __('marketing.send') }}</a>@endif</div>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('campaigns.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('marketing.campaigns') }}</a><h5 class="page-title">{{ __('marketing.campaign_editor') }}</h5>@if($campaign)<a class="ti-btn ti-btn-primary-full" href="{{ route('campaigns.send',$campaign) }}"><i class="las la-paper-plane" aria-hidden="true"></i> {{ __('marketing.send') }}</a>@endif</div>
 @include('marketing.errors')
 <form wire:submit="save" data-campaign-form novalidate class="space-y-5">
 <div class="box"><div class="box-header"><h2 class="box-title">{{ __('marketing.internal_name') }} / {{ __('marketing.type') }}</h2></div><div class="box-body grid grid-cols-1 md:grid-cols-2 gap-6">

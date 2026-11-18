@@ -190,7 +190,7 @@ class PublicForm extends Component
         if ($key === 'date' && $this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
             $rules[] = function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! app(EventScheduleService::class)->dateIsAvailable($this->form, (string) $value)) {
-                    $fail(__('La data selezionata non è disponibile per questo evento.'));
+                    $fail(__('marketing_forms.event_date_unavailable'));
                 }
             };
         }
