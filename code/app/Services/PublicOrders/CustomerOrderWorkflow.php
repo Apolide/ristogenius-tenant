@@ -18,8 +18,8 @@ class CustomerOrderWorkflow
         DB::transaction(function () use ($id, $action, $expected) {
             $order = Order::lockForUpdate()->findOrFail($id);
             abort_unless(in_array($order->fulfillment, ['pickup', 'delivery']), 404);
-            $this->check(in_array($action, ['cancel', 'reject']) || ! $order->pendingProposal()->exists(), __('Attendi la risposta del cliente oppure ritira la proposta prima di procedere.'));
-            $this->check($order->status !== 'cancelled' && $order->fulfillment_status === $expected, __('Lo stato è cambiato. Aggiorna la schermata.'));
+            $this->check(in_array($action, ['cancel', 'reject']) || ! $order->pendingProposal()->exists(), __('customer_orders.messages.wait_for_the_customers_response_or_withdraw_the_proposal_before'));
+            $this->check($order->status !== 'cancelled' && $order->fulfillment_status === $expected, __('customer_orders.messages.the_status_changed_refresh_the_screen'));
             $next = match ($action) {
                 'accept' => $expected === 'received' ? 'accepted' : null,
                 'reject' => $expected === 'received' && $order->status !== 'paid' ? 'rejected' : null,
@@ -30,7 +30,7 @@ class CustomerOrderWorkflow
                 'cancel' => in_array($expected, ['received', 'accepted']) && $order->status !== 'paid' ? 'cancelled' : null,
                 default => null,
             };
-            $this->check($next !== null, __('Operazione non consentita.'));
+            $this->check($next !== null, __('customer_orders.messages.operation_not_allowed'));
             if ($next === 'preparing') {
                 foreach ($order->courses()->whereHas('items')->get() as $course) {
                     app(ProductionService::class)->send($course);
@@ -40,7 +40,7 @@ class CustomerOrderWorkflow
                 $this->check(! ProductionTicket::whereHas('course', fn ($q) => $q->where('order_id', $id))->whereNotIn('status', ['ready', 'served', 'cancelled'])->exists(), 'I reparti non hanno ancora completato la preparazione.');
             }
             if (in_array($next, ['rejected', 'cancelled'])) {
-                $this->check(! $order->payments()->exists(), __('Ordine con incassi registrati: annullamento bloccato.'));
+                $this->check(! $order->payments()->exists(), __('customer_orders.messages.order_has_recorded_payments_cancellation_blocked'));
                 app(\App\Services\Fidelity\FidelityCheckout::class)->release($order);
                 $order->status = 'cancelled';
             }

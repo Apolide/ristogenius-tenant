@@ -117,6 +117,13 @@ class ManagementPagesLocalizationTest extends TestCase
         $this->assertSame('Lieferung · Anna', $notification->translatedMessage());
         $legacy = new Notification(['type' => 'customer_order.received', 'title' => 'Nuovo ordine OC-41', 'message' => 'Asporto · Anna']);
         $this->assertSame('Neue Bestellung OC-41', $legacy->translatedTitle());
+        $savedJsonKeys = new Notification(['type' => 'customer_order.received', 'translation_data' => [
+            'title' => 'Nuovo ordine :reference',
+            'message' => 'Asporto · :customer',
+            'parameters' => ['reference' => 'OC-40', 'customer' => 'Anna'],
+        ]]);
+        $this->assertSame('Neue Bestellung OC-40', $savedJsonKeys->translatedTitle());
+        $this->assertSame('Abholung · Anna', $savedJsonKeys->translatedMessage());
         $freeText = new Notification(['type' => 'general', 'title' => 'Salva', 'message' => 'Note del cliente']);
         $this->assertSame('Salva', $freeText->translatedTitle());
         $this->assertSame('Note del cliente', $freeText->translatedMessage());

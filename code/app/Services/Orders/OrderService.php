@@ -124,8 +124,8 @@ class OrderService
                 app(\App\Services\PublicOrders\OrderNotifications::class)->courseAccepted($course);
             } else {
                 app(\App\Services\Notification\NotificationService::class)->forPermissionTranslated(
-                    Permissions::ORDERS, 'staff_order.sent', __('orders.messages.order_sent_by_staff'),
-                    __('orders.messages.table_table_course_course_sent_to_departments'),
+                    Permissions::ORDERS, 'staff_order.sent', 'orders.messages.order_sent_by_staff',
+                    'orders.messages.table_table_course_course_sent_to_departments',
                     ['table' => $order->tables->pluck('name')->implode(', '), 'course' => $course->number], route('orders.show', $order)
                 );
             }

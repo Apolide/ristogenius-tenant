@@ -53,18 +53,18 @@ class AvailabilityService
     public function validate(string $date, string $time, string $type, int $subtotal, ?int $neighborhoodId): array
     {
         if (! in_array($time, $this->slots($date, $type), true)) {
-            throw ValidationException::withMessages(['order' => __('Orario non più disponibile. Scegli un altro orario.')]);
+            throw ValidationException::withMessages(['order' => __('customer_orders.messages.time_no_longer_available_choose_another_time')]);
         }
         $s = app(OrderingSettings::class)->get();
         $fee = 0;
         $neighborhood = null;
         if ($type === 'delivery') {
             if ($subtotal < $s['delivery_minimum_cents']) {
-                throw ValidationException::withMessages(['order' => __('Il minimo per la consegna non è stato raggiunto.')]);
+                throw ValidationException::withMessages(['order' => __('customer_orders.messages.the_delivery_minimum_has_not_been_reached')]);
             }
             $neighborhood = CustomerOrderNeighborhood::where('active', true)->find($neighborhoodId);
             if (! $neighborhood) {
-                throw ValidationException::withMessages(['order' => __('Seleziona un quartiere servito.')]);
+                throw ValidationException::withMessages(['order' => __('customer_orders.messages.select_a_served_neighborhood')]);
             }
             $fee = $s['delivery_free_over_cents'] > 0 && $subtotal >= $s['delivery_free_over_cents'] ? 0 : $s['delivery_fee_cents'];
         }

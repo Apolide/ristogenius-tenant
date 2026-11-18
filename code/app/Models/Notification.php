@@ -12,6 +12,19 @@ class Notification extends Model
     use HasFactory;
 
 
+    private const LEGACY_ORDER_KEYS = [
+        'Nuovo ordine :reference' => 'public_orders.notifications.new_order_reference',
+        'Consegna · :customer' => 'public_orders.notifications.delivery_customer',
+        'Asporto · :customer' => 'public_orders.notifications.takeaway_customer',
+        'Risposta alla proposta · :reference' => 'public_orders.notifications.proposal_response_reference',
+        'Il cliente ha accettato la proposta di modifica.' => 'public_orders.notifications.staff_proposal_accepted',
+        'Il cliente ha rifiutato la proposta di modifica.' => 'public_orders.notifications.staff_proposal_rejected',
+        'Nuovo ordine dal tavolo' => 'public_orders.notifications.new_table_order',
+        'Tavolo :table · Uscita :course di :customer da verificare e accettare.' => 'public_orders.notifications.table_course_review_message',
+        'Comanda inviata dal personale' => 'orders.messages.order_sent_by_staff',
+        'Tavolo :table · Uscita :course inviata ai reparti.' => 'orders.messages.table_table_course_course_sent_to_departments',
+    ];
+
     protected $fillable = ['title', 'message', 'url', 'type', 'translation_data'];
 
     protected $casts = ['translation_data' => 'array'];
@@ -20,14 +33,14 @@ class Notification extends Model
     {
         $data = $this->translation_data ?: $this->legacyTranslationData();
 
-        return isset($data['title']) ? __($data['title'], $data['parameters'] ?? []) : $this->title;
+        return isset($data['title']) ? __(self::LEGACY_ORDER_KEYS[$data['title']] ?? $data['title'], $data['parameters'] ?? []) : $this->title;
     }
 
     public function translatedMessage(): string
     {
         $data = $this->translation_data ?: $this->legacyTranslationData();
 
-        return isset($data['message']) ? __($data['message'], $data['parameters'] ?? []) : $this->message;
+        return isset($data['message']) ? __(self::LEGACY_ORDER_KEYS[$data['message']] ?? $data['message'], $data['parameters'] ?? []) : $this->message;
     }
 
     /** Only recognize exact system-generated legacy formats; preserve free text. */

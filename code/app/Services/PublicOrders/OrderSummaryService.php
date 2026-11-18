@@ -8,6 +8,37 @@ use App\Services\TenantBrandingService;
 
 class OrderSummaryService
 {
+    /** Translate labels stored in an order snapshot, including snapshots created before PHP catalogs. */
+    public static function translateLabel(?string $label): ?string
+    {
+        $key = match ($label) {
+            'Sala' => 'cash_desk.dining_room',
+            'Ritiro' => 'public_orders.summary.pickup',
+            'Consegna' => 'cash_desk.delivery',
+            'Annullato' => 'cash_desk.cancelled',
+            'Aperto' => 'cash_desk.open',
+            'In attesa risposta cliente' => 'orders.waiting_for_customer_response',
+            'Da approvare' => 'orders.awaiting_approval',
+            'Accettato' => 'orders.accepted',
+            'In preparazione' => 'public_orders.notifications.preparing',
+            'Pronto' => 'public_orders.notifications.ready',
+            'In consegna' => 'orders.out_for_delivery',
+            'Completato' => 'orders.completed',
+            'Rifiutato' => 'public_orders.notifications.rejected',
+            'Proposta di modifica' => 'public_orders.summary.change_proposal',
+            'Contanti' => 'cash_desk.cash',
+            'Carta' => 'cash_desk.card',
+            'Buono' => 'public_orders.summary.voucher',
+            'Registrazione manuale' => 'public_orders.summary.manual_entry',
+            'Pagato' => 'cash_desk.paid',
+            'Parzialmente pagato' => 'public_orders.summary.partially_paid',
+            'Non pagato' => 'public_orders.summary.unpaid',
+            default => $label,
+        };
+
+        return __($key);
+    }
+
     public function snapshot(Order $order, ?OrderCourse $onlyCourse = null): array
     {
         $order->loadMissing(['courses.items.modifiers', 'payments']);

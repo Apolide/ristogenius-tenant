@@ -10,6 +10,7 @@
     'resources/assets/scss/style.scss'
     )
 
+    @stack('styles')
     @livewireStyles</head>
 <body class="bg-[#f8f6f1] text-[#20312e] antialiased"><main>{{ $slot }}</main>@livewireScripts</body>
 </html>
