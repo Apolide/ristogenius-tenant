@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'active' => 'Ενεργό',
+    'add_user' => 'Προσθήκη χρηστών',
+    'breadcrumb' => 'Δρομολόγιο πλοήγησης',
+    'edit' => 'Επεξεργασία',
+    'edit_user' => 'Εμποδίζει χρήστη',
+    'email_placeholder' => 'e-mail',
+    'learn_more' => 'Μάθετε περισσότερα',
+    'name_placeholder' => 'Ονομασία',
+    'new_user' => 'Νέος Χρήστης',
+    'next' => 'Ακολούθως',
+    'page_navigation' => 'Πλοήγηση σελίδων',
+    'photo' => 'Εικόνα',
+    'previous' => 'Προηγούμενη',
+    'role' => 'Ρόλος',
+    'search' => 'Αναζήτηση',
+    'select_role' => 'Επιλέξτε ρόλο',
+    'status' => 'Κατάσταση',
+    'user' => 'Χρήστης',
+    'user_list' => 'Πίνακας χρηστών',
+    'user_list_label' => 'Κατάλογος χρηστών',
+    'user_management' => 'Διαχείριση χρηστών',
+    'user_management_table' => 'Πίνακας διαχείρισης χρηστών.',
+    'users' => 'Χρήστες',
+];

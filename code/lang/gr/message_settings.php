@@ -1,0 +1,6 @@
+<?php
+return [
+    'title'=>'Ατομικά μηνύματα','breadcrumb'=>'Μηνύματα','refresh'=>'Ενημέρωση','search'=>'Ψάξε μήνυμα','actions'=>'Ενέργειες','message'=>'Μήνυμα','edit'=>'Επεξεργασία','empty'=>'Δεν βρέθηκε κανένα μήνυμα.','edit_title'=>'ΕΝΤΑΜΟΣ ΜΑΣΑΣΗ: :label','reset'=>'Επιστροφή μηνύματος','languages'=>'Γλώσσες','subject'=>'Θέμα :language','subject_placeholder'=>'Θέμα του μηνύματος','body'=>'Μνημόνιο :language','body_placeholder'=>'Τμήμα του μηνύματος','automatic_name'=>'@@customer_name@@ εισάγεται αυτόματα από το σύστημα.','additional_note'=>'Συμπληρωματικές σημειώσεις :language','additional_note_placeholder'=>'Επενδυτικές σημειώσεις','sms'=>'Τμήμα SMS :language (μεγιστο 160 χαρακτήρες)','sms_placeholder'=>'Άρθρο SMS','save'=>'Αποθήκευση','cancel'=>'Άκυρο',
+    'messages'=>['updated'=>'Ενημερωμένο μήνυμα σωστά.','reset'=>'Επανακλήθηκε σωστά.'],
+    'templates'=>['booking_received'=>'Νέα κράτηση','booking_edited_from_customer'=>'Τροποποίηση της κράτησης από τον πελάτη','booking_proposal'=>'Πρόταση τροποποίησης της κράτησης','booking_remind'=>'Προειδοποίηση κράτησης','booking_canceled'=>'Κλείσιμο της κράτησης','booking_denied'=>'Αρνηθεί η κράτηση','booking_accepted'=>'Αποδεκτή κράτηση','booking_sent'=>'Έστειλε κράτηση'],
+];
