@@ -17,10 +17,10 @@ class ItalianInvoiceXml
             'sdi' => ['required', 'regex:/^[A-Z0-9]{7}$/'], 'pec' => 'nullable|email|max:256',
         ])->validate();
         if (! filled($result['vat_id'] ?? null) && ! filled($result['tax_code'] ?? null)) {
-            throw ValidationException::withMessages(['fiscal' => 'Inserisci partita IVA o codice fiscale del destinatario.']);
+            throw ValidationException::withMessages(['fiscal' => __('fiscal.messages.invoice_recipient_tax_id_required')]);
         }
         if (filled($result['pec'] ?? null) && $result['sdi'] !== '0000000') {
-            throw ValidationException::withMessages(['fiscal' => 'Per il recapito PEC usa codice destinatario 0000000.']);
+            throw ValidationException::withMessages(['fiscal' => __('fiscal.messages.invoice_pec_recipient_code_required')]);
         }
 
         return $result;
@@ -30,7 +30,7 @@ class ItalianInvoiceXml
     {
         $buyer = $this->recipient($buyer);
         if (! preg_match('/^RF(0[1-9]|1[0-9])$/', $profile->tax_regime ?? '')) {
-            throw ValidationException::withMessages(['fiscal' => 'Configura il regime fiscale dell’azienda prima di fatturare.']);
+            throw ValidationException::withMessages(['fiscal' => __('fiscal.messages.invoice_tax_regime_required')]);
         }
         $doc = new \DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElementNS('http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2', 'p:FatturaElettronica');
@@ -92,7 +92,7 @@ class ItalianInvoiceXml
                 continue;
             }
             if ((int) $rate === 0) {
-                throw ValidationException::withMessages(['fiscal' => 'Le fatture con IVA zero richiedono natura e regime specifici, da completare prima dell’invio.']);
+                throw ValidationException::withMessages(['fiscal' => __('fiscal.messages.zero_vat_invoice_configuration_required')]);
             }
             $net = intdiv($gross * 100 + intdiv(100 + (int) $rate, 2), 100 + (int) $rate);
             $vat = $gross - $net;

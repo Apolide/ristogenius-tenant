@@ -162,12 +162,6 @@ class CustomerSeeder extends Seeder
 
     private function tenantLanguages(): array
     {
-        $languages = explode(',', (string) config('tenant.languages', 'it,en'));
-        $languages = array_values(array_unique(array_filter(array_map(
-            fn (string $language) => strtolower(trim($language)),
-            $languages
-        ))));
-
-        return $languages ?: ['it', 'en'];
+        return array_keys(app(\App\Services\CustomerLanguageService::class)->enabled());
     }
 }

@@ -17,6 +17,16 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update(User $user, array $input): void
     {
+        if (! $user->hasRole('admin')) {
+            $data = Validator::make($input, [
+                'name' => ['required', 'string', 'max:255'],
+            ])->validateWithBag('updateProfileInformation');
+
+            $user->update($data);
+
+            return;
+        }
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],

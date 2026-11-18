@@ -613,6 +613,34 @@ class MarketingFormsTest extends TestCase
         }
     }
 
+    public function test_booking_form_offers_greek_when_enabled_for_the_tenant_and_the_form(): void
+    {
+        config(['tenant.customer_languages' => 'en,gr']);
+        $form = app(FormBlueprintService::class)->create([
+            'type' => 'booking',
+            'slug' => 'booking',
+            'translations' => ['en' => ['title' => 'Book a table']],
+            'enabled_languages' => ['en'],
+            'is_active' => true,
+        ]);
+
+        $form->fields()->where('key', 'guests')->update(['label' => ['en' => 'Guests']]);
+        Livewire::test(FormEdit::class, ['form' => $form])
+            ->assertSee('Ελληνικά')
+            ->set('enabledLanguages', ['en', 'gr'])
+            ->call('saveDetails')->assertHasErrors('translations.gr.title')
+            ->set('translations.gr.title', 'Κράτηση τραπεζιού')
+            ->call('saveDetails')->assertHasNoErrors();
+
+        $this->get("/form/en/{$form->slug}")->assertOk()->assertSee('🇬🇷 Ελληνικά')->assertSee("/form/gr/{$form->slug}");
+        $this->get("/form/gr/{$form->slug}")->assertOk()->assertSee('Κράτηση τραπεζιού')->assertSee('Αριθμός ατόμων')
+            ->assertSee('lang="el"', false)->assertSee('/assets/libs/flatpickr/l10n/gr.js');
+
+        config(['tenant.customer_languages' => 'en']);
+        $this->get("/form/en/{$form->slug}")->assertOk()->assertDontSee('id="form-language"', false);
+        $this->get("/form/gr/{$form->slug}")->assertNotFound();
+    }
+
     public function test_default_booking_form_seeder_is_idempotent(): void
     {
         $this->seed(MarketingBookingFormSeeder::class);

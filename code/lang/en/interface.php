@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'manage' => 'Manage',
+    'statistics' => 'Statistics',
     'notifications' => 'Notifications',
     'mark_all_read' => 'Mark all as read',
     'unread' => 'Unread',
@@ -16,4 +18,19 @@ return [
     'account_settings' => 'Account settings',
     'logout' => 'Log out',
     'operations' => 'Operations',
+    'actions' => 'Actions',
+    'close_dialog' => 'Close',
+    'delete' => 'Delete',
+    'delete_action' => 'Delete',
+    'edit' => 'Edit',
+    'email' => 'Email',
+    'home' => 'Home',
+    'name' => 'Name',
+    'save' => 'Save',
+    'unauthenticated' => 'Unauthenticated',
+    'my_profile' => 'My profile',
+    'profile_saved' => 'Profile updated.',
+    'account_disabled' => 'Disabled',
+    'account_enabled' => 'Account enabled',
+    'view_all_notifications' => 'View all',
 ];

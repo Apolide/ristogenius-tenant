@@ -80,7 +80,7 @@ class CustomerCreate extends Component
         $data = $this->validate($this->rules());
         $data['phone'] = $phoneNumbers->normalize($data['phone'], $data['phone_region']);
         if (\App\Models\Customer::query()->where('phone', $data['phone'])->exists()) {
-            $this->addError('phone', __('Il numero di telefono è già associato a un cliente.'));
+            $this->addError('phone', __('customers.phone_already_assigned'));
 
             return;
         }

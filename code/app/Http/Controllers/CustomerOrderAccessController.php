@@ -19,7 +19,7 @@ class CustomerOrderAccessController extends Controller
         abort_unless(array_key_exists($language, $languages), 404);
         app()->setLocale($language);
         $languageUrls = collect($languages)->mapWithKeys(fn ($meta, $code) => [$code => route('public-orders.verify', ['token' => $token, 'language' => $code])])->all();
-        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, __('Link scaduto o già utilizzato.'));
+        abort_if($access->consumed_at || $access->expires_at->isPast(), 410, __('public_orders.messages.link_expired_or_already_used'));
 
         return response()->view('public-orders.verify', compact('token', 'languageUrls'))->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store');
     }

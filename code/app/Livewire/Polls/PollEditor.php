@@ -212,7 +212,7 @@ class PollEditor extends Component
 
     private function languages(): array
     {
-        return app(CustomerLanguageService::class)->enabled() ?: ['it' => CustomerLanguageService::LANGUAGES['it']];
+        return app(CustomerLanguageService::class)->enabled();
     }
 
     public function render()

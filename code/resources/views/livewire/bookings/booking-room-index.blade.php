@@ -42,12 +42,12 @@
     </style>
 
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
-        <h5 class="page-title text-[1.3125rem] font-medium"><i class="las la-chair"></i> {{ __('Sala e prenotazioni') }}</h5>
+        <h5 class="page-title text-[1.3125rem] font-medium"><i class="las la-chair"></i> {{ __('bookings.room_and_bookings') }}</h5>
         <div class="flex gap-3">
-            <a href="{{ route('bookings.index', ['date'=>$date, 'meal'=>$meal]) }}" class="ti-btn ti-btn-primary-full text-white ti-btn-icon" title="{{ __('Vista elenco') }}"><i class="las text-3xl la-calendar"></i></a>
-            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Lista d\'attesa') }}"><i class="las text-3xl la-hourglass-half"></i></a>
-            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="{{ __('Nuova prenotazione') }}"><i class="las text-3xl la-plus"></i></a>
-            <button wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('Aggiorna') }}"><i class="las text-3xl la-redo-alt"></i></button>
+            <a href="{{ route('bookings.index', ['date'=>$date, 'meal'=>$meal]) }}" class="ti-btn ti-btn-primary-full text-white ti-btn-icon" title="{{ __('bookings.list_view') }}"><i class="las text-3xl la-calendar"></i></a>
+            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('bookings.waitlist_label') }}"><i class="las text-3xl la-hourglass-half"></i></a>
+            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="{{ __('bookings.new') }}"><i class="las text-3xl la-plus"></i></a>
+            <button wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('bookings.reload') }}"><i class="las text-3xl la-redo-alt"></i></button>
         </div>
     </div>
 
@@ -83,7 +83,7 @@
     <div class="box booking-room-controls-box"><div class="box-body">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex flex-wrap gap-4 py-2 text-sm">
-                <strong><i class="las la-users"></i> {{ __('Pax:') }} {{ $totalPax }}</strong>
+                <strong><i class="las la-users"></i> {{ __('bookings.guest_count_label') }} {{ $totalPax }}</strong>
                 <strong>{{ __('bookings.arriving') }}: {{ $arrivingPax }}</strong>
                 <strong>{{ __('bookings.serving') }}: {{ $servingPax }}</strong>
             </div>
@@ -178,7 +178,7 @@
     </div></div>
 
     <div class="box booking-room-map-box"><div class="rooms-tabs">
-        @forelse($rooms as $room)<button wire:key="room-tab-{{ $room->id }}" wire:click="selectRoom('{{ $room->id }}')" class="rooms-tab {{ $roomId===$room->id?'active':'' }}">{{ $room->name }}</button>@empty<span class="p-4 text-textmuted">{{ __('Configura almeno una sala attiva.') }}</span>@endforelse
+        @forelse($rooms as $room)<button wire:key="room-tab-{{ $room->id }}" wire:click="selectRoom('{{ $room->id }}')" class="rooms-tab {{ $roomId===$room->id?'active':'' }}">{{ $room->name }}</button>@empty<span class="p-4 text-textmuted">{{ __('bookings.configure_active_room') }}</span>@endforelse
     </div>
     <div
         class="box-body booking-room-map-body"
@@ -187,12 +187,12 @@
         @keydown.escape.window="cancelInteractiveModes()"
     >
         <div class="flex flex-col items-start gap-3 mb-3 md:flex-row md:items-center md:justify-between">
-            <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen ? @js(__('Nascondi prenotazioni')) : @js(__('Mostra prenotazioni'))">{{ __('Mostra prenotazioni') }}</span></button>
-            <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> {{ __('Libero') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> {{ __('Arrivo entro 60 min') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> {{ __('Orario raggiunto') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> {{ __('Seduti') }}</span></div>
+            <button type="button" class="ti-btn ti-btn-light" @click="sidebarOpen=!sidebarOpen;$nextTick(()=>updateBookingScrollShadows())"><i class="las" :class="sidebarOpen?'la-chevron-left':'la-list'"></i> <span x-text="sidebarOpen ? @js(__('bookings.hide_bookings')) : @js(__('bookings.show_bookings'))">{{ __('bookings.show_bookings') }}</span></button>
+            <div class="flex flex-wrap gap-3 text-xs"><span><i class="inline-block w-3 h-3 rounded bg-[#99c08c]"></i> {{ __('bookings.available') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fef08a]"></i> {{ __('bookings.arrival_within_sixty_minutes') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fdba74]"></i> {{ __('bookings.arrival_time_reached') }}</span><span><i class="inline-block w-3 h-3 rounded bg-[#fca5a5]"></i> {{ __('bookings.statuses.seated') }}</span></div>
         </div>
         <div class="room-workspace">
-            <aside class="booking-sidebar" :class="{'hidden-panel':!sidebarOpen}" aria-label="{{ __('Prenotazioni') }}">
-                <div class="font-semibold mb-3">{{ __('Prenotazioni (') }}{{ $bookings->count() }})</div>
+            <aside class="booking-sidebar" :class="{'hidden-panel':!sidebarOpen}" aria-label="{{ __('bookings.title') }}">
+                <div class="font-semibold mb-3">{{ __('bookings.booking_count', ['count' => $bookings->count()]) }}</div>
                 <div class="booking-scroll-wrap">
                     <div x-show="bookingScrollHasAbove" x-cloak class="booking-scroll-shadow booking-scroll-shadow-top" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 12.5 10 6.5l6 6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                     <div x-ref="bookingScroller" class="booking-list-scroller max-h-[540px] overflow-y-auto pr-1" @scroll.passive="updateBookingScrollShadows()" @resize.window.debounce.100ms="updateBookingScrollShadows()">
@@ -206,45 +206,45 @@
                         <article id="booking-list-{{ $booking->id }}" class="booking-card" :class="{'highlighted':highlightedBookingId==='{{ $booking->id }}','is-drag-origin':dragging?.bookingId==='{{ $booking->id }}'&&dragging?.fromTableId===null}" @click.capture="if(Date.now()<suppressClicksUntil){$event.preventDefault();$event.stopPropagation()}">
                             <div class="flex justify-between items-start gap-2">
                                 <div class="min-w-0 flex items-center gap-1"><a class="font-semibold text-primary truncate" href="{{ route('bookings.show',$booking) }}">{{ $booking->customer ? $name : '🚶 Walk In' }}</a><span class="shrink-0" title="{{ $language['label'] }}" aria-label="{{ $language['label'] }}">{{ $language['flag'] }}</span></div>
-                                <strong class="booking-drag-handle whitespace-nowrap" title="{{ __('Trascina per assegnare a un tavolo') }}" @pointerdown="onListBookingPointerDown('{{ $booking->id }}',$event)"><i class="las la-clock"></i> {{ substr($booking->booking_time,0,5) }}</strong>
+                                <strong class="booking-drag-handle whitespace-nowrap" title="{{ __('bookings.drag_to_assign_table') }}" @pointerdown="onListBookingPointerDown('{{ $booking->id }}',$event)"><i class="las la-clock"></i> {{ substr($booking->booking_time,0,5) }}</strong>
                             </div>
                             <div class="flex flex-wrap items-center gap-1 mt-1 text-sm"><span><i class="las la-users"></i> {{ $booking->pax }} pax</span><span class="badge bg-{{ $status['color'] }}/10 text-{{ $status['color'] }}">{{ __('bookings.statuses.'.$booking->status) }}</span></div>
                             <div class="flex flex-wrap gap-1 mt-2 booking-card-actions">
-                                <a href="{{ route('bookings.show',$booking) }}" class="ti-btn ti-btn-icon !w-8 !h-8 bg-info text-white" title="{{ __('Gestisci') }}"><i class="las la-cog text-xl"></i></a>
-                                @if(in_array($booking->status,['pending','waiting']))<button wire:click="openAction('accept','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-success text-white" title="{{ __('Accetta') }}"><i class="las la-check text-xl"></i></button><button wire:click="openAction('deny','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-danger text-white" title="{{ __('Rifiuta') }}"><i class="las la-times text-xl"></i></button>@endif
-                                @if($booking->status==='accepted')<button type="button" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('Assegna trascinando la card') }}"><i class="las la-chair text-xl"></i></button>@if($booking->booking_date->isToday()||$booking->booking_date->isPast())<button wire:click="openAction('seat','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('Fai accomodare') }}"><i class="las la-user-check text-xl"></i></button><button wire:click="openAction('no-show','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-red-500 text-white" title="{{ __('No show') }}"><i class="las la-user-slash text-xl"></i></button>@endif @endif
-                                @if($booking->status==='seated')<button wire:click="openAction('finalize','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('Finalizza') }}"><i class="las la-check-double text-xl"></i></button>@endif
-                                @unless($booking->isWalkIn())<a href="{{ route('bookings.edit',$booking) }}" class="ti-btn ti-btn-icon !w-8 !h-8 bg-orange-500 text-white" title="{{ __('Modifica') }}"><i class="las la-edit text-xl"></i></a>@endunless
-                                @if($booking->note)<button wire:click="openAction('note','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-info text-white" title="{{ __('Note') }}"><i class="las la-comment text-xl"></i></button>@endif
+                                <a href="{{ route('bookings.show',$booking) }}" class="ti-btn ti-btn-icon !w-8 !h-8 bg-info text-white" title="{{ __('bookings.manage') }}"><i class="las la-cog text-xl"></i></a>
+                                @if(in_array($booking->status,['pending','waiting']))<button wire:click="openAction('accept','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-success text-white" title="{{ __('bookings.actions.accept') }}"><i class="las la-check text-xl"></i></button><button wire:click="openAction('deny','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-danger text-white" title="{{ __('bookings.reject') }}"><i class="las la-times text-xl"></i></button>@endif
+                                @if($booking->status==='accepted')<button type="button" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('bookings.assign_by_dragging_card') }}"><i class="las la-chair text-xl"></i></button>@if($booking->booking_date->isToday()||$booking->booking_date->isPast())<button wire:click="openAction('seat','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('bookings.seat_customer') }}"><i class="las la-user-check text-xl"></i></button><button wire:click="openAction('no-show','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-red-500 text-white" title="{{ __('bookings.no_show') }}"><i class="las la-user-slash text-xl"></i></button>@endif @endif
+                                @if($booking->status==='seated')<button wire:click="openAction('finalize','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-green-500 text-white" title="{{ __('bookings.finalize') }}"><i class="las la-check-double text-xl"></i></button>@endif
+                                @unless($booking->isWalkIn())<a href="{{ route('bookings.edit',$booking) }}" class="ti-btn ti-btn-icon !w-8 !h-8 bg-orange-500 text-white" title="{{ __('bookings.edit_action') }}"><i class="las la-edit text-xl"></i></a>@endunless
+                                @if($booking->note)<button wire:click="openAction('note','{{ $booking->id }}')" class="ti-btn ti-btn-icon !w-8 !h-8 bg-info text-white" title="{{ __('bookings.form.notes') }}"><i class="las la-comment text-xl"></i></button>@endif
                             </div>
-                            <div class="border-t mt-2 pt-2"><div class="flex flex-wrap items-center gap-1 text-xs"><i class="las la-chair"></i>@forelse($booking->tables as $table)<span class="badge booking-table-badge bg-secondary/10 text-black">{{ $table->name }}</span>@empty<span class="text-danger">{{ __('Tavolo non assegnato') }}</span>@endforelse</div>
-                                @if($booking->status==='seated')<div class="progress mt-2 !h-2"><div class="progress-bar {{ $progress<60?'!bg-success':($progress<85?'!bg-warning':'!bg-danger') }}" style="width:{{ $progress }}%"></div></div><div class="text-right text-[11px] mt-1">{{ __('Permanenza') }} {{ $progress }}%</div>@endif
+                            <div class="border-t mt-2 pt-2"><div class="flex flex-wrap items-center gap-1 text-xs"><i class="las la-chair"></i>@forelse($booking->tables as $table)<span class="badge booking-table-badge bg-secondary/10 text-black">{{ $table->name }}</span>@empty<span class="text-danger">{{ __('bookings.table_unassigned') }}</span>@endforelse</div>
+                                @if($booking->status==='seated')<div class="progress mt-2 !h-2"><div class="progress-bar {{ $progress<60?'!bg-success':($progress<85?'!bg-warning':'!bg-danger') }}" style="width:{{ $progress }}%"></div></div><div class="text-right text-[11px] mt-1">{{ __('bookings.stay_duration') }} {{ $progress }}%</div>@endif
                             </div>
                         </article>
-                        @empty<div class="text-center text-textmuted p-4">{{ __('Nessuna prenotazione.') }}</div>@endforelse
+                        @empty<div class="text-center text-textmuted p-4">{{ __('bookings.no_bookings') }}</div>@endforelse
                     </div>
                     <div x-show="bookingScrollHasBelow" x-cloak class="booking-scroll-shadow booking-scroll-shadow-bottom" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4 7.5 6 6 6-6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                 </div>
             </aside>
-            <section class="room-layout" aria-label="{{ __('Mappa sala') }}">
+            <section class="room-layout" aria-label="{{ __('bookings.room_map') }}">
                 <div class="room-inner" :style="roomInnerStyle()">
                     <template x-for="table in tables" :key="table.id"><div :class="tableCssClasses(table)" :style="tableStyle(table)" :data-drop-table-id="table.id" @click="onTableClick(table.id,$event)">
-                        <div class="table-header" @click.stop="openTableModal(table.id)"><strong class="table-number" x-text="table.number"></strong><span class="table-capacity" x-text="`${table.min}-${table.max}`"></span><span x-show="countdownMinutes(table)!==null" class="table-countdown" x-text="`${countdownMinutes(table)} min`" title="{{ __('Minuti all\'arrivo') }}"></span></div>
+                        <div class="table-header" @click.stop="openTableModal(table.id)"><strong class="table-number" x-text="table.number"></strong><span class="table-capacity" x-text="`${table.min}-${table.max}`"></span><span x-show="countdownMinutes(table)!==null" class="table-countdown" x-text="`${countdownMinutes(table)} min`" title="{{ __('bookings.minutes_until_arrival') }}"></span></div>
                         <div class="table-bookings" x-show="table.bookings.length"><template x-for="booking in table.bookings" :key="`${table.id}-${booking.id}`"><div class="table-booking-row" :class="{'is-drag-origin':isDraggedBooking(table.id,booking.id)}" :title="fullBookingRowLabel(booking)" @pointerdown.stop="onBookingPointerDown(table.id,booking.id,$event)" @click.stop="onBookingRowClick(booking.id)" x-text="bookingRowLabel(booking)"></div></template></div>
                     </div></template>
                 </div>
             </section>
         </div>
         <div x-show="dragPreview.visible" x-cloak class="booking-drag-preview" :style="`left:${dragPreview.x}px;top:${dragPreview.y}px`" x-text="dragPreview.label"></div>
-        <div x-show="bookingMenu.open" x-cloak class="booking-context-menu" :style="`left:${bookingMenu.x}px;top:${bookingMenu.y}px`" @click.outside="closeBookingMenu()" @pointerdown.stop><button x-show="bookingMenu.canDetach" class="booking-menu-btn booking-menu-btn-remove" title="{{ __('Scollega dal tavolo') }}" @click="detachBookingFromMenu()">✕</button><button class="booking-menu-btn booking-menu-btn-add" title="{{ __('Aggiungi a un altro tavolo') }}" @click="beginAddTableMode()">+</button></div>
-        <div x-show="addTableMode.active" x-cloak class="room-floating-hint"><span x-text="@js(__('Seleziona un altro tavolo per :booking')).replace(':booking', addTableMode.label)"></span> <button class="ml-2" @click="cancelAddTableMode()">{{ __('Annulla') }}</button></div>
+        <div x-show="bookingMenu.open" x-cloak class="booking-context-menu" :style="`left:${bookingMenu.x}px;top:${bookingMenu.y}px`" @click.outside="closeBookingMenu()" @pointerdown.stop><button x-show="bookingMenu.canDetach" class="booking-menu-btn booking-menu-btn-remove" type="button" title="{{ __('bookings.unlink_from_table') }}" aria-label="{{ __('bookings.unlink_from_table') }}" @click="detachBookingFromMenu()"><i class="las la-times text-xl" aria-hidden="true"></i></button><button class="booking-menu-btn booking-menu-btn-add" type="button" title="{{ __('bookings.add_to_another_table') }}" aria-label="{{ __('bookings.add_to_another_table') }}" @click="beginAddTableMode()"><i class="las la-plus text-xl" aria-hidden="true"></i></button></div>
+        <div x-show="addTableMode.active" x-cloak class="room-floating-hint"><span x-text="@js(__('bookings.select_another_table_for_booking')).replace(':booking', addTableMode.label)"></span> <button class="ml-2" @click="cancelAddTableMode()">{{ __('bookings.cancel') }}</button></div>
 
         <div x-show="tableModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center"><div class="absolute inset-0 bg-black/50" @click="closeTableModal()"></div><div class="relative z-10 bg-white dark:bg-bodybg rounded-xl shadow-2xl p-6 w-full max-w-xl" @click.stop>
-            <div class="flex justify-between"><h2 class="text-xl font-bold" x-text="selectedTable ? @js(__('Tavolo :number')).replace(':number', selectedTable.number) : @js(__('Tavolo'))"></h2><button @click="closeTableModal()">✕</button></div>
-            <div class="flex border-b mt-4"><button class="modal-tab" :class="{active:tableModalTab==='assign'}" @click="tableModalTab='assign'">{{ __('Assegna tavoli') }}</button><button class="modal-tab" :class="{active:tableModalTab==='create'}" @click="tableModalTab='create'">{{ __('Nuova prenotazione') }}</button><button class="modal-tab" :class="{active:tableModalTab==='bookings'}" @click="tableModalTab='bookings'">{{ __('Prenotazioni del tavolo') }}</button></div>
+            <div class="flex justify-between"><h2 class="text-xl font-bold" x-text="selectedTable ? @js(__('bookings.table_number')).replace(':number', selectedTable.number) : @js(__('bookings.table'))"></h2><button type="button" @click="closeTableModal()" aria-label="{{ __('bookings.close') }}"><i class="las la-times text-xl" aria-hidden="true"></i></button></div>
+            <div class="flex border-b mt-4"><button class="modal-tab" :class="{active:tableModalTab==='assign'}" @click="tableModalTab='assign'">{{ __('bookings.form.assign_tables') }}</button><button class="modal-tab" :class="{active:tableModalTab==='create'}" @click="tableModalTab='create'">{{ __('bookings.new') }}</button><button class="modal-tab" :class="{active:tableModalTab==='bookings'}" @click="tableModalTab='bookings'">{{ __('bookings.table_bookings') }}</button></div>
             <div x-show="selectedTable" class="py-4">
                 <div x-show="tableModalTab==='assign'">
-                    <input x-model="modalSearch" class="form-control mb-3" placeholder="{{ __('Cerca per nome cliente…') }}">
+                    <input x-model="modalSearch" class="form-control mb-3" placeholder="{{ __('bookings.search_by_customer_name') }}">
                     <div class="max-h-72 overflow-y-auto space-y-2">
                         @php $unassignedRoomBookings = collect($roomBookings)->filter(fn (array $booking): bool => empty($booking['tableIds'])); @endphp
                         @forelse($unassignedRoomBookings as $assignableBooking)
@@ -262,12 +262,12 @@
                                 >{{ __('bookings.actions.assign') }}</button>
                             </div>
                         @empty
-                            <p class="text-textmuted">{{ __('Nessuna prenotazione da assegnare.') }}</p>
+                            <p class="text-textmuted">{{ __('bookings.no_bookings_to_assign') }}</p>
                         @endforelse
                     </div>
                 </div>
-                <div x-show="tableModalTab==='create'"><p class="mb-3">{{ __('Crea una prenotazione per il') }} {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} {{ __('e assegnala al tavolo selezionato.') }}</p><a href="{{ route('bookings.create', ['date'=>$date]) }}" class="ti-btn ti-btn-primary">{{ __('Nuova prenotazione') }}</a></div>
-                <div x-show="tableModalTab==='bookings'" class="space-y-2"><template x-for="booking in (selectedTable?.allBookings || [])" :key="booking.id"><div class="flex items-center gap-2 border rounded p-3" :class="booking.isPast?'opacity-70 bg-gray-50':''"><button type="button" class="min-w-0 flex-1 text-left" @click="closeTableModal();onBookingRowClick(booking.id)"><span class="flex items-center justify-between gap-3"><span><strong x-text="booking.time"></strong> · <span x-text="booking.customer"></span> · <span x-text="`${booking.pax} pax`"></span></span><span class="badge bg-secondary/10 text-black" x-text="booking.statusLabel"></span></span></button><button x-show="booking.canDetach" type="button" class="ti-btn ti-btn-icon !m-0 !w-8 !h-8 bg-danger text-white shrink-0" title="{{ __('bookings.actions.remove_from_table') }}" @click="detachBooking(booking.id, selectedTableId)"><i class="las la-times text-xl"></i><span class="sr-only">{{ __('bookings.actions.remove_from_table') }}</span></button></div></template><p x-show="!(selectedTable?.allBookings || []).length" class="text-textmuted">{{ __('Nessuna prenotazione associata al tavolo per questa data.') }}</p></div>
+                <div x-show="tableModalTab==='create'"><p class="mb-3">{{ __('bookings.create_booking_for_date', ['date' => \Carbon\Carbon::parse($date)->format('d/m/Y')]) }}</p><a href="{{ route('bookings.create', ['date'=>$date]) }}" class="ti-btn ti-btn-primary"><i class="las la-plus text-xl" aria-hidden="true"></i> {{ __('bookings.new') }}</a></div>
+                <div x-show="tableModalTab==='bookings'" class="space-y-2"><template x-for="booking in (selectedTable?.allBookings || [])" :key="booking.id"><div class="flex items-center gap-2 border rounded p-3" :class="booking.isPast?'opacity-70 bg-gray-50':''"><button type="button" class="min-w-0 flex-1 text-left" @click="closeTableModal();onBookingRowClick(booking.id)"><span class="flex items-center justify-between gap-3"><span><strong x-text="booking.time"></strong> · <span x-text="booking.customer"></span> · <span x-text="`${booking.pax} pax`"></span></span><span class="badge bg-secondary/10 text-black" x-text="booking.statusLabel"></span></span></button><button x-show="booking.canDetach" type="button" class="ti-btn ti-btn-icon !m-0 !w-8 !h-8 bg-danger text-white shrink-0" title="{{ __('bookings.actions.remove_from_table') }}" @click="detachBooking(booking.id, selectedTableId)"><i class="las la-times text-xl"></i><span class="sr-only">{{ __('bookings.actions.remove_from_table') }}</span></button></div></template><p x-show="!(selectedTable?.allBookings || []).length" class="text-textmuted">{{ __('bookings.no_table_bookings_for_date') }}</p></div>
             </div>
         </div></div>
     </div></div>
@@ -275,13 +275,13 @@
         @php $modalBooking=$bookings->firstWhere('id',$selectedBookingId); @endphp
         <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" wire:click.self="closeModal"><div class="bg-white dark:bg-bodybg rounded-lg shadow-xl p-5 w-full max-w-md">
             @if($modal==='note')
-                <h2 class="text-xl font-bold mb-3">{{ __('Note prenotazione') }}</h2><p class="whitespace-pre-wrap">{{ $modalBooking?->note }}</p>
+                <h2 class="text-xl font-bold mb-3">{{ __('bookings.booking_notes') }}</h2><p class="whitespace-pre-wrap">{{ $modalBooking?->note }}</p>
             @else
                 @php $confirmationKey = str_replace('-', '_', $modal); @endphp
                 <h2 class="text-xl font-bold mb-3">{{ __("bookings.actions.confirmations.{$confirmationKey}.title") }}</h2><p class="mb-4">{{ __("bookings.actions.confirmations.{$confirmationKey}.prompt") }} <strong>{{ $modalBooking?->customer?->display_name ?: 'Walk In' }}</strong>?</p>
-                <button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">{{ __('Conferma') }}</button>
+                <button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">{{ __('bookings.confirm') }}</button>
             @endif
-            <button wire:click="closeModal" class="ti-btn ti-btn-secondary">{{ __('Chiudi') }}</button>
+            <button wire:click="closeModal" class="ti-btn ti-btn-secondary">{{ __('bookings.close') }}</button>
         </div></div>
     @endif
     </div>

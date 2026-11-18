@@ -25,7 +25,7 @@ class OrderProposalService
         $this->check(in_array($order->fulfillment, ['pickup', 'delivery']) && $order->status === 'open'
             && in_array($order->fulfillment_status, ['received', 'accepted']) && ! $order->payments()->exists()
             && ! $order->courses()->whereNotNull('sent_at')->exists(),
-            __('Le proposte sono disponibili soltanto per ordini non pagati e non ancora in preparazione.'));
+            __('customer_orders.messages.proposals_are_only_available_for_unpaid_orders_not_yet_in'));
     }
 
     public function initialLines(Order $order): array
@@ -51,13 +51,13 @@ class OrderProposalService
         foreach ($lines as $line) {
             $item = empty($line['original_item_id']) ? null : $order->items()->with('modifiers')->findOrFail($line['original_item_id']);
             if ($item) {
-                $this->check(($line['product_id'] ?? null) === $item->product_id, __('Per sostituire un prodotto rimuovi la riga e aggiungi il nuovo prodotto.'));
+                $this->check(($line['product_id'] ?? null) === $item->product_id, __('customer_orders.messages.to_replace_a_product_remove_its_line_and_add_the'));
                 $attributes = $item->only(['product_id', 'menu_id', 'product_name', 'menu_name', 'department_id', 'department_name', 'requires_production', 'base_price_cents', 'vat']);
                 if ($item->product_id) {
                     $product = DigitalMenuProduct::with('ingredients')->findOrFail($item->product_id);
                     [$price,$modifiers] = app(OrderPricingService::class)->modifiers($product, $item->base_price_cents, $line['added'] ?? [], $line['removed'] ?? [], $item);
                 } else {
-                    $this->check(empty($line['added']) && empty($line['removed']), __('Il prodotto è stato rimosso dal catalogo: sono modificabili soltanto quantità e note.'));
+                    $this->check(empty($line['added']) && empty($line['removed']), __('customer_orders.messages.the_product_was_removed_from_the_catalog_only_quantity_and'));
                     $price = $item->unit_price_cents;
                     $modifiers = $item->modifiers->map(fn ($m) => $m->only(['ingredient_id', 'ingredient_name', 'action', 'price_cents']))->all();
                 }
@@ -65,7 +65,7 @@ class OrderProposalService
             } else {
                 $quote = app(OrderPricingService::class)->quote($line, true, $order->fulfillment, $order->customer_language ?: ($order->customer?->lang ?? 'it'));
             }
-            $this->check(! $quote['attributes']['requires_production'] || Department::whereKey($quote['attributes']['department_id'])->where('production', true)->exists(), __('Un reparto produttivo non è più disponibile.'));
+            $this->check(! $quote['attributes']['requires_production'] || Department::whereKey($quote['attributes']['department_id'])->where('production', true)->exists(), __('customer_orders.messages.a_production_department_is_no_longer_available'));
             $quote['original_item_id'] = $item?->id;
             $quotes[] = $quote;
             $subtotal += $quote['attributes']['quantity'] * $quote['attributes']['unit_price_cents'];
@@ -78,11 +78,11 @@ class OrderProposalService
     {
         Validator::make($details, ['date' => 'required|date_format:Y-m-d', 'time' => 'required|date_format:H:i', 'notes' => 'nullable|string|max:2000'])->validate();
         $quote = $this->priceLines($order, $lines);
-        $this->check(in_array($details['time'], app(AvailabilityService::class)->slots($details['date'], $order->fulfillment), true), __('Scegli un orario disponibile per il servizio.'));
+        $this->check(in_array($details['time'], app(AvailabilityService::class)->slots($details['date'], $order->fulfillment), true), __('customer_orders.messages.choose_an_available_time_for_the_service'));
         $settings = app(OrderingSettings::class)->get();
         $fee = 0;
         if ($order->fulfillment === 'delivery') {
-            $this->check($quote['subtotal'] >= $settings['delivery_minimum_cents'], __('Il minimo per la consegna non è stato raggiunto.'));
+            $this->check($quote['subtotal'] >= $settings['delivery_minimum_cents'], __('customer_orders.messages.the_delivery_minimum_has_not_been_reached'));
             $fee = $settings['delivery_free_over_cents'] > 0 && $quote['subtotal'] >= $settings['delivery_free_over_cents'] ? 0 : $settings['delivery_fee_cents'];
         }
         $quote['changes'] = [
@@ -118,15 +118,15 @@ class OrderProposalService
         return DB::transaction(function () use ($orderId, $lines, $details, $message, $expectedTotal, $expectedFingerprint) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
             $this->assertEditable($order);
-            $this->check(! $order->pendingProposal()->exists(), __('Esiste già una proposta in attesa. Ritirala prima di inviarne un’altra.'));
-            $this->check(hash_equals($this->fingerprint($order), $expectedFingerprint), __('L’ordine è cambiato. Riapri la proposta per lavorare sui dati aggiornati.'));
+            $this->check(! $order->pendingProposal()->exists(), __('customer_orders.messages.a_proposal_is_already_pending_withdraw_it_before_sending_another'));
+            $this->check(hash_equals($this->fingerprint($order), $expectedFingerprint), __('customer_orders.messages.the_order_changed_reopen_the_proposal_to_use_the_updated'));
             $quote = $this->quote($order, $lines, $details);
-            $this->check($quote['total'] === $expectedTotal, __('Il totale è cambiato. Controlla il nuovo riepilogo prima di inviare.'));
-            $this->check((bool) $order->customer_email, __('Il cliente non ha un indirizzo email.'));
+            $this->check($quote['total'] === $expectedTotal, __('customer_orders.messages.the_total_changed_check_the_new_summary_before_sending'));
+            $this->check((bool) $order->customer_email, __('customer_orders.messages.the_customer_has_no_email_address'));
             $settings = app(OrderingSettings::class)->get();
             $deadline = Carbon::parse($quote['changes']['requested_at'])->subMinutes(max($settings['preparation_minutes'], $settings['lead_minutes']));
             $expires = $deadline->lessThan(now()->addDay()) ? $deadline : now()->addDay();
-            $this->check($expires->isFuture(), __('L’orario è troppo vicino per attendere una risposta. Scegli un orario successivo.'));
+            $this->check($expires->isFuture(), __('customer_orders.messages.there_is_not_enough_time_to_wait_for_a_response'));
             $order->proposals()->where('status', 'pending')->where('expires_at', '<=', now())->update(['status' => 'expired']);
             $token = Str::random(64);
             $summary = app(OrderSummaryService::class);
@@ -161,12 +161,12 @@ class OrderProposalService
             if ($proposal->status === $status) {
                 return $proposal;
             }
-            $this->check($proposal->isPending(), __('La proposta non è più disponibile. Contatta il ristorante.'));
+            $this->check($proposal->isPending(), __('customer_orders.messages.the_proposal_is_no_longer_available_contact_the_restaurant'));
             $this->assertEditable($order);
-            $this->check(hash_equals($proposal->order_fingerprint, $this->fingerprint($order)), __('L’ordine è cambiato. Contatta il ristorante prima di confermare.'));
+            $this->check(hash_equals($proposal->order_fingerprint, $this->fingerprint($order)), __('customer_orders.messages.the_order_changed_contact_the_restaurant_before_confirming'));
             if ($choice === 'accept') {
                 $at = Carbon::parse($proposal->payload['changes']['requested_at']);
-                $this->check(in_array($at->format('H:i'), app(AvailabilityService::class)->slots($at->toDateString(), $order->fulfillment), true), __('L’orario proposto non è più disponibile. Contatta il ristorante.'));
+                $this->check(in_array($at->format('H:i'), app(AvailabilityService::class)->slots($at->toDateString(), $order->fulfillment), true), __('customer_orders.messages.the_proposed_time_is_no_longer_available_contact_the_restaurant'));
                 $this->apply($order, $proposal->payload);
             }
             $proposal->update(['status' => $status, 'responded_at' => now()]);
@@ -184,7 +184,7 @@ class OrderProposalService
         $retained = [];
         foreach ($payload['lines'] as $line) {
             $attributes = $line['attributes'];
-            $this->check(! $attributes['requires_production'] || Department::whereKey($attributes['department_id'])->where('production', true)->exists(), __('Un reparto non è più disponibile. Contatta il ristorante.'));
+            $this->check(! $attributes['requires_production'] || Department::whereKey($attributes['department_id'])->where('production', true)->exists(), __('customer_orders.messages.a_department_is_no_longer_available_contact_the_restaurant'));
             if ($attributes['department_id'] && ! Department::whereKey($attributes['department_id'])->exists()) {
                 $attributes['department_id'] = null;
             }
@@ -221,7 +221,7 @@ class OrderProposalService
         DB::transaction(function () use ($orderId, $proposalId) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
             $proposal = $order->proposals()->lockForUpdate()->findOrFail($proposalId);
-            $this->check($proposal->isPending(), __('La proposta non è più in attesa.'));
+            $this->check($proposal->isPending(), __('customer_orders.messages.the_proposal_is_no_longer_pending'));
             $proposal->update(['status' => 'withdrawn', 'responded_at' => now()]);
             $order->events()->create(['user_id' => auth()->id(), 'action' => 'proposal_withdrawn', 'details' => ['proposal' => $proposal->id]]);
             app(OrderNotifications::class)->proposalResponded($proposal, $order->fresh());

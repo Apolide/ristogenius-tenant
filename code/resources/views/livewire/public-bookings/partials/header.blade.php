@@ -12,7 +12,7 @@
         >
             @foreach($languages as $code => $meta)
                 <option value="{{ $languageUrls[$code] }}" @selected($language === $code)>
-                    {{ $meta['flag'] }} {{ strtoupper($code) }}
+                    {{ $meta['flag'] }} {{ $meta['label'] }}
                 </option>
             @endforeach
         </select>

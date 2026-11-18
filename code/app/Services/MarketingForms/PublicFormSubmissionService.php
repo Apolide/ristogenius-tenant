@@ -105,7 +105,7 @@ class PublicFormSubmissionService
         $phoneCustomer = $phone ? Customer::query()->where('phone', $phone)->first() : null;
         if ($emailCustomer && $phoneCustomer && ! $emailCustomer->is($phoneCustomer)) {
             throw ValidationException::withMessages([
-                'answers.email' => __('Email e telefono appartengono a due clienti diversi.'),
+                'answers.email' => __('marketing_forms.email_phone_customer_mismatch'),
             ]);
         }
         $customer = $emailCustomer ?? $phoneCustomer;

@@ -138,7 +138,7 @@ class Show extends Component
             $this->payer ?: null, $this->voucherIssuer ?: null, $this->voucherReference ?: null, $this->displayedBalance);
         $this->paymentKey = (string) \Illuminate\Support\Str::uuid();
         $this->reset('amount', 'tip', 'payer', 'voucherIssuer', 'voucherReference');
-        session()->flash('order_notice', __('Pagamento registrato.'));
+        session()->flash('order_notice', __('cash_desk.payment_recorded'));
     }
 
     private function money(string $value): int
@@ -150,13 +150,13 @@ class Show extends Component
     {
         $this->validate(['shares' => 'integer|min:2|max:100', 'splitMode' => 'in:equal,items']);
         app(CashBillService::class)->create($this->orderId, $this->splitMode, $this->shares, $this->displayedTotal, $this->displayedBalance);
-        session()->flash('order_notice', __('Paganti preparati. Seleziona una quota per incassare.'));
+        session()->flash('order_notice', __('cash_desk.payers_prepared_select_a_share_to_record_payment'));
     }
 
     public function clearSplit(): void
     {
         app(CashBillService::class)->remove($this->orderId, $this->displayedPlanVersion ?? 0);
-        session()->flash('order_notice', __('Divisione rimossa.'));
+        session()->flash('order_notice', __('cash_desk.split_removed'));
     }
 
     public function openPayment(?string $shareId = null): void
@@ -169,9 +169,9 @@ class Show extends Component
         if ($plan) {
             app(CashBillService::class)->assertCurrent($order, $plan, $plan->version);
             $share = $plan->shares()->findOrFail($shareId);
-            $this->check(! $share->batches()->exists() && $share->balanceCents() > 0, __('Quota già pagata o senza importo da incassare.'));
+            $this->check(! $share->batches()->exists() && $share->balanceCents() > 0, __('cash_desk.share_already_paid_or_no_amount_to_collect'));
         } else {
-            $this->check($shareId === null, __('La divisione non è più disponibile.'));
+            $this->check($shareId === null, __('cash_desk.the_split_is_no_longer_available'));
         }
         $this->payShareId = $share?->id;
         $this->paymentExpectedTotal = $order->totalCents();
@@ -201,7 +201,7 @@ class Show extends Component
 
     public function fillPayment(string $method): void
     {
-        $this->check(in_array($method, ['cash', 'card', 'voucher'], true), __('Metodo non valido.'));
+        $this->check(in_array($method, ['cash', 'card', 'voucher'], true), __('cash_desk.invalid_method'));
         $this->cashAmount = $this->cardAmount = $this->voucherAmount = '0.00';
         $field = $method.'Amount';
         $this->{$field} = $this->decimal($this->paymentTargetCents);
@@ -210,14 +210,14 @@ class Show extends Component
 
     public function fillRemaining(string $method): void
     {
-        $this->check(in_array($method, ['cash', 'card', 'voucher'], true), __('Metodo non valido.'));
+        $this->check(in_array($method, ['cash', 'card', 'voucher'], true), __('cash_desk.invalid_method'));
         $other = 0;
         foreach (['cash', 'card', 'voucher'] as $candidate) {
             if ($candidate !== $method) {
                 $other += $this->previewMoney($this->{$candidate.'Amount'});
             }
         }
-        $this->check($other <= $this->paymentTargetCents, __('Gli altri importi superano la quota.'));
+        $this->check($other <= $this->paymentTargetCents, __('cash_desk.the_other_amounts_exceed_the_share'));
         $this->{$method.'Amount'} = $this->decimal($this->paymentTargetCents - $other);
     }
 
@@ -230,7 +230,7 @@ class Show extends Component
         $this->validate($rules);
         $this->validate(['checkoutDocument' => 'required|in:none,receipt,invoice', 'checkoutEmailCopy' => 'boolean', 'checkoutAgreement' => 'boolean']);
         if ($this->checkoutEmailCopy) {
-            $this->check($this->checkoutDocument !== 'none', __('Scegli un documento per richiederne la copia.'));
+            $this->check($this->checkoutDocument !== 'none', __('cash_desk.choose_a_document_to_request_a_copy'));
             app(\App\Services\Fiscal\FiscalCopyService::class)->validate($this->checkoutEmail, $this->checkoutAgreement, $this->checkoutCustomerId);
         }
         if ($this->checkoutDocument !== 'none') {
@@ -239,7 +239,7 @@ class Show extends Component
             $service->context($service->store($this->checkoutStoreId), $this->checkoutRegisterId);
             if ($this->checkoutDocument === 'invoice') {
                 $profile = app(\App\Services\Fiscal\FiscalSetupService::class)->profile();
-                $this->check($profile->invoice_enabled && filled($profile->tax_regime), __('Configura e abilita prima le fatture sandbox.'));
+                $this->check($profile->invoice_enabled && filled($profile->tax_regime), __('cash_desk.configure_and_enable_sandbox_invoices_first'));
                 app(\App\Services\Fiscal\ItalianInvoiceXml::class)->recipient($this->checkoutBuyer);
             }
         }
@@ -258,19 +258,19 @@ class Show extends Component
         });
         // The money and delivery request are durable before contacting the provider.
         $this->paymentModal = false;
-        $notice = __('Incasso registrato. Il residuo è stato aggiornato.');
+        $notice = __('cash_desk.payment_recorded_the_balance_has_been_updated');
         if (! $repeated && $this->checkoutDocument !== 'none') {
             try {
                 $document = $this->checkoutDocument === 'invoice'
                     ? app(\App\Services\Fiscal\FiscalInvoiceService::class)->issue($batch->id, $this->checkoutBuyer, $this->checkoutStoreId, $this->checkoutRegisterId)
                     : app(\App\Services\Fiscal\FiscalDocumentService::class)->issueBatch($batch->id, $this->checkoutStoreId, $this->checkoutRegisterId);
-                $notice = $document->status === 'issued' ? __('Incasso registrato e documento sandbox emesso.') : __('Incasso registrato. Richiesta fiscale inviata: verifica l’esito sotto l’incasso.');
+                $notice = $document->status === 'issued' ? __('cash_desk.payment_recorded_and_sandbox_document_issued') : __('cash_desk.payment_recorded_fiscal_request_sent');
             } catch (ValidationException $error) {
                 $this->addError('fiscal', implode(' ', $error->validator->errors()->all()));
-                $notice = __('Incasso registrato. Emissione da completare o verificare sotto l’incasso: non ripetere il pagamento.');
+                $notice = __('cash_desk.payment_recorded_check_document_issuance');
             } catch (\Throwable $error) {
                 report($error);
-                $notice = __('Incasso registrato. Servizio fiscale non disponibile: verifica il documento sotto l’incasso, senza ripetere il pagamento.');
+                $notice = __('cash_desk.payment_recorded_fiscal_service_unavailable');
             }
         }
         if ($this->checkoutEmailCopy) {
@@ -278,7 +278,7 @@ class Show extends Component
                 app(\App\Services\Fiscal\FiscalCopyService::class)->queueReady(1, $batch->id);
             } catch (\Throwable $error) {
                 report($error);
-                $this->addError('copy', __('Richiesta copia salvata, accodamento email da verificare. Non ripetere il pagamento o l’emissione.'));
+                $this->addError('copy', __('cash_desk.copy_request_queue_needs_verification'));
             }
         }
         session()->flash('order_notice', $notice);
@@ -323,7 +323,7 @@ class Show extends Component
         $plan = $order->billPlan()->firstOrFail();
         app(CashBillService::class)->assertCurrent($order, $plan, $plan->version);
         $share = $plan->shares()->findOrFail($shareId);
-        $this->check($plan->mode === 'items' && ! $share->is_remainder && ! $share->batches()->exists(), __('Quota non modificabile.'));
+        $this->check($plan->mode === 'items' && ! $share->is_remainder && ! $share->batches()->exists(), __('cash_desk.share_cannot_be_edited'));
         $this->editShareId = $share->id;
         $this->assignmentVersion = $plan->version;
         $this->shareLabel = $share->displayLabel();
@@ -336,7 +336,7 @@ class Show extends Component
 
     public function saveAssignment(): void
     {
-        $this->check($this->editShareId !== null, __('Seleziona un pagante.'));
+        $this->check($this->editShareId !== null, __('cash_desk.select_a_payer'));
         app(CashBillService::class)->assign($this->orderId, $this->editShareId, $this->selectedQuantities, $this->shareLabel, $this->assignmentVersion);
         $this->assignmentModal = false;
     }
@@ -386,13 +386,13 @@ class Show extends Component
     {
         $this->validate(['discount' => ['required', 'regex:/^\d{1,7}([.,]\d{1,2})?$/']]);
         app(OrderService::class)->discount($this->orderId, $this->money($this->discount), $this->discountReason, $this->displayedTotal, $this->percentage, $this->auxiliaryVat);
-        session()->flash('order_notice', __('Sconto e aliquota aggiornati.'));
+        session()->flash('order_notice', __('cash_desk.discount_and_vat_rate_updated'));
     }
 
     public function cancel(): void
     {
         app(OrderService::class)->cancel($this->orderId);
-        session()->flash('order_notice', __('Ordine annullato.'));
+        session()->flash('order_notice', __('cash_desk.order_cancelled'));
     }
 
     public function toggleCoupon(): void
@@ -470,6 +470,6 @@ class Show extends Component
             'assignmentLines' => $assignmentLines, 'assignmentPreview' => $assignmentPreview, 'paymentPreview' => $paymentPreview,
             'tipPreview' => $this->previewMoney($this->tip),
             'assignmentRemainder' => $this->assignmentModal && $plan ? max(0, ($plan->shares->firstWhere('is_remainder', true)?->amount_cents ?? 0) + ($plan->shares->firstWhere('id', $this->editShareId)?->amount_cents ?? 0) - $assignmentPreview) : 0,
-        ])->title(__('Cassa · ').$order->table_name);
+        ])->title(__('cash_desk.cash_desk_title_prefix').$order->table_name);
     }
 }

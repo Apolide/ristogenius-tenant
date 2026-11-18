@@ -1,13 +1,13 @@
 <div class="w-full mb-5">
-    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('department_settings.name') }} (Italiano)</label>
+    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('department_settings.name') }} ({{ config('locales.it.label') }})</label>
     <input required wire:model="name" type="text" id="name" class="form-control" placeholder="{{ __('department_settings.name') }}">
     @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
 </div>
 
 <div class="grid md:grid-cols-2 grid-cols-1 gap-5 mb-5">
-    @foreach (['en' => 'English', 'de' => 'Deutsch'] as $language => $label)
+    @foreach ($translationLanguages as $language => $meta)
         <div>
-            <label for="department-name-{{ $language }}" class="block mb-2 text-sm font-medium">{{ __('department_settings.name') }} ({{ $label }})</label>
+            <label for="department-name-{{ $language }}" class="block mb-2 text-sm font-medium">{{ __('department_settings.name') }} (<x-language-label :meta="$meta" />)</label>
             <input wire:model="nameTranslations.{{ $language }}" type="text" id="department-name-{{ $language }}" maxlength="255" class="form-control" placeholder="{{ __('department_settings.translation_placeholder') }}">
             @error('nameTranslations.'.$language) <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
         </div>

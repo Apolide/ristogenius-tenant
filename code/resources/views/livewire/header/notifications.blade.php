@@ -34,8 +34,8 @@ wire:ignore.self wire:poll.15s data-hs-dropdown-placement="bottom-right">
     @forelse ($notifications as $notification)
       <li class="dropdown-item px-3" wire:key="notification-{{ $notification->id }}">
         <a href="{{ $notification->url }}" wire:click.prevent="open({{ $notification->id }})" class="flex items-center gap-3 w-full py-2">
-          <span class="avatar avatar-md avatar-rounded flex-shrink-0 {{ $notification->pivot->read_at ? 'bg-light' : 'bg-success' }}">
-            <i class="la {{ str_starts_with($notification->type, 'customer_order.proposal_') ? 'la-comment' : (str_starts_with($notification->type, 'table_order.') ? 'la-utensils' : 'la-bell') }} text-[1.25rem]" aria-hidden="true"></i>
+          <span class="avatar avatar-md avatar-rounded flex-shrink-0 {{ $notification->pivot->read_at ? 'bg-secondary' : 'bg-success' }}">
+            <i class="la {{ $notification->icon() }} text-[1.25rem]" aria-hidden="true"></i>
           </span>
           <div class="min-w-0 whitespace-normal">
             <h5 class="notification-label text-defaulttextcolor mb-1 {{ $notification->pivot->read_at ? '' : 'font-semibold' }}">{{ $notification->translatedTitle() }}</h5>
@@ -48,6 +48,9 @@ wire:ignore.self wire:poll.15s data-hs-dropdown-placement="bottom-right">
       <li class="px-3 py-4 text-center text-muted">{{ __('interface.empty') }}</li>
     @endforelse
   </ul>
-  <div class="text-center dropdown-footer text-muted text-xs py-2">{{ __('interface.notification_footer', ['count' => $unreadCount]) }}</div>
+  <div class="text-center dropdown-footer text-muted text-xs py-2">
+    <div>{{ __('interface.notification_footer', ['count' => $unreadCount]) }}</div>
+    <a href="{{ route('notifications.index') }}" class="inline-block mt-1 font-semibold text-primary">{{ __('interface.view_all_notifications') }}</a>
+  </div>
 </div>
 </div>

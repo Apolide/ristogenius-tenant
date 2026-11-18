@@ -3,6 +3,7 @@
 namespace App\Livewire\Menu;
 
 use App\Models\DigitalMenuIngredient;
+use App\Services\CustomerLanguageService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,11 +17,7 @@ class IngredientIndex extends Component
 
     public bool $showForm = false;
 
-    public string $nameIt = '';
-
-    public string $nameEn = '';
-
-    public string $nameDe = '';
+    public array $name = [];
 
     public string $unit = 'kg';
 
@@ -51,9 +48,7 @@ class IngredientIndex extends Component
     {
         $ingredient = DigitalMenuIngredient::findOrFail($id);
         $this->editingId = $ingredient->id;
-        $this->nameIt = $ingredient->name['it'] ?? '';
-        $this->nameEn = $ingredient->name['en'] ?? '';
-        $this->nameDe = $ingredient->name['de'] ?? '';
+        $this->name = $ingredient->name ?? [];
         $this->unit = $ingredient->unit;
         $this->stockQuantity = (float) $ingredient->stock_quantity;
         $this->minimumQuantity = (float) $ingredient->minimum_quantity;
@@ -66,35 +61,37 @@ class IngredientIndex extends Component
 
     public function save(): void
     {
+        $defaultLanguage = app(CustomerLanguageService::class)->default();
         $data = $this->validate([
-            'nameIt' => ['required', 'string', 'max:150'], 'nameEn' => ['nullable', 'string', 'max:150'], 'nameDe' => ['nullable', 'string', 'max:150'],
+            'name' => ['array:'.implode(',', array_keys(config('locales')))], 'name.*' => ['nullable', 'string', 'max:150'],
+            'name.'.$defaultLanguage => ['required', 'string', 'max:150'],
             'unit' => ['required', 'in:kg,g,l,ml,pz'], 'stockQuantity' => ['required', 'numeric', 'min:0'], 'minimumQuantity' => ['required', 'numeric', 'min:0'],
             'addPrice' => ['required', 'numeric'], 'removePrice' => ['required', 'numeric'], 'tracked' => ['boolean'], 'isFrozen' => ['boolean'],
         ]);
         DigitalMenuIngredient::updateOrCreate(['id' => $this->editingId], [
-            'name' => array_filter(['it' => $data['nameIt'], 'en' => $data['nameEn'], 'de' => $data['nameDe']]), 'unit' => $data['unit'],
+            'name' => array_filter($data['name'], fn ($value) => $value !== null && $value !== ''), 'unit' => $data['unit'],
             'stock_quantity' => $data['stockQuantity'], 'minimum_quantity' => $data['minimumQuantity'], 'add_price' => $data['addPrice'],
             'remove_price' => $data['removePrice'], 'tracked' => $data['tracked'], 'is_frozen' => $data['isFrozen'],
         ]);
         $this->showForm = false;
-        session()->flash('success', __('Ingrediente salvato.'));
+        session()->flash('success', __('menu.ingredients.ingredient_saved'));
     }
 
     public function delete(string $id): void
     {
         DigitalMenuIngredient::findOrFail($id)->delete();
-        session()->flash('success', __('Ingrediente eliminato.'));
+        session()->flash('success', __('menu.ingredients.ingredient_deleted'));
     }
 
     private function resetForm(): void
     {
-        $this->reset(['editingId', 'nameIt', 'nameEn', 'nameDe', 'stockQuantity', 'minimumQuantity', 'addPrice', 'removePrice', 'isFrozen']);
+        $this->reset(['editingId', 'name', 'stockQuantity', 'minimumQuantity', 'addPrice', 'removePrice', 'isFrozen']);
         $this->unit = 'kg';
         $this->tracked = true;
     }
 
-    public function render()
+    public function render(CustomerLanguageService $languages)
     {
-        return view('livewire.menu.ingredient-index', ['ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->latest()->paginate(15)])->title(__('Ingredienti'));
+        return view('livewire.menu.ingredient-index', ['languageMeta' => $languages->enabled(), 'defaultLanguage' => $languages->default(), 'ingredients' => DigitalMenuIngredient::query()->withCount('products')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->latest()->paginate(15)])->title(__('menu.common.ingredients'));
     }
 }

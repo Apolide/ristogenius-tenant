@@ -19,7 +19,7 @@ class FidelityController extends Controller
             'rewards' => FidelityReward::orderBy('points')->orderBy('id')->get(),
             'products' => DigitalMenuProduct::get()->sortBy(fn (DigitalMenuProduct $product) => $product->translatedName()),
             'copyFields' => self::COPY_FIELDS,
-            'languages' => $languages->enabled() ?: [$languages->default() => $languages->meta($languages->default())],
+            'languages' => $languages->enabled(),
             'defaultLanguage' => $languages->default(),
         ]);
     }
@@ -32,7 +32,7 @@ class FidelityController extends Controller
             'channels' => 'sometimes|array', 'channels.*' => 'in:dine_in,pickup,delivery|distinct',
             'booking_url' => 'nullable|url:http,https|max:2048',
         ];
-        foreach (array_keys($languages->enabled() ?: [$languages->default() => null]) as $language) {
+        foreach (array_keys($languages->enabled()) as $language) {
             $rules['copy.'.$language] = 'sometimes|array:'.implode(',', self::COPY_FIELDS);
             foreach (self::COPY_FIELDS as $field) {
                 $rules['copy.'.$language.'.'.$field] = str_ends_with($field, '_subject') ? 'nullable|string|max:160|not_regex:/[\r\n]/' : 'nullable|string|max:4000';

@@ -26,6 +26,6 @@ class Reconciliation extends Component
 
     public function render()
     {
-        return view('livewire.cash-desk.reconciliation', app(CashReconciliationService::class)->report($this->from, $this->to))->title(__('Riconciliazione cassa'));
+        return view('livewire.cash-desk.reconciliation', app(CashReconciliationService::class)->report($this->from, $this->to))->title(__('cash_desk.cash_reconciliation'));
     }
 }

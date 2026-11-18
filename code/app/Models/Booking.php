@@ -58,7 +58,7 @@ class Booking extends Model
     {
         $this->histories()->create([
             'event' => $event,
-            'actor' => $actor ?? auth()->user()?->name ?? ($this->source === 'backoffice' ? __('Backoffice') : ucfirst($this->source)),
+            'actor' => $actor ?? auth()->user()?->name ?? ($this->source === 'backoffice' ? __('bookings.back_office') : ucfirst($this->source)),
             'description' => $description,
             'changes' => $changes ?: null,
         ]);
@@ -76,13 +76,13 @@ class Booking extends Model
                 }
             }
         });
-        static::created(fn (Booking $booking) => $booking->recordHistory('created', __('Prenotazione inserita')));
+        static::created(fn (Booking $booking) => $booking->recordHistory('created', __('bookings.history_created')));
         static::updated(function (Booking $booking): void {
             $changes = collect($booking->getChanges())->except('updated_at')->mapWithKeys(fn ($value, $field) => [$field => ['from' => $booking->getOriginal($field), 'to' => $value]])->all();
             if ($changes !== []) {
-                $booking->recordHistory(array_key_exists('status', $changes) ? 'status_changed' : 'updated', __('Prenotazione modificata'), $changes);
+                $booking->recordHistory(array_key_exists('status', $changes) ? 'status_changed' : 'updated', __('bookings.history_updated'), $changes);
             }
         });
-        static::deleted(fn (Booking $booking) => $booking->recordHistory('deleted', __('Prenotazione eliminata')));
+        static::deleted(fn (Booking $booking) => $booking->recordHistory('deleted', __('bookings.history_deleted')));
     }
 }

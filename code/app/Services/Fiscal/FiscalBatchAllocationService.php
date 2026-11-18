@@ -25,7 +25,7 @@ class FiscalBatchAllocationService
         $batches = CashPaymentBatch::where('order_id', $order->id)->orderBy('created_at')->orderBy('id')->get();
         foreach ($batches->filter(fn ($batch) => $batch->fiscal_snapshot !== null) as $batch) {
             foreach ($batch->fiscal_snapshot['groups'] as $rate => $amount) {
-                $this->check(isset($remaining[$rate]) && $amount <= $remaining[$rate], __('Ripartizione fiscale già salvata non coerente.'));
+                $this->check(isset($remaining[$rate]) && $amount <= $remaining[$rate], __('fiscal.messages.saved_fiscal_allocation_is_inconsistent'));
                 $remaining[$rate] -= $amount;
             }
         }
@@ -48,23 +48,23 @@ class FiscalBatchAllocationService
                     if ($amount > 0) {
                         $names = collect($pricing['units'])->where('rate', $rate)->pluck('name')->unique()->implode(', ');
                         $items[] = ['quantity' => 1, 'unit_cents' => $amount, 'rate' => (int) $rate,
-                            'description' => mb_substr('Quota consumazioni: '.$names, 0, 950), 'type' => 'service'];
+                            'description' => mb_substr(__('fiscal.document_text.consumption_share_prefix', [], 'it').$names, 0, 950), 'type' => 'service'];
                     }
                 }
             }
             $payments = ['cash' => 0, 'card' => 0, 'voucher' => 0];
             $quantity = 0;
             foreach ($batch->payments()->get() as $payment) {
-                $this->check(isset($payments[$payment->method]), __('Metodo di pagamento non classificato per questo incasso.'));
+                $this->check(isset($payments[$payment->method]), __('fiscal.messages.payment_method_not_classified_for_this_payment'));
                 $payments[$payment->method] += (int) $payment->amount_cents;
                 $quantity += (int) $payment->voucher_quantity;
             }
-            $this->check(array_sum($payments) === $batch->amount_cents && array_sum($groups) === $batch->amount_cents, __('Incasso e ripartizione fiscale non quadrano.'));
+            $this->check(array_sum($payments) === $batch->amount_cents && array_sum($groups) === $batch->amount_cents, __('fiscal.messages.payment_and_fiscal_allocation_do_not_balance'));
             $batch->update(['fiscal_snapshot' => ['groups' => $groups, 'items' => $items, 'payments' => $payments, 'voucher_count' => $quantity,
                 'total_cents' => $batch->amount_cents, 'payer' => $batch->payments()->value('payer'), 'batch_id' => $batch->id]]);
 
             foreach ($groups as $rate => $amount) {
-                $this->check(isset($remaining[$rate]) && $amount <= $remaining[$rate], __('La ripartizione fiscale supera il residuo del conto.'));
+                $this->check(isset($remaining[$rate]) && $amount <= $remaining[$rate], __('fiscal.messages.fiscal_allocation_exceeds_the_bill_balance'));
                 $remaining[$rate] -= $amount;
             }
         }
@@ -73,24 +73,24 @@ class FiscalBatchAllocationService
     public function receipt(CashPaymentBatch $batch, \App\Models\FiscalProfile $profile, array $context): array
     {
         $snapshot = $batch->fiscal_snapshot;
-        $this->check($snapshot !== null && $batch->amount_cents > 0, __('Incasso senza importo fiscale emettibile.'));
+        $this->check($snapshot !== null && $batch->amount_cents > 0, __('fiscal.messages.payment_has_no_issuable_fiscal_amount'));
         $payments = $snapshot['payments'];
-        $this->check($payments['cash'] !== array_sum($payments) || $payments['cash'] % 5 === 0, __('Incasso solo in contanti non arrotondato a 5 centesimi: completa la gestione dell’arrotondamento prima dell’emissione.'));
+        $this->check($payments['cash'] !== array_sum($payments) || $payments['cash'] % 5 === 0, __('fiscal.messages.cash_payment_rounding_required'));
         $items = [];
         foreach ($snapshot['items'] as $item) {
             $code = $item['rate'] === 0 ? $profile->zero_vat_code : number_format($item['rate'], 2, '.', '');
-            $this->check(in_array($code, ['2.00', '4.00', '5.00', '10.00', '22.00', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6'], true), __('Natura o aliquota IVA non configurata.'));
+            $this->check(in_array($code, ['2.00', '4.00', '5.00', '10.00', '22.00', 'N1', 'N2', 'N3', 'N4', 'N5', 'N6'], true), __('fiscal.messages.vat_category_or_rate_not_configured'));
             $items[] = ['id' => count($items) + 1, 'quantity' => $item['quantity'], 'unit_cents' => $item['unit_cents'], 'description' => $item['description'], 'type' => $item['type'], 'vat_code' => $code];
         }
 
         return $context + ['items' => $items, 'payments' => $payments, 'voucher_count' => $snapshot['voucher_count'], 'total_cents' => $batch->amount_cents,
-            'reference' => 'RistoPilot '.$context['local_id'].' · Incasso '.$batch->id];
+            'reference' => 'RistoPilot '.$context['local_id'].__('fiscal.document_text.payment_reference_suffix', [], 'it').$batch->id];
     }
 
     private function allocate(int $amount, array $weights): array
     {
         $total = array_sum($weights);
-        $this->check($amount >= 0 && $amount <= $total, __('Importo fiscale superiore al residuo disponibile.'));
+        $this->check($amount >= 0 && $amount <= $total, __('fiscal.messages.fiscal_amount_exceeds_available_balance'));
         $result = $rest = [];
         foreach ($weights as $rate => $weight) {
             $result[$rate] = $total ? intdiv($amount * $weight, $total) : 0;

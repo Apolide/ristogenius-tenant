@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'active' => 'Aktiv',
+    'add_user' => 'Benutzer hinzufügen',
+    'breadcrumb' => 'Brotkrümelnavigation',
+    'edit' => 'Bearbeiten',
+    'edit_user' => 'Benutzer bearbeiten',
+    'email_placeholder' => 'E-Mail',
+    'learn_more' => 'Mehr erfahren',
+    'name_placeholder' => 'Name',
+    'new_user' => 'NEUER BENUTZER',
+    'next' => 'Weiter',
+    'page_navigation' => 'Seitennavigation',
+    'photo' => 'Foto',
+    'previous' => 'Zurück',
+    'role' => 'Rolle',
+    'search' => 'Suchen',
+    'select_role' => 'Rolle auswählen',
+    'status' => 'Status',
+    'user' => 'Benutzer',
+    'user_list' => 'BENUTZERLISTE',
+    'user_list_label' => 'Benutzerliste',
+    'user_management' => 'Benutzerverwaltung',
+    'user_management_table' => 'Tabelle zur Benutzerverwaltung.',
+    'users' => 'Benutzer',
+];

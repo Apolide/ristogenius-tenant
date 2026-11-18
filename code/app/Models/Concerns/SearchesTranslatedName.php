@@ -15,10 +15,10 @@ trait SearchesTranslatedName
         }
 
         return $query->where(function (Builder $query) use ($term): void {
-            foreach (['it', 'en', 'de'] as $language) {
+            foreach (array_keys(config('locales')) as $language) {
                 $query->orWhereRaw(
-                    "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, '$.{$language}'))) LIKE ?",
-                    ['%'.$term.'%'],
+                    "LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, ?))) LIKE ?",
+                    ['$.'.$language, '%'.$term.'%'],
                 );
             }
         });

@@ -1,5 +1,5 @@
-<div class="content"><div class="main-content" x-data="{language:'it'}" @campaign-invalid-language="language = $event.detail.language">
-<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('campaigns.index') }}">← {{ __('marketing.campaigns') }}</a><h5 class="page-title">{{ __('marketing.campaign_editor') }}</h5>@if($campaign)<a class="ti-btn ti-btn-primary-full" href="{{ route('campaigns.send',$campaign) }}"><i class="las la-paper-plane" aria-hidden="true"></i> {{ __('marketing.send') }}</a>@endif</div>
+<div class="content"><div class="main-content" x-data="{language: '{{ array_key_first($languageMeta) }}'}" @campaign-invalid-language="language = $event.detail.language">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6"><a class="ti-btn ti-btn-light" href="{{ route('campaigns.index') }}"><i class="las la-arrow-left" aria-hidden="true"></i> {{ __('marketing.campaigns') }}</a><h5 class="page-title">{{ __('marketing.campaign_editor') }}</h5>@if($campaign)<a class="ti-btn ti-btn-primary-full" href="{{ route('campaigns.send',$campaign) }}"><i class="las la-paper-plane" aria-hidden="true"></i> {{ __('marketing.send') }}</a>@endif</div>
 @include('marketing.errors')
 <form wire:submit="save" data-campaign-form novalidate class="space-y-5">
 <div class="box"><div class="box-header"><h2 class="box-title">{{ __('marketing.internal_name') }} / {{ __('marketing.type') }}</h2></div><div class="box-body grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -13,7 +13,7 @@
 </div></div>
 <div class="box"><div class="box-header"><h2 class="box-title">{{ __('marketing.language') }}</h2></div><div class="box-body space-y-6">
 @include('livewire.marketing.partials.language-tabs')
-@foreach(['it','en','de'] as $l)<section x-show="language==='{{ $l }}'" @if($l!=='it') x-cloak @endif role="tabpanel" id="marketing-panel-{{ $l }}" aria-labelledby="marketing-tab-{{ $l }}" class="space-y-4 border border-defaultborder rounded p-4">
+@foreach(array_keys($languageMeta) as $l)<section x-show="language==='{{ $l }}'" @unless($loop->first) x-cloak @endunless role="tabpanel" id="marketing-panel-{{ $l }}" aria-labelledby="marketing-tab-{{ $l }}" class="space-y-4 border border-defaultborder rounded p-4">
 <label class="block mb-2 font-medium">{{ __('marketing.subject') }}<input class="form-control mt-2" wire:model="data.translations.{{ $l }}.subject" data-campaign-subject data-language="{{ $l }}" maxlength="255"></label>
 @error('data.translations.'.$l.'.subject')<p class="text-danger">{{ $message }}</p>@enderror
 <label class="block mb-2 font-medium">{{ __('marketing.preheader') }}<input class="form-control mt-2" wire:model="data.translations.{{ $l }}.preheader" maxlength="255"></label>

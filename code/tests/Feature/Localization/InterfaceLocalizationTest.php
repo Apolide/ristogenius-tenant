@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Localization;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -38,15 +39,14 @@ class InterfaceLocalizationTest extends TestCase
     public function test_order_event_translations_have_all_italian_keys(): void
     {
         $italian = require lang_path('it/orders.php');
+        $italianKeys = array_keys(Arr::dot($italian));
+
         foreach (['en', 'de'] as $locale) {
             $translated = require lang_path($locale.'/orders.php');
-            foreach ($italian as $group => $values) {
-                $this->assertSame(array_keys($values), array_keys($translated[$group]));
-                foreach ($values as $key => $value) {
-                    if ($group === 'events') {
-                        $this->assertNotSame($value, $translated[$group][$key], $locale.'.'.$group.'.'.$key);
-                    }
-                }
+            $this->assertSame($italianKeys, array_keys(Arr::dot($translated)), $locale);
+
+            foreach ($italian['events'] as $key => $value) {
+                $this->assertNotSame($value, $translated['events'][$key], $locale.'.events.'.$key);
             }
         }
     }

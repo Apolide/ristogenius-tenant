@@ -76,6 +76,10 @@ class PersonnelManagementTest extends TestCase
 
     public function test_admin_can_edit_personnel_data_role_and_notification_preferences(): void
     {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
         $employee = User::factory()->create([
             'name' => 'Mario Rossi',
             'email' => 'mario@example.test',
@@ -114,6 +118,7 @@ class PersonnelManagementTest extends TestCase
 
     public function test_personnel_roles_include_admin_and_supported_backend_languages(): void
     {
+        config(['tenant.backend_languages' => 'it,en,de,gr']);
         $service = app(PersonnelService::class);
 
         $this->assertContains('admin', $service->roles());
@@ -121,6 +126,7 @@ class PersonnelManagementTest extends TestCase
             'it' => '🇮🇹 Italiano',
             'en' => '🇬🇧 English',
             'de' => '🇩🇪 Deutsch',
+            'gr' => '🇬🇷 Ελληνικά',
         ], $service->languages());
     }
 

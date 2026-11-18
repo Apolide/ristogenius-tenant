@@ -77,16 +77,16 @@ class Order extends Model
 
     public function fulfillmentLabel(?string $locale = null): string
     {
-        return ['dine_in' => __('Sala', [], $locale), 'pickup' => __('Ritiro', [], $locale), 'delivery' => __('Consegna', [], $locale)][$this->fulfillment] ?? $this->fulfillment;
+        return ['dine_in' => __('cash_desk.dining_room', [], $locale), 'pickup' => __('cash_desk.history.pickup', [], $locale), 'delivery' => __('cash_desk.delivery', [], $locale)][$this->fulfillment] ?? $this->fulfillment;
     }
 
     public function fulfillmentStatusLabel(?string $locale = null): string
     {
         if ($this->fulfillment !== 'dine_in' && $this->pendingProposal) {
-            return __('In attesa risposta cliente', [], $locale);
+            return __('orders.waiting_for_customer_response', [], $locale);
         }
 
-        return ['received' => __('Da approvare', [], $locale), 'accepted' => __('Accettato', [], $locale), 'preparing' => __('In preparazione', [], $locale), 'ready' => __('Pronto', [], $locale), 'out_for_delivery' => __('In consegna', [], $locale), 'completed' => __('Completato', [], $locale), 'rejected' => __('Rifiutato', [], $locale), 'cancelled' => __('Annullato', [], $locale)][$this->fulfillment_status] ?? '';
+        return ['received' => __('orders.awaiting_approval', [], $locale), 'accepted' => __('orders.accepted', [], $locale), 'preparing' => __('cash_desk.bill.preparing', [], $locale), 'ready' => __('cash_desk.bill.ready', [], $locale), 'out_for_delivery' => __('orders.out_for_delivery', [], $locale), 'completed' => __('orders.completed', [], $locale), 'rejected' => __('cash_desk.fiscal_documents.rejected', [], $locale), 'cancelled' => __('cash_desk.cancelled', [], $locale)][$this->fulfillment_status] ?? '';
     }
 
     public function effectiveDiscountCents(): int

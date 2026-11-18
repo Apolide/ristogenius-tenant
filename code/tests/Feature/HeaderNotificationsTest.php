@@ -54,4 +54,78 @@ class HeaderNotificationsTest extends TestCase
             ->assertRedirect('/manage/customers-orders');
         $this->assertSame(0, $other->unreadNotifications()->whereKey($notification->id)->count());
     }
+
+    public function test_history_paginates_only_the_users_notifications_and_opens_the_operation(): void
+    {
+        $this->withoutVite();
+        $user = User::factory()->create(['lang' => 'it']);
+        $other = User::factory()->create();
+        $user->assignRole(Role::findOrCreate('admin', 'web'));
+        for ($i = 1; $i <= 31; $i++) {
+            $notification = Notification::create([
+                'title' => "Avviso $i.", 'message' => "Messaggio $i.",
+                'url' => '/manage/customers-orders', 'type' => 'general',
+            ]);
+            $notification->users()->attach($user->id);
+            if ($i === 1) {
+                $oldest = $notification;
+                $notification->users()->attach($other->id);
+            }
+        }
+
+        $private = Notification::create(['title' => 'Avviso di un altro utente', 'message' => 'Privata', 'url' => '/', 'type' => 'general']);
+        $private->users()->attach($other->id);
+
+        $this->actingAs($user)->get(route('notifications.index'))->assertOk()
+            ->assertSee('Avviso 31.')->assertSee('Vedi tutte')->assertDontSee('Avviso di un altro utente');
+        $this->get(route('notifications.index', ['page' => 3]))->assertOk()
+            ->assertSee('Avviso 1.')->assertSee(route('notifications.show', $oldest->id));
+        $this->get(route('notifications.show', $private->id))->assertNotFound();
+        $this->get(route('notifications.show', $oldest->id))->assertRedirect('/manage/customers-orders');
+        $this->assertFalse($user->unreadNotifications()->whereKey($oldest->id)->exists());
+        $this->assertTrue($other->unreadNotifications()->whereKey($oldest->id)->exists());
+    }
+
+    public function test_history_filters_translated_content_type_period_and_read_state(): void
+    {
+        $this->withoutVite();
+        config(['tenant.backend_languages' => 'it,en']);
+        $user = User::factory()->create(['lang' => 'en']);
+        $other = User::factory()->create();
+        $shared = [
+            'title' => 'Nuovo ordine :reference',
+            'message' => 'Consegna · :customer',
+            'type' => 'customer_order.received',
+            'url' => '/manage/customers-orders',
+            'translation_data' => [
+                'title' => 'public_orders.notifications.new_order_reference',
+                'message' => 'public_orders.notifications.delivery_customer',
+                'parameters' => ['reference' => 'REF-123', 'customer' => 'Mario'],
+            ],
+        ];
+        $matching = Notification::create($shared);
+        $matching->users()->attach($user);
+        $read = Notification::create($shared);
+        $read->users()->attach($user, ['read_at' => now()]);
+        $older = Notification::create($shared);
+        $older->forceFill(['created_at' => now()->subDays(2)])->save();
+        $older->users()->attach($user);
+        $private = Notification::create(['title' => 'Privata', 'message' => 'Privata', 'type' => 'private_type', 'url' => '/']);
+        $private->users()->attach($other);
+
+        $this->actingAs($user)->get(route('notifications.index', [
+            'q' => 'DELIVERY · MARIO',
+            'type' => 'customer_order.received',
+            'period' => 'custom',
+            'from' => today()->toDateString(),
+            'to' => today()->toDateString(),
+            'status' => 'unread',
+        ]))->assertOk()
+            ->assertViewHas('notifications', fn ($page) => $page->getCollection()->pluck('id')->all() === [$matching->id])
+            ->assertViewHas('typeLabels', ['customer_order.received' => 'New customer order'])
+            ->assertSee('la-shopping-cart')->assertSee('Apply filters');
+
+        $this->get(route('notifications.index', ['period' => 'week', 'status' => 'read']))
+            ->assertOk()->assertViewHas('notifications', fn ($page) => $page->getCollection()->pluck('id')->all() === [$read->id]);
+    }
 }

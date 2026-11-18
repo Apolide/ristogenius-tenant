@@ -21,7 +21,8 @@ class PublicMenu extends Component
 
     public function mount(string $language, DigitalMenu $menu): void
     {
-        abort_unless($menu->is_published && $menu->is_visible && in_array($language, $menu->enabled_languages, true), 404);
+        abort_unless($menu->is_published && $menu->is_visible && in_array($language, $menu->enabled_languages, true)
+            && isset(app(CustomerLanguageService::class)->enabled()[$language]), 404);
         $this->language = $language;
         app()->setLocale($language);
     }
@@ -34,7 +35,7 @@ class PublicMenu extends Component
         return view('livewire.menu.public-menu', [
             'coupons' => app(\App\Services\Marketing\CouponService::class)->visibleOnMenu($this->menu, $this->language),
             'branding' => $branding->branding(),
-            'languages' => collect($this->menu->enabled_languages)->mapWithKeys(fn (string $code) => [$code => $languageService->meta($code)])->all(),
+            'languages' => array_intersect_key($languageService->enabled(), array_flip($this->menu->enabled_languages)),
         ])->layout('layouts.digital-menu')->title($this->menu->translatedName($this->language));
     }
 }

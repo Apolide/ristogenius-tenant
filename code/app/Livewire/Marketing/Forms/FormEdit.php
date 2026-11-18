@@ -5,6 +5,7 @@ namespace App\Livewire\Marketing\Forms;
 use App\Models\MarketingForm;
 use App\Services\CustomerLanguageService;
 use App\Services\MarketingForms\FormBlueprintService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -13,6 +14,8 @@ class FormEdit extends Component
     public MarketingForm $form;
 
     public array $translations = [];
+
+    public array $enabledLanguages = [];
 
     public array $newField = ['key' => '', 'type' => 'text', 'label' => [], 'options' => [], 'required' => false, 'visible' => true];
 
@@ -25,6 +28,7 @@ class FormEdit extends Component
     public function mount(): void
     {
         $this->translations = $this->form->translations;
+        $this->enabledLanguages = array_values(array_intersect($this->form->enabled_languages, array_keys(app(CustomerLanguageService::class)->enabled())));
         foreach ($this->form->enabled_languages as $language) {
             $this->translations[$language]['booking_policy'] ??= '';
         }
@@ -112,24 +116,64 @@ class FormEdit extends Component
         $this->form->update(['schedule' => $schedule]);
         $this->form->refresh();
         $this->eventSchedule = $schedule;
-        session()->flash('success', __('Disponibilità dell’evento aggiornata.'));
+        session()->flash('success', __('marketing_forms.event_availability_updated'));
     }
 
-    public function saveDetails(): void
+    public function saveDetails(CustomerLanguageService $languages, FormBlueprintService $blueprints): void
     {
-        $rules = ['translations' => ['required', 'array']];
-        foreach ($this->form->enabled_languages as $language) {
-            $rules["translations.{$language}.title"] = ['required', 'string', 'max:255'];
+        $available = array_keys($languages->enabled());
+        $rules = [
+            'enabledLanguages' => ['required', 'array', 'min:1'],
+            'enabledLanguages.*' => ['required', 'distinct', Rule::in($available)],
+            'translations' => ['required', 'array'],
+        ];
+
+        foreach ($available as $language) {
+            $rules["translations.{$language}.title"] = [
+                in_array($language, $this->enabledLanguages, true) ? 'required' : 'nullable',
+                'string',
+                'max:255',
+            ];
             $rules["translations.{$language}.description"] = ['nullable', 'string'];
             if (in_array($this->form->type, ['booking', 'event'], true)) {
                 $rules["translations.{$language}.booking_policy"] = ['nullable', 'string'];
             }
         }
 
-        $this->validate($rules);
-        $this->form->update(['translations' => $this->translations]);
+        $data = $this->validate($rules);
+        $blueprintLabels = array_column($blueprints->fields($this->form->type), 'label', 'key');
+
+        DB::transaction(function () use ($data, $blueprintLabels): void {
+            $form = MarketingForm::query()->lockForUpdate()->findOrFail($this->form->id);
+            $added = array_diff($data['enabledLanguages'], $form->enabled_languages);
+            if ($added) {
+                foreach ($form->fields()->get() as $field) {
+                    $labels = $field->label ?? [];
+                    $options = $field->options ?? [];
+                    $previousLanguage = $form->enabled_languages[0] ?? 'it';
+                    $fallbackLabel = ($labels[$previousLanguage] ?? reset($labels)) ?: $field->key;
+                    $fallbackOptions = $options[$previousLanguage] ?? reset($options);
+
+                    foreach ($added as $language) {
+                        $labels[$language] ??= $blueprintLabels[$field->key][$language] ?? $fallbackLabel;
+                        if ($options) {
+                            $options[$language] ??= $fallbackOptions;
+                        }
+                    }
+
+                    $field->update(['label' => $labels, 'options' => $options ?: null]);
+                }
+            }
+
+            $form->update([
+                'enabled_languages' => array_values($data['enabledLanguages']),
+                'translations' => array_replace_recursive($form->translations, $data['translations']),
+            ]);
+        });
+
         $this->form->refresh();
-        session()->flash('success', __('Dati del form aggiornati.'));
+        $this->translations = $this->form->translations;
+        session()->flash('success', __('marketing_forms.form_data_updated'));
     }
 
     public function addField(CustomerLanguageService $languages): void
@@ -213,7 +257,7 @@ class FormEdit extends Component
         ]);
 
         $this->cancelEditingField();
-        session()->flash('success', __('Campo personalizzato aggiornato.'));
+        session()->flash('success', __('marketing_forms.custom_field_updated'));
     }
 
     private function localizedOptions(array $options): array
@@ -228,7 +272,7 @@ class FormEdit extends Component
     {
         $field = $this->form->fields()->findOrFail($id);
         if ($field->required) {
-            $this->addError('field', __('Un campo obbligatorio non può essere eliminato. Rendilo prima facoltativo.'));
+            $this->addError('field', __('marketing_forms.required_field_cannot_be_deleted'));
 
             return;
         }

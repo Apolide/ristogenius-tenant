@@ -25,16 +25,16 @@ class FiscalInvoiceService
             $batch = CashPaymentBatch::lockForUpdate()->findOrFail($batchId);
             app(FiscalCoverageService::class)->assertBatchAvailable($batch);
             $profile = $this->setup->profile();
-            $this->setup->check($profile->invoice_enabled, __('Abilita prima la fatturazione elettronica sandbox nelle impostazioni fiscali.'));
+            $this->setup->check($profile->invoice_enabled, __('fiscal.messages.enable_sandbox_electronic_invoicing_first'));
             app(FiscalDocumentService::class)->context($store, $register);
             if (app(FiscalWorkstationService::class)->defaults()['can_switch']) {
                 app(FiscalWorkstationService::class)->remember($store->id, $register);
             }
             $existing = FiscalDocument::where('coverage_key', 'batch:'.$batchId)->lockForUpdate()->first();
-            $this->setup->check(! $existing || $existing->document_kind === 'invoice' && in_array($existing->status, ['draft', 'rejected']), __('Incasso già documentato o con invio da verificare.'));
+            $this->setup->check(! $existing || $existing->document_kind === 'invoice' && in_array($existing->status, ['draft', 'rejected']), __('fiscal.messages.payment_document_issued_or_pending'));
             app(FiscalBatchAllocationService::class)->ensure($order);
             $scope = $batch->fresh()->fiscal_snapshot;
-            $this->setup->check($batch->amount_cents > 0, __('Incasso senza importo fatturabile.'));
+            $this->setup->check($batch->amount_cents > 0, __('fiscal.messages.payment_has_no_invoiceable_amount'));
             $number = $existing?->document_number ?? $this->number($profile->invoice_series);
             $date = $existing?->document_date?->toDateString() ?? now()->toDateString();
             $xml = $this->xml->build($profile, $scope, $buyer, $number, $date);
@@ -61,7 +61,7 @@ class FiscalInvoiceService
         $sequence = DB::table('fiscal_sequences')->where(compact('year', 'series'))->lockForUpdate()->first();
         $next = $sequence->last_number + 1;
         $number = $series.'/'.$year.'/'.$next;
-        $this->setup->check(strlen($number) <= 20, __('Numerazione fattura oltre il limite consentito.'));
+        $this->setup->check(strlen($number) <= 20, __('fiscal.messages.invoice_numbering_exceeds_the_allowed_limit'));
         DB::table('fiscal_sequences')->where('id', $sequence->id)->update(['last_number' => $next]);
 
         return $number;
@@ -72,7 +72,7 @@ class FiscalInvoiceService
         $service = app(FiscalDocumentService::class);
         $service->authorize();
         $document = $service->document($id);
-        $this->setup->check($document->document_kind === 'invoice', __('Documento non fattura.'));
+        $this->setup->check($document->document_kind === 'invoice', __('fiscal.messages.document_is_not_an_invoice'));
         $this->reconcile($document, $remoteId);
     }
 
@@ -80,11 +80,11 @@ class FiscalInvoiceService
     {
         $id = $document->id;
         $remoteId = $document->remote_id ?? $remoteId;
-        $this->setup->check(is_string($remoteId) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/', $remoteId), __('Inserisci l’identificativo remoto per verificare l’invio.'));
+        $this->setup->check(is_string($remoteId) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/', $remoteId), __('fiscal.messages.enter_the_remote_identifier_to_verify_submission'));
         $operation = FiscalOperation::where('fiscal_document_id', $id)->whereNotNull('active_key')->first();
-        $this->setup->check(! $operation || $operation->status === 'unknown' || $operation->created_at->lt(now()->subSeconds((int) config('fiscal.openapi.timeout') + 15)), __('Invio ancora in corso.'));
+        $this->setup->check(! $operation || $operation->status === 'unknown' || $operation->created_at->lt(now()->subSeconds((int) config('fiscal.openapi.timeout') + 15)), __('fiscal.messages.submission_still_in_progress'));
         $result = $this->setup->read('invoice', ['id' => $remoteId]);
-        $this->setup->check(($result['id'] ?? null) === $remoteId, __('Identificativo fattura incoerente.'));
+        $this->setup->check(($result['id'] ?? null) === $remoteId, __('fiscal.messages.invoice_identifier_does_not_match'));
         DB::transaction(function () use ($id, $result, $operation) {
             $this->apply($id, $result);
             $operation?->update(['status' => 'reconciled', 'active_key' => null, 'response' => $result, 'error' => null]);
@@ -112,20 +112,20 @@ class FiscalInvoiceService
         $doc = FiscalDocument::lockForUpdate()->findOrFail($id);
         $this->setup->check(filled($result['id'] ?? null) && ($result['fiscal_id'] ?? null) === $doc->fiscal_id
             && ($result['direction'] ?? null) === 'outgoing' && ($result['type'] ?? null) === ($doc->type === 'credit' ? 'TD04' : 'TD01')
-            && ($result['document_number'] ?? null) === $doc->document_number, __('La risposta non appartiene alla fattura attesa.'));
+            && ($result['document_number'] ?? null) === $doc->document_number, __('fiscal.messages.the_response_does_not_belong_to_the_expected_invoice'));
         $total = $result['total_amount_including_tax'] ?? $result['total_gross_amount'] ?? null;
-        $this->setup->check(is_numeric($total) && (int) round((float) $total * 100) === $doc->total_cents, __('Totale fattura remoto incoerente.'));
-        $this->setup->check(! FiscalDocument::where('remote_id', $result['id'])->whereKeyNot($id)->exists(), __('Fattura remota già associata.'));
-        $this->setup->check(($result['issue_date'] ?? null) === $doc->document_date->toDateString(), __('Data fattura remota incoerente.'));
+        $this->setup->check(is_numeric($total) && (int) round((float) $total * 100) === $doc->total_cents, __('fiscal.messages.remote_invoice_total_does_not_match'));
+        $this->setup->check(! FiscalDocument::where('remote_id', $result['id'])->whereKeyNot($id)->exists(), __('fiscal.messages.remote_invoice_already_linked'));
+        $this->setup->check(($result['issue_date'] ?? null) === $doc->document_date->toDateString(), __('fiscal.messages.remote_invoice_date_does_not_match'));
         foreach (['vat_id', 'tax_code'] as $field) {
             $expected = $doc->snapshot['buyer'][$field] ?? '';
             if (filled($expected)) {
-                $this->setup->check(preg_replace('/^IT/', '', (string) ($result['recipient'][$field] ?? '')) === $expected, __('Destinatario fattura remoto incoerente.'));
+                $this->setup->check(preg_replace('/^IT/', '', (string) ($result['recipient'][$field] ?? '')) === $expected, __('fiscal.messages.remote_invoice_recipient_does_not_match'));
             }
         }
         $sdi = $result['details']['sdi_status'] ?? '';
         $state = $result['state'] ?? '';
-        $this->setup->check(in_array($state, ['NEW', 'SENT', 'DONE', 'ERROR']), __('Stato fattura non riconosciuto.'));
+        $this->setup->check(in_array($state, ['NEW', 'SENT', 'DONE', 'ERROR']), __('fiscal.messages.invoice_status_not_recognized'));
         $previousStatus = $doc->status;
         $doc->update(['remote_id' => $result['id'], 'provider_status' => $state, 'remote_data' => $result,
             'status' => ($state === 'ERROR' || $sdi === 'ERROR') ? 'sdi_rejected' : (in_array($sdi, ['DELIVERED', 'NOT_DELIVERED'], true) ? 'issued' : ($previousStatus === 'issued' ? 'issued' : 'pending'))]);
@@ -139,12 +139,12 @@ class FiscalInvoiceService
         $service = app(FiscalDocumentService::class);
         $service->authorize();
         $parent = $service->document($id);
-        $this->setup->check($parent->document_kind === 'invoice' && $parent->type === 'sale' && $parent->status === 'issued', __('Fattura non disponibile per nota di credito.'));
+        $this->setup->check($parent->document_kind === 'invoice' && $parent->type === 'sale' && $parent->status === 'issued', __('fiscal.messages.invoice_unavailable_for_credit_note'));
         $operation = $this->runner->run('store:'.$parent->fiscal_store_id, 'send_invoice', function (FiscalOperation $operation) use ($parent) {
             $parent = FiscalDocument::lockForUpdate()->findOrFail($parent->id);
-            $this->setup->check($parent->status === 'issued', __('Lo stato della fattura è cambiato.'));
+            $this->setup->check($parent->status === 'issued', __('fiscal.messages.the_invoice_status_changed'));
             $child = FiscalDocument::where('parent_id', $parent->id)->lockForUpdate()->first();
-            $this->setup->check(! $child || in_array($child->status, ['draft', 'rejected'], true), __('Nota di credito già presente: verificane l’esito.'));
+            $this->setup->check(! $child || in_array($child->status, ['draft', 'rejected'], true), __('fiscal.messages.credit_note_already_present_check_its_outcome'));
             app(FiscalWorkstationService::class)->assertSelection($parent->fiscal_store_id);
             $number = $child?->document_number ?? $this->number($this->setup->profile()->invoice_series);
             $date = $child?->document_date?->toDateString() ?? now()->toDateString();

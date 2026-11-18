@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use App\Livewire\Bookings\BookingCreate;
 // Livewire
@@ -25,6 +26,7 @@ use App\Livewire\Menu\IngredientIndex;
 use App\Livewire\Menu\MenuIndex;
 use App\Livewire\Menu\ProductIndex;
 use App\Livewire\Menu\PublicMenu;
+use App\Livewire\Personnel\AccountProfile;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -70,7 +72,7 @@ Route::domain(env('DOMAIN'))->group(function () {
 
     Route::get('/privacy-policy', function (Request $request) {
         $language = strtolower((string) $request->query('language', app()->getLocale()));
-        if (! in_array($language, ['it', 'en', 'de'], true)) {
+        if (! array_key_exists($language, config('locales')) || ! view()->exists("legal.privacy-policy-{$language}")) {
             $language = 'it';
         }
         app()->setLocale($language);
@@ -137,6 +139,11 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/manage/account/profile', AccountProfile::class)->name('account.profile');
+        Route::get('/manage/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/manage/notifications/{notification}', [NotificationController::class, 'show'])
+            ->whereNumber('notification')->name('notifications.show');
+
         Route::get('/manage', BookingIndex::class)
             ->middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)
             ->name('manage');
@@ -224,6 +231,7 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
         Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/statistics', \App\Http\Controllers\StatisticsController::class)->name('statistics.index');
             Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
             Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
             Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');

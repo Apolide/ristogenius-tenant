@@ -13,7 +13,7 @@ class DepartmentEdit extends Component
 
     public ?string $name = null;
 
-    public array $nameTranslations = ['en' => '', 'de' => ''];
+    public array $nameTranslations = [];
 
     public bool $production = false;
 
@@ -23,9 +23,9 @@ class DepartmentEdit extends Component
 
     public bool $isVisible = false;
 
-    public function render()
+    public function render(DepartmentService $departments)
     {
-        return view('livewire.settings.departments.department-edit');
+        return view('livewire.settings.departments.department-edit', ['translationLanguages' => $departments->translationLanguages()]);
     }
 
     #[On('click-edit-department')]
@@ -35,7 +35,7 @@ class DepartmentEdit extends Component
 
         $this->departmentId = $department->id;
         $this->name = $department->name;
-        $this->nameTranslations = array_replace(['en' => '', 'de' => ''], $department->name_translations ?? []);
+        $this->nameTranslations = array_replace(array_fill_keys(array_keys($departmentService->translationLanguages()), ''), $department->name_translations ?? []);
         $this->production = $department->production;
         $this->use_printer = $department->use_printer;
         $this->printer_number = $department->printer_number;
@@ -51,11 +51,11 @@ class DepartmentEdit extends Component
             return;
         }
 
-        $data = $this->validate($this->rules(), [], [
-            'name' => __('department_settings.name').' (Italiano)',
-            'nameTranslations.en' => __('department_settings.name').' (English)',
-            'nameTranslations.de' => __('department_settings.name').' (Deutsch)',
-        ]);
+        $attributes = ['name' => __('department_settings.name').' ('.config('locales.it.label').')'];
+        foreach ($departmentService->translationLanguages() as $language => $meta) {
+            $attributes['nameTranslations.'.$language] = __('department_settings.name').' ('.$meta['label'].')';
+        }
+        $data = $this->validate($this->rules(), [], $attributes);
 
         $departmentService->updateDepartment($this->departmentId, $data);
 
@@ -89,9 +89,8 @@ class DepartmentEdit extends Component
                 'max:255',
                 Rule::unique('departments', 'name')->ignore($this->departmentId),
             ],
-            'nameTranslations' => ['array:en,de'],
-            'nameTranslations.en' => ['nullable', 'string', 'max:255'],
-            'nameTranslations.de' => ['nullable', 'string', 'max:255'],
+            'nameTranslations' => ['array:'.implode(',', array_diff(array_keys(config('locales')), ['it']))],
+            'nameTranslations.*' => ['nullable', 'string', 'max:255'],
             'production' => ['boolean'],
             'use_printer' => ['boolean'],
             'printer_number' => [$this->use_printer ? 'required' : 'nullable', 'integer', 'min:1', 'max:65535'],
@@ -102,7 +101,7 @@ class DepartmentEdit extends Component
     {
         $this->departmentId = null;
         $this->name = null;
-        $this->nameTranslations = ['en' => '', 'de' => ''];
+        $this->nameTranslations = array_fill_keys(array_keys(app(DepartmentService::class)->translationLanguages()), '');
         $this->production = false;
         $this->use_printer = false;
         $this->printer_number = null;

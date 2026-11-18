@@ -68,7 +68,8 @@ class PublicForm extends Component
 
     public function mount(MarketingForm $form, string $language): void
     {
-        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true), 404);
+        abort_unless($form->is_active && in_array($language, $form->enabled_languages, true)
+            && isset(app(CustomerLanguageService::class)->enabled()[$language]), 404);
         $this->form = $form;
         $this->idempotencyKey = (string) \Illuminate\Support\Str::uuid();
         $this->language = $language;
@@ -190,7 +191,7 @@ class PublicForm extends Component
         if ($key === 'date' && $this->form->type === 'event' && ($this->form->schedule['mode'] ?? null) !== 'standard') {
             $rules[] = function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! app(EventScheduleService::class)->dateIsAvailable($this->form, (string) $value)) {
-                    $fail(__('La data selezionata non è disponibile per questo evento.'));
+                    $fail(__('marketing_forms.event_date_unavailable'));
                 }
             };
         }
