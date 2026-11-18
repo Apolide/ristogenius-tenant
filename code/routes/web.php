@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use App\Livewire\Bookings\BookingCreate;
 // Livewire
@@ -21,6 +22,11 @@ use App\Livewire\Marketing\Forms\FormIndex as MarketingFormIndex;
 use App\Livewire\Marketing\Forms\FormStyleEdit as MarketingFormStyleEdit;
 use App\Livewire\Marketing\Forms\PublicForm as MarketingPublicForm;
 use App\Livewire\Marketing\Forms\SubmissionIndex as MarketingSubmissionIndex;
+use App\Livewire\Menu\IngredientIndex;
+use App\Livewire\Menu\MenuIndex;
+use App\Livewire\Menu\ProductIndex;
+use App\Livewire\Menu\PublicMenu;
+use App\Livewire\Personnel\AccountProfile;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -41,10 +47,6 @@ use App\Livewire\Settings\Rooms\RoomTablePlanner;
 use App\Livewire\Settings\RoomTables\RoomTableIndex;
 use App\Livewire\Settings\SettingsIndex;
 use App\Livewire\Users\Userlist;
-use App\Livewire\Menu\IngredientIndex;
-use App\Livewire\Menu\MenuIndex;
-use App\Livewire\Menu\ProductIndex;
-use App\Livewire\Menu\PublicMenu;
 use App\Services\Personnel\PersonnelPermissionsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -70,7 +72,7 @@ Route::domain(env('DOMAIN'))->group(function () {
 
     Route::get('/privacy-policy', function (Request $request) {
         $language = strtolower((string) $request->query('language', app()->getLocale()));
-        if (! in_array($language, ['it', 'en', 'de'], true)) {
+        if (! array_key_exists($language, config('locales')) || ! view()->exists("legal.privacy-policy-{$language}")) {
             $language = 'it';
         }
         app()->setLocale($language);
@@ -81,16 +83,42 @@ Route::domain(env('DOMAIN'))->group(function () {
         ]);
     })->name('privacy-policy');
 
+    Route::get('/poll/{invitation}', [\App\Http\Controllers\PublicPollController::class, 'show'])
+        ->middleware(['signed:relative', 'throttle:60,1'])->name('polls.public');
+    Route::post('/poll/{invitation}', [\App\Http\Controllers\PublicPollController::class, 'submit'])
+        ->middleware(['signed:relative', 'throttle:15,1'])->name('polls.submit');
+
+    Route::prefix('/fidelity')->name('fidelity.')->controller(\App\Http\Controllers\PublicFidelityController::class)->group(function () {
+        Route::get('/subscribe', 'show')->name('subscribe');
+        Route::post('/subscribe', 'subscribe')->middleware('throttle:5,1')->name('request');
+        Route::get('/confirm', 'confirm')->middleware(['signed', 'throttle:30,1'])->name('confirm');
+        Route::post('/confirm', 'activate')->middleware(['signed', 'throttle:10,1'])->name('activate');
+        Route::get('/card/{token}', 'status')->whereAlphaNumeric('token')->middleware('throttle:60,1')->name('status');
+        Route::get('/card/{token}/pdf', 'pdf')->whereAlphaNumeric('token')->middleware('throttle:10,1')->name('pdf');
+    });
+
+    Route::get('/giftcard/{language?}', [\App\Http\Controllers\PublicGiftCardController::class, 'show'])
+        ->name('gift-cards.public');
+    Route::post('/giftcard/{language?}', [\App\Http\Controllers\PublicGiftCardController::class, 'store'])
+        ->middleware('throttle:5,1')->name('gift-cards.store');
+
     Route::get('/form/{language}/{form:slug}', MarketingPublicForm::class)->name('marketing.forms.public');
+    Route::get('/coupons/{language}/{coupon:slug}', \App\Livewire\Marketing\Coupons\PublicCoupon::class)->middleware('throttle:60,1')->name('coupons.public');
+    Route::get('/coupon-verify/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'verify'])->middleware('throttle:30,1')->name('coupons.verify');
+    Route::post('/coupon-verify/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'confirm'])->middleware('throttle:10,1')->name('coupons.confirm');
+    Route::get('/coupon/{language}/{token}/pdf', [\App\Http\Controllers\MarketingPublicController::class, 'pdf'])->middleware('throttle:60,1')->name('coupons.pdf');
+    Route::get('/coupon/{language}/{token}/image', [\App\Http\Controllers\MarketingPublicController::class, 'image'])->middleware('throttle:60,1')->name('coupons.image');
+    Route::get('/coupon/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'card'])->middleware('throttle:60,1')->name('coupons.card');
+    Route::get('/campaign-click/{delivery}', [\App\Http\Controllers\MarketingPublicController::class, 'click'])->middleware(['signed', 'throttle:60,1'])->name('campaigns.click');
+    Route::match(['get', 'post'], '/marketing/unsubscribe/{language}/{token}', [\App\Http\Controllers\MarketingPublicController::class, 'unsubscribe'])->middleware('throttle:30,1')->name('marketing.unsubscribe');
     Route::get('/menu/{language}/{menu:slug}', PublicMenu::class)->name('menu.public');
     Route::get('/order/{language}/{menu:slug}', \App\Livewire\PublicOrders\Menu::class)->name('public-orders.menu');
-    Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class,'table'])->name('public-orders.table');
-    Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'show'])->middleware('throttle:30,1')->name('public-orders.verify');
-    Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class,'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
-    Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
-    Route::post('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class,'respond'])->middleware('throttle:10,1')->name('public-orders.proposal.respond');
-
-
+    Route::get('/customer-order/{language}/{tableToken}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'table'])->name('public-orders.table');
+    Route::get('/fiscal-copy/{copy}/{document}', \App\Http\Controllers\FiscalCopyController::class)->middleware(['signed', 'throttle:20,1'])->name('fiscal-copy.download');
+    Route::get('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'show'])->middleware('throttle:30,1')->name('public-orders.verify');
+    Route::post('/order-access/{token}', [\App\Http\Controllers\CustomerOrderAccessController::class, 'redeem'])->middleware('throttle:10,1')->name('public-orders.redeem');
+    Route::get('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class, 'show'])->middleware('throttle:30,1')->name('public-orders.proposal');
+    Route::post('/order-proposals/{token}', [\App\Http\Controllers\CustomerOrderProposalController::class, 'respond'])->middleware('throttle:10,1')->name('public-orders.proposal.respond');
 
     /*
     |--------------------------------------------------------------------------
@@ -111,13 +139,45 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/manage/account/profile', AccountProfile::class)->name('account.profile');
+        Route::get('/manage/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/manage/notifications/{notification}', [NotificationController::class, 'show'])
+            ->whereNumber('notification')->name('notifications.show');
+
         Route::get('/manage', BookingIndex::class)
             ->middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)
             ->name('manage');
 
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::MARKETING)->group(function () {
+            Route::prefix('/manage/fidelity')->name('fidelity.manage.')->controller(\App\Http\Controllers\FidelityController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/', 'update')->name('update');
+                Route::post('/rewards', 'reward')->name('rewards.create');
+                Route::put('/rewards/{reward}', 'reward')->name('rewards.update');
+                Route::delete('/rewards/{reward}', 'deleteReward')->name('rewards.delete');
+            });
+            Route::prefix('/manage/giftcard')->name('gift-cards.')
+                ->controller(\App\Http\Controllers\GiftCardController::class)->group(function (): void {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/show/{giftCard}', 'show')->whereUuid('giftCard')->name('show');
+                    Route::post('/{giftCard}/pay', 'pay')->whereUuid('giftCard')->name('pay');
+                    Route::post('/{giftCard}/redeem', 'redeem')->whereUuid('giftCard')->name('redeem');
+                });
+            Route::get('/manage/coupons', \App\Livewire\Marketing\Coupons\CouponIndex::class)->name('coupons.index');
+            Route::get('/manage/coupons/create', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.create');
+            Route::get('/manage/coupons/{coupon}/edit', \App\Livewire\Marketing\Coupons\CouponEdit::class)->name('coupons.edit');
+            Route::get('/manage/marketing/campaigns', \App\Livewire\Marketing\Campaigns\CampaignIndex::class)->name('campaigns.index');
+            Route::get('/manage/marketing/campaigns/create', \App\Livewire\Marketing\Campaigns\CampaignEdit::class)->name('campaigns.create');
+            Route::get('/manage/marketing/campaigns/{campaign}/edit', \App\Livewire\Marketing\Campaigns\CampaignEdit::class)->name('campaigns.edit');
+            Route::get('/manage/marketing/campaigns/{campaign}/send', \App\Livewire\Marketing\Campaigns\CampaignSend::class)->name('campaigns.send');
             Route::get('/manage/contacts', ContactIndex::class);
             Route::get('/manage/leads', [LeadController::class, 'leadslist'])->name('leads.list');
+            Route::prefix('/manage/polls')->name('polls.')->group(function (): void {
+                Route::get('/', \App\Livewire\Polls\PollIndex::class)->name('index');
+                Route::get('/create', \App\Livewire\Polls\PollEditor::class)->name('create');
+                Route::get('/{poll}/edit', \App\Livewire\Polls\PollEditor::class)->name('edit');
+                Route::get('/{poll}/responses', \App\Livewire\Polls\PollResponses::class)->name('responses');
+            });
             Route::prefix('/manage/marketing/forms')->name('marketing.forms.')->group(function (): void {
                 Route::get('/', MarketingFormIndex::class)->name('index');
                 Route::get('/create', MarketingFormCreate::class)->name('create');
@@ -156,8 +216,13 @@ Route::domain(env('DOMAIN'))->group(function () {
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::CASH_REGISTER)->group(function () {
             Route::get('/manage/cash-desk/customers-orders', \App\Livewire\CashDesk\CustomerOrders::class)->name('cash-desk.customer-orders');
             Route::get('/manage/cash-desk', \App\Livewire\CashDesk\RoomMap::class)->name('cash-desk.index');
+            Route::get('/manage/cash-desk/reconciliation', \App\Livewire\CashDesk\Reconciliation::class)->name('cash-desk.reconciliation');
+            Route::get('/manage/cash-desk/shifts', \App\Livewire\CashDesk\Shifts::class)->name('cash-desk.shifts');
             Route::get('/manage/cash-desk/history', \App\Livewire\CashDesk\History::class)->name('cash-desk.history');
             Route::get('/manage/cash-desk/orders/{order}', \App\Livewire\CashDesk\Show::class)->name('cash-desk.show');
+            Route::get('/manage/cash-desk/orders/{order}/fiscal', \App\Livewire\CashDesk\FiscalDocuments::class)->name('cash-desk.fiscal');
+            Route::get('/manage/cash-desk/fiscal-documents/{document}/xml', \App\Http\Controllers\FiscalDocumentXmlController::class)->name('cash-desk.fiscal-xml');
+            Route::get('/manage/cash-desk/fiscal-documents/{document}/pdf', \App\Http\Controllers\FiscalDocumentPdfController::class)->name('cash-desk.fiscal-pdf');
             Route::get('/manage/cash-desk/orders/{order}/print', \App\Http\Controllers\OrderPrintController::class)->name('cash-desk.print');
         });
         Route::middleware('personnel.permission:'.PersonnelPermissionsService::KDS)->group(function () {
@@ -166,10 +231,12 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
         Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/statistics', \App\Http\Controllers\StatisticsController::class)->name('statistics.index');
             Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
             Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
             Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');
             Route::get('/manage/profile', ProfileEdit::class)->name('profile.edit');
+            Route::get('/manage/settings/marketing', \App\Livewire\Marketing\Settings::class)->name('settings.marketing');
             Route::get('/manage/settings', SettingsIndex::class)->name('settings.index');
             Route::get('/manage/settings/notification-modes', NotificationModesEdit::class)->name('settings.notification-modes');
             Route::get('/manage/settings/booking-remind-hours', BookingRemindHoursEdit::class)->name('settings.booking-remind-hours');
@@ -179,6 +246,7 @@ Route::domain(env('DOMAIN'))->group(function () {
             Route::get('/manage/settings/message-channel-cases', MessageChannelCasesIndex::class)->name('settings.message-channel-cases');
             Route::get('/manage/settings/messages', MessageTemplatesIndex::class)->name('settings.messages');
             Route::get('/manage/settings/rooms', RoomIndex::class)->name('settings.rooms');
+            Route::get('/manage/settings/fiscal', \App\Livewire\Settings\Fiscal\Settings::class)->name('settings.fiscal');
             Route::get('/manage/settings/customers-orders', \App\Livewire\Settings\CustomerOrders\Settings::class)->name('settings.customer-orders');
             Route::get('/manage/settings/rooms/orders-tables-qr-codes', \App\Livewire\Settings\Rooms\OrderTableQrCodes::class)->name('settings.rooms.order-qr-codes');
             Route::get('/manage/settings/rooms/orders-tables-qr-codes/{table}/download', \App\Http\Controllers\OrderTableQrController::class)->name('settings.rooms.order-qr-download');

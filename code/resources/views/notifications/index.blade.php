@@ -1,89 +1,119 @@
-@extends('layouts.app')
-@section('content')
-
-<div class="content">
-    <!-- Start::main-content -->
-    <div class="main-content">
-        <!-- Page Header -->
-        <div class="md:flex block items-center justify-between mb-6 mt-[2rem]  page-header-breadcrumb">
-            <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Notifiche</h5>
-                <nav>
-                    <ol class="flex items-center whitespace-nowrap min-w-0">
-                    <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                        href="/"> Home <i
-                            class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
-                        </a> </li>
-                        <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                            href="/operations"> Operations <i
-                                class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
-                            </a> </li>
-                    <li class="text-[12px]"> <a class="flex items-center text-textmuted"
-                        href="javascript:void(0);">Notifiche 
-                        </a> </li>
-                    </ol>
-                </nav>
+<x-layouts.app>
+    <div class="content">
+        <div class="main-content">
+            <div class="page-header-breadcrumb mb-6">
+                <h1 class="page-title text-[1.3125rem] font-medium">{{ __('notifications.title') }}</h1>
             </div>
 
-    
-        </div>
-        <!-- Page Header Close -->
-
-            <div
-                class=" !-mt-2 !p-0  bg-white  !border-0 border-defaultborder  !m-0">
-              
-                    <div class="menu-header-content bg-primary text-white">
-                        <div class="flex items-center justify-between">
-                            <h6 class="mb-0 text-[.9375rem] font-semibold text-white">Notifiche</h6>
+            <div class="box">
+                <div class="box-body">
+                    <form method="GET" action="{{ route('notifications.index') }}" class="mb-5 space-y-4"
+                          x-data="{ period: @js(old('period', $filters['period'] ?? 'all')) }">
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <div>
+                                <label for="notification-search" class="form-label">{{ __('notifications.search') }}</label>
+                                <input id="notification-search" type="search" name="q" class="form-control"
+                                       value="{{ $filters['q'] ?? '' }}" placeholder="{{ __('notifications.search_placeholder') }}" maxlength="200">
+                            </div>
+                            <div>
+                                <label for="notification-type" class="form-label">{{ __('notifications.type') }}</label>
+                                <select id="notification-type" name="type" class="form-control">
+                                    <option value="">{{ __('notifications.all_types') }}</option>
+                                    @foreach ($typeLabels as $type => $label)
+                                        <option value="{{ $type }}" @selected(($filters['type'] ?? null) === $type)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="notification-period" class="form-label">{{ __('notifications.period') }}</label>
+                                <select id="notification-period" name="period" class="form-control" x-model="period">
+                                    @foreach ($periods as $period)
+                                        <option value="{{ $period }}" @selected(old('period', $filters['period'] ?? 'all') === $period)>{{ __('notifications.periods.'.$period) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="notification-status" class="form-label">{{ __('notifications.status') }}</label>
+                                <select id="notification-status" name="status" class="form-control">
+                                    @foreach ($states as $state)
+                                        <option value="{{ $state }}" @selected(($filters['status'] ?? 'all') === $state)>{{ __('notifications.states.'.$state) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        {{-- <p class="dropdown-title-text subtext mb-0 text-white opacity-[0.6] pb-0 text-[0.75rem] ">You have 6
-                            unread Notifications</p> --}}
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    
-                    <ul class="list-none mb-0">
-                        @foreach($notifications as $notification)
-            
-                            <a class="cursor-pointer" href="{{ $notification->url }}">
-                                
-                                <li class="dropdown-item px-3 border-b">
-                                    
-                                    <div class="flex items-center my-3">
-                                        
-                                        <span class="avatar avatar-md me-2 avatar-rounded flex-shrink-0 bg-pinkmain">
-                                        <i class="la la-file-alt text-[1.25rem]"></i>
-                                        </span>
-                                        <div class="ms-3">
-                                        
-                                            <h5 class="notification-label text-defaulttextcolor mb-1">{{ $notification->title }}</h5>
-                                            <p class="notification-subtext text-[0.75rem]">{{ $notification->message }}</p>
-                                        
-                                            
-                                        </div>
-                              
-                                        <div class="ms-auto notification-subtext">{{ $notification->created_at->diffForHumans() }}</div>
-                                        
-                                    </div>
-                                </li>
-                            </a>
-                        @endforeach
-                    
-                    </ul>
 
-                    <div class="mt-3 mb-3">
-                        {{$notifications->links()}}
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" x-show="period === 'custom'">
+                            <div>
+                                <label for="notification-from" class="form-label">{{ __('notifications.from') }}</label>
+                                <input id="notification-from" name="from" type="date" class="form-control"
+                                       value="{{ old('from', $filters['from'] ?? '') }}" :disabled="period !== 'custom'">
+                            </div>
+                            <div>
+                                <label for="notification-to" class="form-label">{{ __('notifications.to') }}</label>
+                                <input id="notification-to" name="to" type="date" class="form-control"
+                                       value="{{ old('to', $filters['to'] ?? '') }}" :disabled="period !== 'custom'">
+                            </div>
+                        </div>
+
+                        @if ($errors->any())
+                            <p class="alert alert-danger" role="alert">{{ __('notifications.invalid_filters') }}</p>
+                        @endif
+
+                        <div class="flex flex-wrap gap-2">
+                            <button type="submit" class="ti-btn ti-btn-primary-full !mb-0">{{ __('notifications.apply') }}</button>
+                            <a href="{{ route('notifications.index') }}" class="ti-btn ti-btn-light !mb-0">{{ __('notifications.reset') }}</a>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered min-w-full">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{{ __('notifications.notification') }}</th>
+                                    <th scope="col">{{ __('notifications.type') }}</th>
+                                    <th scope="col">{{ __('notifications.received_at') }}</th>
+                                    <th scope="col">{{ __('notifications.status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($notifications as $notification)
+                                    <tr class="relative hover:bg-light">
+                                        <td>
+                                            <div class="flex items-start gap-3">
+                                                <span class="avatar avatar-md avatar-rounded shrink-0 {{ $notification->pivot->read_at ? 'bg-secondary' : 'bg-primary/10 text-primary' }}">
+                                                    <i class="la {{ $notification->icon() }} text-xl" aria-hidden="true"></i>
+                                                </span>
+                                                <div class="min-w-0">
+                                                    <a href="{{ route('notifications.show', $notification->id) }}"
+                                                       class="text-primary after:absolute after:inset-0 {{ $notification->pivot->read_at ? 'font-medium' : 'font-semibold' }}">{{ $notification->translatedTitle() }}</a>
+                                                    <p class="text-sm text-textmuted whitespace-normal break-words">{{ $notification->translatedMessage() }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ $typeLabels[$notification->type] ?? \App\Models\Notification::typeLabel($notification->type) }}</td>
+                                        <td class="whitespace-nowrap">
+                                            <time datetime="{{ $notification->created_at->toIso8601String() }}">{{ $notification->created_at->locale(app(\App\Services\CustomerLanguageService::class)->htmlLocale())->isoFormat('L LT') }}</time>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $notification->pivot->read_at ? 'bg-light !text-textmuted' : 'bg-primary/10 !text-primary' }}">
+                                                {{ __($notification->pivot->read_at ? 'notifications.read' : 'notifications.states.unread') }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-textmuted py-10">{{ __('notifications.empty') }}</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                
+
+                    @if ($notifications->hasPages())
+                        <div class="mt-4">{{ $notifications->links() }}</div>
+                    @endif
+                </div>
             </div>
-
+        </div>
     </div>
-</div> 
-<!-- End::content  -->
-
-
-
-
-
-
-@endsection
-
+</x-layouts.app>

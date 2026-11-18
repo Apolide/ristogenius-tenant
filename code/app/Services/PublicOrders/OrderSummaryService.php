@@ -8,6 +8,37 @@ use App\Services\TenantBrandingService;
 
 class OrderSummaryService
 {
+    /** Translate labels stored in an order snapshot, including snapshots created before PHP catalogs. */
+    public static function translateLabel(?string $label): ?string
+    {
+        $key = match ($label) {
+            'Sala' => 'cash_desk.dining_room',
+            'Ritiro' => 'public_orders.summary.pickup',
+            'Consegna' => 'cash_desk.delivery',
+            'Annullato' => 'cash_desk.cancelled',
+            'Aperto' => 'cash_desk.open',
+            'In attesa risposta cliente' => 'orders.waiting_for_customer_response',
+            'Da approvare' => 'orders.awaiting_approval',
+            'Accettato' => 'orders.accepted',
+            'In preparazione' => 'public_orders.notifications.preparing',
+            'Pronto' => 'public_orders.notifications.ready',
+            'In consegna' => 'orders.out_for_delivery',
+            'Completato' => 'orders.completed',
+            'Rifiutato' => 'public_orders.notifications.rejected',
+            'Proposta di modifica' => 'public_orders.summary.change_proposal',
+            'Contanti' => 'cash_desk.cash',
+            'Carta' => 'cash_desk.card',
+            'Buono' => 'public_orders.summary.voucher',
+            'Registrazione manuale' => 'public_orders.summary.manual_entry',
+            'Pagato' => 'cash_desk.paid',
+            'Parzialmente pagato' => 'public_orders.summary.partially_paid',
+            'Non pagato' => 'public_orders.summary.unpaid',
+            default => $label,
+        };
+
+        return __($key);
+    }
+
     public function snapshot(Order $order, ?OrderCourse $onlyCourse = null): array
     {
         $order->loadMissing(['courses.items.modifiers', 'payments']);
@@ -29,7 +60,7 @@ class OrderSummaryService
         $summary = [
             'restaurant' => $branding['name'], 'restaurant_address' => $branding['address'],
             'reference' => $order->reference ?: 'Tavolo '.$order->table_name,
-            'fulfillment' => $order->fulfillmentLabel(), 'status' => $order->status === 'cancelled' ? 'Annullato' : ($order->fulfillmentStatusLabel() ?: 'Aperto'),
+            'fulfillment' => $order->fulfillmentLabel('it'), 'status' => $order->status === 'cancelled' ? 'Annullato' : ($order->fulfillmentStatusLabel('it') ?: 'Aperto'),
             'created_at' => $order->created_at?->format('d/m/Y H:i'), 'requested_at' => $order->requested_at?->format('d/m/Y H:i'),
             'customer_name' => $order->customer_name, 'customer_email' => $order->customer_email, 'customer_phone' => $order->customer_phone,
             'address' => $order->delivery_address, 'neighborhood' => $order->delivery_neighborhood,
@@ -37,9 +68,11 @@ class OrderSummaryService
             'items' => $items, 'subtotal_cents' => array_sum(array_column($items, 'total_cents')),
             'covers' => (int) $order->covers, 'cover_price_cents' => (int) $order->cover_price_cents,
             'delivery_fee_cents' => (int) $order->delivery_fee_cents, 'service_fee_cents' => $order->serviceFeeCents(),
+            'discount_cents' => $order->effectiveDiscountCents(), 'discount_reason' => $order->discount_reason,
+            'tip_cents' => (int) $order->payments->sum('tip_cents'),
             'total_cents' => $order->totalCents(),
             'payment_method' => ['cash' => 'Contanti', 'card' => 'Carta', 'voucher' => 'Buono', 'manual' => 'Registrazione manuale'][$order->payment_method ?? $order->payments->last()?->method ?? 'manual'] ?? $order->payment_method,
-            'payment_status' => $order->status === 'paid' ? 'Pagato' : 'Non pagato',
+            'payment_status' => $order->status === 'paid' ? 'Pagato' : ($order->payments->sum('amount_cents') > 0 ? 'Parzialmente pagato' : 'Non pagato'),
             'paid_cents' => (int) $order->payments->sum('amount_cents'), 'paid_at' => $order->paid_at?->format('d/m/Y H:i'),
         ];
         if ($onlyCourse) {
@@ -54,6 +87,8 @@ class OrderSummaryService
             $summary['service_fee_cents'] = intdiv($summary['subtotal_cents'] * $onlyCourse->service_percentage_bps + 5000, 10000);
             $summary['total_cents'] = $summary['subtotal_cents'] + $summary['service_fee_cents'];
             $summary['paid_cents'] = 0;
+            $summary['discount_cents'] = 0;
+            $summary['tip_cents'] = 0;
         }
 
         return $summary;
@@ -75,6 +110,7 @@ class OrderSummaryService
         $summary['subtotal_cents'] = $quote['subtotal'];
         $summary['delivery_fee_cents'] = $quote['changes']['delivery_fee_cents'];
         $summary['neighborhood'] = $quote['changes']['delivery_neighborhood'];
+        $summary['discount_cents'] = min((int) $order->discount_cents, $quote['subtotal'] + $quote['changes']['delivery_fee_cents']);
         $summary['total_cents'] = $quote['total'];
 
         return $summary;

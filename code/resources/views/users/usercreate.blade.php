@@ -8,15 +8,15 @@
             <!-- Page Header -->
             <div class="md:flex block items-center justify-between mb-6 mt-[2rem]  page-header-breadcrumb">
             <div class="my-auto">
-                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">Utenti</h5>
+                <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('users.users') }}</h5>
                 <nav>
                 <ol class="flex items-center whitespace-nowrap min-w-0">
                     <li class="text-[12px]"> <a class="flex items-center text-primary hover:text-primary"
-                        href="/manage/users"> Utenti <i
+                        href="/manage/users"> {{ __('users.users') }} <i
                         class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                     </a> </li>
                     <li class="text-[12px]"> <a class="flex items-center text-textmuted"
-                        href="javascript:void(0);">Aggiungi utente 
+                        href="javascript:void(0);"><i class="las la-plus" aria-hidden="true"></i> {{ __('users.add_user') }}
                     </a> </li>
                 </ol>
                 </nav>

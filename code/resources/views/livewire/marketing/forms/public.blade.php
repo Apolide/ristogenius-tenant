@@ -1,33 +1,9 @@
 <div class="tenant-public-form-page" style="{{ $formStyleVariables }}; @if($backgroundUrl) --tenant-form-background-image: url('{{ $backgroundUrl }}'); @endif">
     <div class="tenant-public-form-overlay" aria-hidden="true"></div>
-    <header class="tenant-public-form-header">
-        <div class="flex h-full w-full items-center justify-between gap-3 px-4 sm:px-6">
-            <div class="flex min-w-0 items-center gap-3 overflow-hidden">
-                @if ($branding['logo_url'])
-                    <img src="{{ $branding['logo_url'] }}" alt="{{ $branding['name'] }}" class="tenant-public-form-logo">
-                @endif
-            </div>
-            @if (count($languages) > 1)
-                <div>
-                    <label for="form-language" class="sr-only">{{ __('public_bookings.language') }}</label>
-                    <select
-                        id="form-language"
-                        onchange="window.location.href = this.value"
-                        class="appearance-none rounded-lg border border-gray-300 bg-white px-5 py-2 pr-8 text-sm focus:border-gray-500 focus:outline-none"
-                    >
-                        @foreach ($languages as $code => $meta)
-                            <option
-                                value="{{ route('marketing.forms.public', ['language' => $code, 'form' => $form->slug]) }}"
-                                @selected($language === $code)
-                            >
-                                {{ $meta['flag'] }} {{ strtoupper($code) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-        </div>
-    </header>
+    @php
+        $languageUrls = collect($languages)->mapWithKeys(fn ($meta, $code) => [$code => route('marketing.forms.public', ['language' => $code, 'form' => $form->slug, 'coupon' => $couponToken])])->all();
+    @endphp
+    @include('components.public.header')
 
     <div class="tenant-public-form-content">
     <section class="tenant-public-form-card">
@@ -36,13 +12,17 @@
             <div class="tenant-public-form-rich-text my-4">{!! $form->translations[$language]['description'] ?? '' !!}</div>
 
             @if ($submitted)
-                <div class="alert alert-success">Grazie, la richiesta è stata inviata correttamente.</div>
+                <div class="alert alert-success">{{ __('public_interface.submitted', [], $language) }}</div>
                 @if (in_array($form->type, ['booking', 'event'], true) && filled($form->translations[$language]['booking_policy'] ?? null))
                     <div class="booking-policy tenant-public-form-rich-text mt-4 rounded border border-defaultborder bg-defaultbackground p-4">
                         {!! $form->translations[$language]['booking_policy'] !!}
                     </div>
                 @endif
             @else
+                @if($assignment=$this->couponAssignment())
+                    <div class="alert alert-info"><strong>{{ __('marketing.coupon') }}: {{ $assignment->snapshot['translations'][$language]['title'] ?? $assignment->snapshot['name'] }}</strong><p>{{ __('marketing.personal_notice') }}</p></div>
+                @endif
+                @error('coupon')<p class="text-danger">{{ $message }}</p>@enderror
                 <form wire:submit="submit" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     @foreach ($fields as $field)
                         @php
@@ -58,7 +38,7 @@
                                 <textarea id="{{ $fieldId }}" wire:model="answers.{{ $field->key }}" class="form-control" @required($field->required)></textarea>
                             @elseif ($field->type === 'select')
                                 <select id="{{ $fieldId }}" wire:model="answers.{{ $field->key }}" class="form-control" @required($field->required)>
-                                    <option value="">Seleziona</option>
+                                    <option value="">{{ __('public_interface.select', [], $language) }}</option>
                                     @foreach (($field->options[$language] ?? []) as $option)
                                         <option value="{{ $option }}">{{ $option }}</option>
                                     @endforeach
@@ -140,10 +120,13 @@
                         </div>
                     @endforeach
 
+                    @if(isset($assignment) && ($assignment->snapshot['benefit']['quantity_basis'] ?? 'fixed')==='children')
+                    <label>{{ __('marketing.children') }}<input class="form-control" type="number" min="0" wire:model="answers.children" required>@error('answers.children')<span class="text-danger">{{ $message }}</span>@enderror</label>
+                    @endif
                     <div class="pt-2 lg:col-span-2">
                         <button class="ti-btn ti-btn-primary-full" type="submit" wire:loading.attr="disabled" wire:target="submit">
-                            <span wire:loading.remove wire:target="submit">Invia</span>
-                            <span wire:loading wire:target="submit">Invio in corso…</span>
+                            <span wire:loading.remove wire:target="submit">{{ __('public_interface.submit', [], $language) }}</span>
+                            <span wire:loading wire:target="submit">{{ __('public_interface.submitting', [], $language) }}</span>
                         </button>
                     </div>
                 </form>
@@ -161,15 +144,5 @@
     </section>
     </div>
 
-    <footer class="tenant-public-form-footer">
-        <div class="flex h-full w-full flex-col items-center justify-center gap-1 px-4 text-center text-xs sm:flex-row sm:justify-between sm:px-6 sm:text-left">
-            <span>
-                <strong>{{ $branding['name'] }}</strong>
-                @if ($branding['address'])
-                    <span aria-hidden="true"> · </span>{{ $branding['address'] }}
-                @endif
-            </span>
-            <a href="https://ristogenius.com" target="_blank" rel="noopener noreferrer">by <strong>RistoGenius</strong></a>
-        </div>
-    </footer>
+    @include('components.public.footer')
 </div>

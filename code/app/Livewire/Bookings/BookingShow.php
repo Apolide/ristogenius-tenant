@@ -14,6 +14,29 @@ class BookingShow extends Component
 {
     public Booking $booking;
 
+    public string $couponAssignmentId = '';
+
+    public int $couponChildren = 0;
+
+    public function applyCoupon(): void
+    {
+        app(\App\Services\Orders\OrderService::class)->authorize(\App\Services\Personnel\PersonnelPermissionsService::BOOKINGS);
+        $this->validate(['couponAssignmentId' => 'required|uuid', 'couponChildren' => 'integer|min:0|max:100']);
+        DB::transaction(function () {
+            $booking = Booking::lockForUpdate()->findOrFail($this->booking->id);
+            $check = app(\App\Services\Marketing\CouponService::class);
+            $check->check(! in_array($booking->status, ['canceled', 'cancelled', 'denied', 'no-show', 'finalized'], true), 'unavailable');
+            $orders = \App\Models\Order::where('booking_id', $booking->id)->lockForUpdate()->get();
+            foreach ($orders as $order) {
+                $check->check($order->status === 'open' && ! $order->cash_snapshot && ! $order->payments()->exists() && ! $order->discount_cents && ! $order->fidelity_reward, 'bill_locked');
+            }
+            $assignment = \App\Models\CouponAssignment::where('customer_id', $booking->customer_id)->findOrFail($this->couponAssignmentId);
+            $check->consume($assignment, $booking, ['children' => $this->couponChildren]);
+        });
+        $this->booking->refresh();
+        session()->flash('success', __('marketing.coupon_applied'));
+    }
+
     public bool $showPickTableModal = false;
 
     public array $tablePickerSelection = [];
@@ -22,7 +45,7 @@ class BookingShow extends Component
 
     public function mount(Booking $booking): void
     {
-        $this->booking = $booking->load('customer', 'tables.room', 'histories', 'formSubmissions.form');
+        $this->booking = $booking->load('customer.fidelityCard', 'tables.room', 'histories', 'formSubmissions.form');
     }
 
     public function showPickTable(): void

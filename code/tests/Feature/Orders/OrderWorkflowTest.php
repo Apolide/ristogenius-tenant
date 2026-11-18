@@ -240,7 +240,7 @@ class OrderWorkflowTest extends TestCase
             $this->get(route($route))->assertOk();
         }
         $this->get(route('orders.show', $order))->assertOk()->assertSee('Margherita');
-        $this->get(route('cash-desk.show', $order))->assertOk()->assertSee('Marca come pagato');
+        $this->get(route('cash-desk.show', $order))->assertOk()->assertSee('Registra incasso');
         $this->get(route('cash-desk.print', $order))->assertOk()->assertSee('Documento non fiscale');
         $this->get(route('kds.show', $this->pizza->department_id))->assertOk()->assertSee('Margherita');
     }
@@ -269,6 +269,24 @@ class OrderWorkflowTest extends TestCase
         $this->send($order);
         Livewire::test(Show::class, ['order' => $order])->set('method', 'cash')->call('pay')->assertHasNoErrors()->assertSee('Pagamento registrato');
         $this->assertSame('paid', $order->fresh()->status);
+    }
+
+    public function test_room_calendar_navigation_keeps_open_orders_visible(): void
+    {
+        $this->travelTo(\Carbon\Carbon::parse('2026-11-17 12:00:00'));
+        $order = $this->open();
+        $this->add($order);
+
+        foreach ([RoomMap::class, \App\Livewire\CashDesk\RoomMap::class] as $component) {
+            Livewire::test($component)
+                ->assertSet('date', '2026-11-17')
+                ->call('previousDay')->assertSet('date', '2026-11-16')
+                ->assertViewHas('orders', fn ($orders) => $orders->contains('id', $order->id))
+                ->call('nextDay')->assertSet('date', '2026-11-17')
+                ->set('date', '2026-10-01')
+                ->call('selectToday')->assertSet('date', '2026-11-17')
+                ->assertHasNoErrors();
+        }
     }
 
     public function test_open_room_map_order_does_not_write_on_get(): void

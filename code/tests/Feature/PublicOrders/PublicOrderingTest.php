@@ -302,6 +302,38 @@ class PublicOrderingTest extends TestCase
         $this->assertSame(100, $order->serviceFeeCents());
     }
 
+    public function test_partial_cash_payment_keeps_table_busy_and_blocks_more_qr_orders(): void
+    {
+        $access = $this->login($this->table->ordering_token);
+        $order = $access->order;
+        $this->actingAs($this->admin);
+        app(OrderService::class)->pay($order->id, 'cash', $order->totalCents(), 100);
+        $this->assertDatabaseHas('order_tables', ['order_id' => $order->id, 'active_table_id' => $this->table->id]);
+        try {
+            $this->submit(key: 'after-partial', type: 'dine_in', table: $this->table->ordering_token);
+            $this->fail('Expected frozen QR account');
+        } catch (ValidationException) {
+            $this->assertSame(0, $order->items()->count());
+        }
+        app(OrderService::class)->pay($order->id, 'card', $order->totalCents());
+        $this->assertDatabaseHas('order_tables', ['order_id' => $order->id, 'active_table_id' => null]);
+    }
+
+    public function test_discount_survives_customer_proposal_quote_and_summary(): void
+    {
+        $this->login();
+        $order = $this->submit()->order;
+        $this->actingAs($this->admin);
+        app(OrderService::class)->discount($order->id, 150, 'Promozione', 1000);
+        $order->refresh();
+        $service = app(\App\Services\PublicOrders\OrderProposalService::class);
+        $quote = $service->quote($order, $service->initialLines($order), $this->details());
+        $this->assertSame(850, $quote['total']);
+        $summary = app(\App\Services\PublicOrders\OrderSummaryService::class)->proposed($order, $quote);
+        $this->assertSame(150, $summary['discount_cents']);
+        $this->assertSame(850, $summary['total_cents']);
+    }
+
     public function test_closed_table_session_cannot_add_to_next_visit(): void
     {
         $access = $this->login($this->table->ordering_token);

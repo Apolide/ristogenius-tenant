@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime'];
+    protected $casts = ['service_date' => 'date', 'paid_at' => 'datetime', 'cancelled_at' => 'datetime', 'requested_at' => 'datetime', 'cash_snapshot' => 'array', 'fidelity_reward' => 'array'];
 
     public function proposals()
     {
@@ -43,6 +43,11 @@ class Order extends Model
         return $this->belongsTo(Booking::class);
     }
 
+    public function billPlan()
+    {
+        return $this->hasOne(CashBillPlan::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(OrderPayment::class);
@@ -70,21 +75,42 @@ class Order extends Model
         return (int) $totals->sum(fn ($row) => intdiv((int) $row->subtotal * $row->service_percentage_bps + 5000, 10000));
     }
 
-    public function fulfillmentLabel(): string
+    public function fulfillmentLabel(?string $locale = null): string
     {
-        return ['dine_in' => 'Sala', 'pickup' => 'Ritiro', 'delivery' => 'Consegna'][$this->fulfillment] ?? $this->fulfillment;
+        return ['dine_in' => __('cash_desk.dining_room', [], $locale), 'pickup' => __('cash_desk.history.pickup', [], $locale), 'delivery' => __('cash_desk.delivery', [], $locale)][$this->fulfillment] ?? $this->fulfillment;
     }
 
-    public function fulfillmentStatusLabel(): string
+    public function fulfillmentStatusLabel(?string $locale = null): string
     {
         if ($this->fulfillment !== 'dine_in' && $this->pendingProposal) {
-            return 'In attesa risposta cliente';
+            return __('orders.waiting_for_customer_response', [], $locale);
         }
 
-        return ['received' => 'Da approvare', 'accepted' => 'Accettato', 'preparing' => 'In preparazione', 'ready' => 'Pronto', 'out_for_delivery' => 'In consegna', 'completed' => 'Completato', 'rejected' => 'Rifiutato', 'cancelled' => 'Annullato'][$this->fulfillment_status] ?? '';
+        return ['received' => __('orders.awaiting_approval', [], $locale), 'accepted' => __('orders.accepted', [], $locale), 'preparing' => __('cash_desk.bill.preparing', [], $locale), 'ready' => __('cash_desk.bill.ready', [], $locale), 'out_for_delivery' => __('orders.out_for_delivery', [], $locale), 'completed' => __('orders.completed', [], $locale), 'rejected' => __('cash_desk.fiscal_documents.rejected', [], $locale), 'cancelled' => __('cash_desk.cancelled', [], $locale)][$this->fulfillment_status] ?? '';
+    }
+
+    public function effectiveDiscountCents(): int
+    {
+        return $this->cash_snapshot !== null
+            ? (int) $this->cash_snapshot['discount_cents']
+            : (int) app(\App\Services\Orders\CashTotalsService::class)->snapshot($this)['discount_cents'];
+    }
+
+    public function balanceCents(): int
+    {
+        return max(0, $this->totalCents() - (int) $this->payments()->sum('amount_cents'));
     }
 
     public function totalCents(): int
+    {
+        if ($this->cash_snapshot !== null) {
+            return (int) $this->cash_snapshot['total_cents'];
+        }
+
+        return (int) app(\App\Services\Orders\CashTotalsService::class)->snapshot($this)['total_cents'];
+    }
+
+    public function grossCents(): int
     {
         return $this->covers * $this->cover_price_cents + (int) $this->delivery_fee_cents
             + (int) $this->items()->whereNull('order_courses.rejected_at')->selectRaw('COALESCE(SUM(quantity * unit_price_cents), 0) as total')->value('total')

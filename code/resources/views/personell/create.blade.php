@@ -21,12 +21,12 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div class="w-full mb-3">
                     <label for="name" class="block mb-2 text-sm font-medium">{{ __('personnel.name') }}</label>
-                    <input required wire:model="name" type="text" id="name" class="form-control" placeholder="Nome e cognome">
+                    <input required wire:model="name" type="text" id="name" class="form-control" placeholder="{{ __('personnel.name') }}">
                     @error('name') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="w-full mb-3">
-                    <label for="email" class="block mb-2 text-sm font-medium">E-mail</label>
+                    <label for="email" class="block mb-2 text-sm font-medium">{{ __('interface.email') }}</label>
                     <input required wire:model="email" type="email" id="email" class="form-control" placeholder="nome@esempio.it">
                     @error('email') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
                 </div>

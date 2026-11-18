@@ -140,6 +140,6 @@ class Editor extends Component
         return view('livewire.orders.editor', compact('order', 'categories', 'products', 'product') + [
             'menus' => DigitalMenu::where('is_visible', true)->orderBy('position')->get(),
             'ingredients' => $product ? DigitalMenuIngredient::all()->sortBy(fn ($i) => $i->translatedName()) : collect(),
-        ])->title('Comanda · '.$order->table_name);
+        ])->title(__('orders.order').$order->table_name);
     }
 }

@@ -1,5 +1,6 @@
 <div class="content">
     <div class="main-content">
+        <a class="ti-btn ti-btn-light mb-4" href="{{ route('settings.marketing') }}">{{ __('marketing.settings') }}</a>
         <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
             <div class="my-auto">
                 <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('reservation_settings.index.title') }}</h5>
@@ -7,7 +8,7 @@
                     <ol class="flex items-center whitespace-nowrap min-w-0">
                         <li class="text-[12px]">
                             <a class="flex items-center text-primary hover:text-primary" href="/">
-                                Home
+                                {{ __('interface.home') }}
                                 <i class="ti ti-chevrons-right flex-shrink-0 mx-3 overflow-visible text-textmuted rtl:rotate-180"></i>
                             </a>
                         </li>
@@ -143,6 +144,8 @@
                 </div>
             </div>
         </div>
-        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('personnel.features.customer_orders') }}</div><p class="text-sm text-textmuted">Asporto e consegna a domicilio</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.customer-orders') }}">Configura asporto e consegne</a></div></div>
+        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('settings.fiscal_configuration_sandbox') }}</div><p class="text-sm text-textmuted">{{ __('settings.fiscal_sandbox_description') }}</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.fiscal') }}">{{ __('settings.configure_sandbox_fiscal_cash_desk') }}</a></div></div>
+
+        <div class="box mb-4"><div class="box-header"><div><div class="box-title">{{ __('personnel.features.customer_orders') }}</div><p class="text-sm text-textmuted">{{ __('settings.takeaway_and_home_delivery') }}</p></div></div><div class="box-body"><a class="ti-btn ti-btn-primary-full" href="{{ route('settings.customer-orders') }}">{{ __('settings.configure_pickup_and_delivery') }}</a></div></div>
     </div>
 </div>

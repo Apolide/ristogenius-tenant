@@ -18,7 +18,7 @@ class EmailMessageChannel implements MessageChannel
             if (! $email) {
                 continue;
             }
-            $mail = $outbox->aggregate_type === 'customer_order'
+            $mail = in_array($outbox->aggregate_type, ['customer_order', 'fiscal_copy'], true)
                 ? new \App\Mail\CustomerOrderMail($delivery)
                 : new BookingMessageMail(
                     delivery: $delivery,

@@ -33,9 +33,9 @@ class CustomerOrderProposal extends Model
     public function statusLabel(): string
     {
         if ($this->status === 'pending' && $this->expires_at->isPast()) {
-            return 'Scaduta';
+            return __('customer_orders.messages.expired');
         }
 
-        return ['pending' => 'In attesa del cliente', 'accepted' => 'Accettata dal cliente', 'rejected' => 'Rifiutata dal cliente', 'withdrawn' => 'Ritirata dal ristorante', 'expired' => 'Scaduta'][$this->status] ?? $this->status;
+        return ['pending' => __('customer_orders.messages.waiting_for_customer'), 'accepted' => __('customer_orders.messages.accepted_by_customer'), 'rejected' => __('customer_orders.messages.rejected_by_customer'), 'withdrawn' => __('customer_orders.messages.withdrawn_by_restaurant'), 'expired' => __('customer_orders.messages.expired')][$this->status] ?? $this->status;
     }
 }

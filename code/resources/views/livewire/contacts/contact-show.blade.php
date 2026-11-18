@@ -4,9 +4,9 @@
         <div class="box-header border-none">
             <div class="flex justify-between">
                 <div>
-                    <div class="box-title pb-0">DETTAGLIO {{$name}}</div>
+                    <div class="box-title pb-0">{{ __('contacts.details') }} {{$name}}</div>
                     <button wire:click="back()" type="button" class="ti-btn ti-btn-light mt-3">
-                        Indietro
+                        {{ __('contacts.back') }}
                     </button>
                     {{-- <p class="text-xs text-gray-500 font-normal">Gestisci i tuoi prodotti qui.</p> --}}
                 </div>
@@ -22,8 +22,8 @@
                 <thead>
                     <tr class="!border-defaultborder dark:!border-defaultborder/10">
                         <th class="border-b dark:border-defaultborder/10 text-start">ID</th>
-                        <th class="border-b dark:border-defaultborder/10 text-start">Nome</th>
-                        <th class="border-b dark:border-defaultborder/10 text-start">Nome di sistema</th>
+                        <th class="border-b dark:border-defaultborder/10 text-start">{{ __('interface.name') }}</th>
+                        <th class="border-b dark:border-defaultborder/10 text-start">{{ __('contacts.system_name') }}</th>
                         <th class="border-b dark:border-defaultborder/10 text-start">Email</th>
 
 
@@ -53,7 +53,7 @@
         <div class="box-header border-none">
             <div class="flex justify-between">
                 <div>
-                    <div class="box-title pb-0">PIANTA: {{$name}}</div>
+                    <div class="box-title pb-0">{{ __('contacts.floor_plan_label') }} {{$name}}</div>
                     {{-- <p class="text-xs text-gray-500 font-normal">Gestisci i tuoi prodotti qui.</p> --}}
                 </div>
             </div>

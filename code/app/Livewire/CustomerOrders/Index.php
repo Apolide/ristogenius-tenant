@@ -63,6 +63,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function selectToday(): void
+    {
+        $this->date = today()->toDateString();
+        $this->resetPage();
+    }
+
     public function transition(string $id, string $action, string $expected): void
     {
         abort_if($this->cash(), 403);
@@ -88,6 +94,6 @@ class Index extends Component
             })
             ->when($this->search, fn ($q) => $q->where(fn ($q) => $q->where('reference', 'like', '%'.$this->search.'%')->orWhere('customer_name', 'like', '%'.$this->search.'%')->orWhere('customer_phone', 'like', '%'.$this->search.'%')));
 
-        return view('livewire.customer-orders.index', ['orders' => $query->with(['courses.items', 'payments', 'pendingProposal'])->orderBy('requested_at')->paginate(18), 'cash' => $this->cash()])->title($this->cash() ? 'Cassa · Asporto e consegne' : 'Ordini Clienti');
+        return view('livewire.customer-orders.index', ['orders' => $query->with(['courses.items', 'payments', 'pendingProposal'])->orderBy('requested_at')->paginate(18), 'cash' => $this->cash()])->title($this->cash() ? __('customer_orders.cash_desk_pickup_and_deliveries') : __('customer_orders.customer_orders'));
     }
 }

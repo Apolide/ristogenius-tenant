@@ -3,10 +3,10 @@
     <div class="flex items-center justify-between mb-6 page-header-breadcrumb">
         <div><h5 class="page-title text-[1.3125rem] font-medium">{{ __('bookings.title') }}</h5></div>
         <div class="flex gap-3">
-            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Lista d'attesa"><i class="las text-3xl la-hourglass-half"></i></a>
-            <a href="{{ route('bookings.walk-in') }}" class="ti-btn ti-btn-success-full text-white ti-btn-icon" title="Nuovo Walk In"><i class="las text-3xl la-walking"></i></a>
-            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="Nuova prenotazione"><i class="las text-3xl la-plus"></i></a>
-            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="Aggiorna prenotazioni"><i class="las text-3xl la-redo-alt"></i></button>
+            <a href="{{ route('bookings.waitlist') }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('bookings.waitlist_label') }}"><i class="las text-3xl la-hourglass-half"></i></a>
+            <a href="{{ route('bookings.walk-in') }}" class="ti-btn ti-btn-success-full text-white ti-btn-icon" title="{{ __('bookings.walk_in_label') }}"><i class="las text-3xl la-walking"></i></a>
+            <a href="{{ route('bookings.create') }}" class="ti-btn ti-btn-info-full text-white ti-btn-icon" title="{{ __('bookings.new') }}"><i class="las text-3xl la-plus"></i></a>
+            <button type="button" wire:click="$refresh" class="ti-btn ti-btn-warning-full text-white ti-btn-icon" title="{{ __('bookings.refresh') }}"><i class="las text-3xl la-redo-alt"></i></button>
         </div>
     </div>
     @if(session('success'))<div class="alert alert-success mb-5">{{ session('success') }}</div>@endif
@@ -50,15 +50,15 @@
 
         <div class="grid grid-cols-5 gap-2 mb-1 mt-2">
             <input wire:model.live.debounce.300ms="search" class="form-control md:col-span-1 col-span-5 h-12" placeholder="{{ __('bookings.search') }}">
-            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">Sala</a>
+            <a href="{{ route('bookings.rooms', ['date' => $date, 'meal' => $meal]) }}" class="ti-btn ti-btn-primary col-span-1 h-12">{{ __('bookings.room_label') }}</a>
             <button wire:click="toggleShowAllToday" class="ti-btn ti-btn-primary col-span-2 md:col-span-1 h-12">{{ __('bookings.all_day') }}</button>
             <button wire:click="selectMeal('pranzo')" class="ti-btn h-12 {{ $meal === 'pranzo' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.lunch') }}</button>
             <button wire:click="selectMeal('cena')" class="ti-btn h-12 {{ $meal === 'cena' ? 'ti-btn-primary' : 'ti-btn-light' }}">{{ __('bookings.dinner') }}</button>
         </div>
         <div class="flex flex-wrap gap-0 md:gap-2 mb-1">
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> Pax: {{ $totalPax }}</strong></div>
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> In arrivo: {{ $arrivingPax }}</strong></div>
-            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> Servendo: {{ $servingPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('bookings.guest_count_label') }} {{ $totalPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('bookings.arriving_label') }} {{ $arrivingPax }}</strong></div>
+            <div class="px-1 md:px-3 py-2"><strong class="text-xs md:text-sm"><i class="las la-users"></i> {{ __('bookings.serving_label') }} {{ $servingPax }}</strong></div>
         </div>
         <div class="table-responsive mt-4"><table class="table table-bordered whitespace-nowrap min-w-full"><thead><tr><th>{{ __('bookings.customer_booking') }}</th><th>{{ __('bookings.tables_stay') }}</th></tr></thead><tbody>
         @forelse($bookings as $booking)
@@ -68,7 +68,7 @@
                 $eventForm = $booking->eventFormSubmission?->form;
                 $eventTitle = $eventForm?->title($booking->language) ?: $eventForm?->title();
             @endphp
-            <tr><td><p>@if($booking->customer)<a href="{{ route('customers.show', $booking->customer) }}" class="text-primary"><b>{{ $booking->customer->display_name ?: trim($booking->customer->firstname.' '.$booking->customer->lastname) }}</b></a>@else<b><i class="las la-walking"></i> Walk In</b>@endif <small title="{{ $language['label'] }}">{{ $language['flag'] }} {{ strtoupper($booking->language) }}</small></p><p><i class="las la-users"></i> {{ $booking->pax }} <i class="las la-clock"></i> {{ substr($booking->booking_time,0,5) }} @if($eventForm)<span class="badge bg-info/10 text-info" title="{{ $eventTitle }}">{{ __('bookings.show.event') }}</span> @endif<span class="badge bg-{{ $status['color'] }}/10 text-{{ $status['color'] }}">{{ __('bookings.statuses.'.$booking->status) }}</span></p>
+            <tr><td><p>@if($booking->customer)<a href="{{ route('customers.show', $booking->customer) }}" class="text-primary"><b>{{ $booking->customer->display_name ?: trim($booking->customer->firstname.' '.$booking->customer->lastname) }}</b></a> @if($card = $booking->customer->fidelityCard)<span class="badge bg-success/10 text-success">{{ __('fidelity.balance', ['points' => max(0, $card->points)]) }}</span>@endif@else<b><i class="las la-walking"></i> Walk In</b>@endif <small title="{{ $language['label'] }}">{{ $language['flag'] }} {{ strtoupper($booking->language) }}</small></p><p><i class="las la-users"></i> {{ $booking->pax }} <i class="las la-clock"></i> {{ substr($booking->booking_time,0,5) }} @if($eventForm)<span class="badge bg-info/10 text-info" title="{{ $eventTitle }}">{{ __('bookings.show.event') }}</span> @endif<span class="badge bg-{{ $status['color'] }}/10 text-{{ $status['color'] }}">{{ __('bookings.statuses.'.$booking->status) }}</span></p>
                 <div class="flex gap-2 mt-2"><a href="{{ route('bookings.show',$booking) }}" class="ti-btn ti-btn-icon bg-info text-white"><i class="las la-cog text-2xl"></i></a>
                 @if(in_array($booking->status,['pending','waiting']))<button wire:click="openAction('accept','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-success text-white"><i class="las la-check text-2xl"></i></button><button wire:click="openAction('deny','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-danger text-white"><i class="las la-times text-2xl"></i></button>@endif
                 @if($booking->status === 'accepted')<button wire:click="openAction('tables','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-green-500 text-white"><i class="las la-chair text-2xl"></i></button>@if($booking->booking_date->isToday() || $booking->booking_date->isPast())<button wire:click="openAction('seat','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-green-500 text-white"><i class="las la-user-check text-2xl"></i></button><button wire:click="openAction('no-show','{{ $booking->id }}')" class="ti-btn ti-btn-icon bg-red-500 text-white"><i class="las la-user-slash text-2xl"></i></button>@endif @endif
@@ -81,7 +81,7 @@
     @if($modal === 'tables')
         @include('livewire.bookings.partials.table-picker-modal', ['saveAction' => 'saveTables', 'closeAction' => 'closeModal'])
     @elseif($modal)<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"><div class="bg-white rounded p-5 w-[500px] max-w-[95vw]">
-        @if($modal === 'note')<h2 class="text-xl font-bold mb-3">Note prenotazione</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
-        @else<h2 class="text-xl font-bold mb-3">Conferma operazione</h2><p class="mb-4">Confermi il cambio di stato della prenotazione?</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">Conferma</button>@endif
-        <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">Chiudi</button></div></div>@endif
+        @if($modal === 'note')<h2 class="text-xl font-bold mb-3">{{ __('bookings.booking_notes') }}</h2><p>{{ $bookings->firstWhere('id',$selectedBookingId)?->note }}</p>
+        @else<h2 class="text-xl font-bold mb-3">{{ __('bookings.operation_confirm_label') }}</h2><p class="mb-4">{{ __('bookings.status_confirm') }}</p><button wire:click="changeStatus('{{ ['accept'=>'accepted','deny'=>'denied','no-show'=>'no-show','seat'=>'seated','finalize'=>'finalized'][$modal] }}')" class="ti-btn ti-btn-primary">{{ __('bookings.confirm') }}</button>@endif
+        <button wire:click="closeModal" class="ti-btn ti-btn-secondary mt-4">{{ __('bookings.close') }}</button></div></div>@endif
 </div></div>

@@ -6,6 +6,8 @@ return [
     'search' => 'Search departments',
     'actions' => 'Actions',
     'name' => 'Department name',
+    'translation_placeholder' => 'Translated name (optional)',
+    'translations_help' => 'Translations are optional. Missing translations fall back to the Italian name.',
     'production' => 'Production department',
     'production_help' => 'Used for product/order production',
     'use_printer' => 'Use printer',

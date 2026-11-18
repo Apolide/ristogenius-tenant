@@ -9,7 +9,7 @@ class MarketingFormSubmission extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['booking_id', 'language', 'field_snapshot', 'payload'];
+    protected $fillable = ['idempotency_key', 'booking_id', 'language', 'field_snapshot', 'payload'];
 
     protected $casts = ['field_snapshot' => 'array', 'payload' => 'array'];
 

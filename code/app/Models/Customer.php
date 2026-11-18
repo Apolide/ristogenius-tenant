@@ -47,6 +47,11 @@ class Customer extends Model
         'blacklisted' => 'boolean',
     ];
 
+    public function fidelityCard(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(FidelityCard::class);
+    }
+
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);

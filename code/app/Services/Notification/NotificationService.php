@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class NotificationService
 {
     /** Distribute a typed in-app notification independently of email delivery. */
-    public function forPermission(string $permission, string $type, string $title, string $message, string $url): ?Notification
+    public function forPermission(string $permission, string $type, string $title, string $message, string $url, array $translationData = []): ?Notification
     {
         $users = User::where('enabled', true)->get()->filter(
             fn (User $user) => app(\App\Services\Personnel\PersonnelPermissionsService::class)->can($user, $permission)
@@ -20,12 +20,21 @@ class NotificationService
             return null;
         }
 
-        return DB::transaction(function () use ($users, $type, $title, $message, $url) {
-            $notification = Notification::create(compact('type', 'title', 'message', 'url'));
+        return DB::transaction(function () use ($users, $type, $title, $message, $url, $translationData) {
+            $notification = Notification::create(compact('type', 'title', 'message', 'url') + ['translation_data' => $translationData ?: null]);
             $notification->users()->attach($users->modelKeys());
 
             return $notification;
         });
+    }
+
+    /** Store canonical text for compatibility; translate for each viewer at render time. */
+    public function forPermissionTranslated(string $permission, string $type, string $title, string $message, array $parameters, string $url): ?Notification
+    {
+        return $this->forPermission($permission, $type,
+            __($title, $parameters, 'it'), __($message, $parameters, 'it'), $url,
+            ['title' => $title, 'message' => $message, 'parameters' => $parameters]
+        );
     }
 
     /**

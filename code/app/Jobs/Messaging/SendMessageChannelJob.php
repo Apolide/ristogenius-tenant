@@ -11,18 +11,25 @@ class SendMessageChannelJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 5;
+    public int $tries = 10000;
+
+    public int $maxExceptions = 5;
 
     public function __construct(
         public string $outboxId,
         public string $channel,
     ) {}
 
+    public function middleware(): array
+    {
+        return $this->channel === 'email' ? [new \Illuminate\Queue\Middleware\RateLimited('smtp-account')] : [];
+    }
+
     public function handle(MessageChannelRegistry $channels): void
     {
         $outbox = MessageOutbox::query()->find($this->outboxId);
 
-        if ($outbox && $outbox->aggregate_type === 'customer_order') {
+        if ($outbox && in_array($outbox->aggregate_type, ['customer_order', 'fiscal_copy'], true)) {
             if ($this->channel === 'email') {
                 $channels->get('email')->send($outbox);
             }

@@ -17,11 +17,11 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
                 <span>
                     @if ($paginator->onFirstPage())
                         <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-textmuted bg-defaultbackground border border-defaultborder cursor-default leading-5 rounded-md">
-                            {!! __('pagination.previous') !!}
+                            <i class="las la-angle-left" aria-hidden="true"></i> {{ __('pagination.previous') }}
                         </span>
                     @else
                         <button type="button" wire:click="previousPage('{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" dusk="previousPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}.before" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-defaulttextcolor bg-defaultbackground border border-defaultborder leading-5 rounded-md transition ease-in-out duration-150">
-                            {!! __('pagination.previous') !!}
+                            <i class="las la-angle-left" aria-hidden="true"></i> {{ __('pagination.previous') }}
                         </button>
                     @endif
                 </span>
@@ -29,11 +29,11 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
                 <span>
                     @if ($paginator->hasMorePages())
                         <button type="button" wire:click="nextPage('{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" wire:loading.attr="disabled" dusk="nextPage{{ $paginator->getPageName() == 'page' ? '' : '.' . $paginator->getPageName() }}.before" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-defaulttextcolor bg-defaultbackground border border-defaultborder leading-5 rounded-md transition ease-in-out duration-150">
-                            {!! __('pagination.next') !!}
+                            {{ __('pagination.next') }} <i class="las la-angle-right" aria-hidden="true"></i>
                         </button>
                     @else
                         <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-textmuted bg-defaultbackground border border-defaultborder cursor-default leading-5 rounded-md">
-                            {!! __('pagination.next') !!}
+                            {{ __('pagination.next') }} <i class="las la-angle-right" aria-hidden="true"></i>
                         </span>
                     @endif
                 </span>
@@ -42,14 +42,14 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
             <div class="sm:items-center sm:justify-between">
                 <div class="mb-1">
                     <p class="text-sm text-defaulttextcolor leading-5">
-                        <span>{!! __('Visualizzo') !!}</span>
-                        <span>{!! __('dal') !!}</span>
+                        <span>{!! __('pagination.displaying') !!}</span>
+                        <span>{!! __('pagination.showing_from') !!}</span>
                         <span class="font-medium">{{ $paginator->firstItem() }}</span>
-                        <span>{!! __('al') !!}</span>
+                        <span>{!! __('pagination.through') !!}</span>
                         <span class="font-medium">{{ $paginator->lastItem() }}</span>
-                        <span>{!! __('di') !!}</span>
+                        <span>{!! __('pagination.result_count_separator') !!}</span>
                         <span class="font-medium">{{ $paginator->total() }}</span>
-                        <span>{!! __('risultati') !!}</span>
+                        <span>{!! __('pagination.results_lowercase') !!}</span>
                     </p>
                 </div>
 
@@ -92,7 +92,7 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
                                                 <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-semibold text-white bg-primary border border-primary cursor-default leading-5">{{ $page }}</span>
                                             </span>
                                         @else
-                                            <button type="button" wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-defaulttextcolor bg-defaultbackground border border-defaultborder leading-5 transition ease-in-out duration-150" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
+                                            <button type="button" wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')" x-on:click="{{ $scrollIntoViewJsSnippet }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-defaulttextcolor bg-defaultbackground border border-defaultborder leading-5 transition ease-in-out duration-150" aria-label="{{ __('pagination.go_to_page_page', ['page' => $page]) }}">
                                                 {{ $page }}
                                             </button>
                                         @endif

@@ -10,7 +10,7 @@
 - `/manage/cash-desk`: dettaglio ordine, preconto stampabile non fiscale e registrazione manuale dell’incasso. Prima di incassare occorre inviare o rimuovere le righe in bozza. Un ordine annullabile viene conservato nello storico, senza eliminazioni definitive.
 - `/manage/cash-desk/history`: data di servizio, stato e ricerca per tavolo/sala/cliente; totale incassato relativo ai filtri.
 
-Gli ordini aperti sono sempre visibili nelle mappe, anche dai giorni precedenti. Il pagamento libera il tavolo per una nuova comanda ma non interrompe la produzione del precedente ordine. In cassa il rosso indica un ordine aperto e il verde un ordine pagato nella data selezionata.
+Gli ordini aperti sono sempre visibili nelle mappe, anche dai giorni precedenti. Il saldo completo libera il tavolo per una nuova comanda ma non interrompe la produzione del precedente ordine. In cassa il rosso indica un ordine aperto e il verde un ordine pagato nella data selezionata.
 
 ## Regole e struttura
 
@@ -22,7 +22,7 @@ Comande e cassa condividono la mappa `Orders/RoomMap`; la mappa prenotazioni esi
 
 Permessi: `personnel-manage-orders`, `personnel-manage-cash-register`, `personnel-manage-kds`. Gli amministratori accedono tramite il bypass già esistente. I permessi del personale sono assegnabili nella matrice già presente. Il nuovo permesso non viene assegnato automaticamente ai dipendenti.
 
-`source`, `fulfillment`, associazione facoltativa ai tavoli e righe di pagamento separate consentono l’estensione futura a ordini clienti/asporto e pagamenti multipli. Gli endpoint pubblici, i QR e i relativi flussi sono descritti in [public-ordering.md](public-ordering.md). Restano esclusi POS, split payment, emissione fiscale, scarico magazzino, gruppi di opzioni e stampa diretta sui dispositivi dei reparti.
+`source`, `fulfillment`, associazione facoltativa ai tavoli e righe di pagamento separate consentono l’estensione futura a ordini clienti/asporto e pagamenti multipli. Gli endpoint pubblici, i QR e i relativi flussi sono descritti in [public-ordering.md](public-ordering.md). Il motore cassa e i pagamenti multipli sono descritti in [cash-engine.md](cash-engine.md). Restano esclusi POS, emissione fiscale, scarico magazzino, gruppi di opzioni e stampa diretta sui dispositivi dei reparti.
 
 ## Installazione e test
 

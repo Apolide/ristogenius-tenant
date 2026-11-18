@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'title' => 'Notificaciones',
+    'search' => 'Buscar',
+    'search_placeholder' => 'Título, mensaje o referencia',
+    'type' => 'Tipo',
+    'all_types' => 'Todos los tipos',
+    'period' => 'Período',
+    'periods' => [
+        'all' => 'Todo el historial',
+        'today' => 'Hoy',
+        'week' => 'Últimos 7 días',
+        'month' => 'Últimos 30 días',
+        'custom' => 'Intervalo personalizado',
+    ],
+    'from' => 'Desde',
+    'to' => 'Hasta',
+    'status' => 'Estado',
+    'states' => [
+        'all' => 'Todas',
+        'unread' => 'Sin leer',
+        'read' => 'Leídas',
+    ],
+    'apply' => 'Aplicar filtros',
+    'reset' => 'Restablecer filtros',
+    'notification' => 'Notificación',
+    'received_at' => 'Recibida el',
+    'read' => 'Leída',
+    'empty' => 'No se encontraron notificaciones.',
+    'other_type' => 'Otro (:type)',
+    'invalid_filters' => 'Revisa los filtros. La fecha final debe ser igual o posterior a la inicial.',
+    'types' => [
+        'customer_order' => 'Nuevo pedido de cliente',
+        'table_order' => 'Nuevo pedido de mesa',
+        'staff_order' => 'Pedido enviado por el personal',
+        'proposal_accepted' => 'Propuesta aceptada',
+        'proposal_rejected' => 'Propuesta rechazada',
+        'general' => 'General',
+    ],
+];
