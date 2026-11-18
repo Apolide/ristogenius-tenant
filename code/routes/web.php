@@ -231,6 +231,7 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
         Route::middleware('role:admin')->group(function () {
+            Route::get('/manage/statistics', \App\Http\Controllers\StatisticsController::class)->name('statistics.index');
             Route::get('/manage/menu/products', ProductIndex::class)->name('menu.products');
             Route::get('/manage/menu/ingredients', IngredientIndex::class)->name('menu.ingredients');
             Route::get('/manage/menu/menus', MenuIndex::class)->name('menu.menus');
