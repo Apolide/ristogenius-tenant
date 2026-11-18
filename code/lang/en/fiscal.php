@@ -39,7 +39,16 @@ return [
     'invoice_submission' => 'Invoice submission',
     'links_still_to_verify' => '. Links still to verify: ',
     'location_registration' => 'Location registration',
+    'document_text' => [
+        'payment_reference_suffix' => ' · Payment ',
+        'discount_reference_suffix' => ' · Discount applied EUR ',
+        'consumption_share_prefix' => 'Consumption share: ',
+    ],
     'messages' => [
+        'invoice_tax_regime_required' => 'Configure the company\'s tax regime before invoicing.',
+        'invoice_recipient_tax_id_required' => 'Enter the recipient\'s VAT number or tax code.',
+        'zero_vat_invoice_configuration_required' => 'Zero-VAT invoices require a specific tax category and regime before submission.',
+        'invoice_pec_recipient_code_required' => 'Use recipient code 0000000 for PEC delivery.',
         'copy_already_requested_for_another_address' => 'A request already exists for another address: verify the saved recipient.',
         'an_adjustment_still_needs_verification' => 'An adjustment still needs verification.',
         'resource_operation_already_exists' => 'An operation already exists for this resource. Check its outcome before retrying.',

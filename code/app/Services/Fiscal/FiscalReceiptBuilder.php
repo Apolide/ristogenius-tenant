@@ -58,7 +58,7 @@ class FiscalReceiptBuilder
         $this->check(array_sum(array_map(fn ($item) => $item['quantity'] * $item['unit_cents'], $items)) === $order->totalCents(), __('fiscal.messages.fiscal_line_totals_do_not_balance'));
 
         return $context + ['items' => $items, 'payments' => $payments, 'voucher_count' => $voucherCount, 'total_cents' => $order->totalCents(),
-            'reference' => 'RistoPilot '.$context['local_id'].($order->effectiveDiscountCents() ? ' · Sconto applicato EUR '.FiscalMoney::decimal($order->effectiveDiscountCents()) : '')];
+            'reference' => 'RistoPilot '.$context['local_id'].($order->effectiveDiscountCents() ? __('fiscal.document_text.discount_reference_suffix', [], 'it').FiscalMoney::decimal($order->effectiveDiscountCents()) : '')];
     }
 
     private function allocate(int $discount, array $weights): array

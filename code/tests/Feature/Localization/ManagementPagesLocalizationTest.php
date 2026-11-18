@@ -5,6 +5,8 @@ namespace Tests\Feature\Localization;
 use App\Livewire\Menu\IngredientIndex;
 use App\Models\CustomerOrderProposal;
 use App\Models\Department;
+use App\Models\FiscalApiCall;
+use App\Models\FiscalOperation;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\ProductionTicket;
@@ -140,20 +142,27 @@ class ManagementPagesLocalizationTest extends TestCase
         $this->assertSame('Coperto', \App\Support\UiLabels::billItemName('product-id', 'Coperto'));
     }
 
-    public function test_persisted_fiscal_messages_translate_to_the_staff_language(): void
+    public function test_fiscal_history_displays_saved_errors_verbatim(): void
     {
-        app()->setLocale('en');
-        $this->assertSame(
-            'Connection interrupted: outcome needs verification. No automatic resend.',
-            \App\Support\UiLabels::systemMessage('Connessione interrotta: esito da verificare. Nessun reinvio automatico.'),
-        );
+        $admin = User::factory()->create(['lang' => 'de', 'enabled' => true]);
+        $admin->assignRole(Role::findOrCreate('admin', 'web'));
+        $operationMessage = 'Connessione interrotta: esito da verificare. Nessun reinvio automatico.';
+        $providerMessage = 'Provider diagnostic <reference>';
+        $operation = FiscalOperation::create([
+            'action' => 'issue', 'status' => 'unknown', 'resource_key' => 'receipt:history-test',
+            'active_key' => 'receipt:history-test', 'request' => [], 'error' => $operationMessage,
+        ]);
+        FiscalApiCall::create([
+            'fiscal_operation_id' => $operation->id, 'provider' => 'openapi', 'environment' => 'sandbox',
+            'action' => 'issue', 'request_hash' => str_repeat('a', 64), 'outcome' => 'unknown',
+            'error_code' => 'TEST', 'error_message' => $providerMessage, 'cost_status' => 'sandbox',
+        ]);
 
-        app()->setLocale('it');
-        $this->assertSame(
-            'Connessione interrotta: esito da verificare. Nessun reinvio automatico.',
-            \App\Support\UiLabels::systemMessage('Verbindung unterbrochen: Ergebnis zu prüfen. Kein automatisches erneutes Senden.'),
-        );
-        $this->assertSame('External provider detail', \App\Support\UiLabels::systemMessage('External provider detail'));
+        $this->actingAs($admin)->get(route('settings.fiscal'))->assertOk()
+            ->assertSee($operationMessage)
+            ->assertSee($providerMessage)
+            ->assertDontSee($providerMessage, false);
+        $this->assertSame('de', app()->getLocale());
     }
 
     public function test_email_uses_order_language_even_when_staff_and_customer_profile_differ(): void
@@ -187,13 +196,11 @@ class ManagementPagesLocalizationTest extends TestCase
             ->assertSee('lang="en"', false)->assertSee('Confirm access')->assertDontSee('Conferma accesso');
     }
 
-    public function test_validation_and_persisted_system_errors_are_localized(): void
+    public function test_validation_errors_are_localized(): void
     {
         app()->setLocale('de');
         $error = \Illuminate\Support\Facades\Validator::make([], ['nameIt' => 'required'])->errors()->first();
         $this->assertStringContainsString('erforderlich', $error);
-        $this->assertSame('Die Bestellung ist geschlossen.', \App\Support\UiLabels::systemMessage('The order is closed.'));
-        $this->assertSame('Provider diagnostic ABC', \App\Support\UiLabels::systemMessage('Provider diagnostic ABC'));
     }
 
 }

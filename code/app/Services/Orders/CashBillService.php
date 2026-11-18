@@ -40,7 +40,7 @@ class CashBillService
             }
             $this->check($mode !== 'equal' || $expectedBalance >= $count, __('cash_desk.messages.balance_too_small_for_requested_shares'));
             for ($i = 0; $i < $count; $i++) {
-                $plan->shares()->create(['position' => $i + 1, 'label' => 'Pagante '.($i + 1), 'units' => [],
+                $plan->shares()->create(['position' => $i + 1, 'label' => __('cash_desk.payer_number', ['number' => $i + 1], 'it'), 'units' => [],
                     'amount_cents' => $mode === 'equal' ? intdiv($expectedBalance, $count) + ($i < $expectedBalance % $count ? 1 : 0) : 0]);
             }
             if ($mode === 'items') {

@@ -39,7 +39,16 @@ return [
     'invoice_submission' => 'Invio fattura',
     'links_still_to_verify' => '. Associazioni ancora da verificare: ',
     'location_registration' => 'Registrazione sede',
+    'document_text' => [
+        'payment_reference_suffix' => ' · Incasso ',
+        'discount_reference_suffix' => ' · Sconto applicato EUR ',
+        'consumption_share_prefix' => 'Quota consumazioni: ',
+    ],
     'messages' => [
+        'invoice_tax_regime_required' => 'Configura il regime fiscale dell’azienda prima di fatturare.',
+        'invoice_recipient_tax_id_required' => 'Inserisci partita IVA o codice fiscale del destinatario.',
+        'zero_vat_invoice_configuration_required' => 'Le fatture con IVA zero richiedono natura e regime specifici, da completare prima dell’invio.',
+        'invoice_pec_recipient_code_required' => 'Per il recapito PEC usa codice destinatario 0000000.',
         'copy_already_requested_for_another_address' => 'Esiste già una richiesta per un altro recapito: verifica il destinatario registrato.',
         'an_adjustment_still_needs_verification' => 'Una rettifica è ancora da verificare.',
         'resource_operation_already_exists' => 'Esiste già un’operazione per questa risorsa. Verificane l’esito prima di riprovare.',

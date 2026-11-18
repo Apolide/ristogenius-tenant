@@ -48,7 +48,7 @@ class FiscalBatchAllocationService
                     if ($amount > 0) {
                         $names = collect($pricing['units'])->where('rate', $rate)->pluck('name')->unique()->implode(', ');
                         $items[] = ['quantity' => 1, 'unit_cents' => $amount, 'rate' => (int) $rate,
-                            'description' => mb_substr('Quota consumazioni: '.$names, 0, 950), 'type' => 'service'];
+                            'description' => mb_substr(__('fiscal.document_text.consumption_share_prefix', [], 'it').$names, 0, 950), 'type' => 'service'];
                     }
                 }
             }
@@ -84,7 +84,7 @@ class FiscalBatchAllocationService
         }
 
         return $context + ['items' => $items, 'payments' => $payments, 'voucher_count' => $snapshot['voucher_count'], 'total_cents' => $batch->amount_cents,
-            'reference' => 'RistoPilot '.$context['local_id'].' · Incasso '.$batch->id];
+            'reference' => 'RistoPilot '.$context['local_id'].__('fiscal.document_text.payment_reference_suffix', [], 'it').$batch->id];
     }
 
     private function allocate(int $amount, array $weights): array

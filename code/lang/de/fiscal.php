@@ -39,7 +39,16 @@ return [
     'invoice_submission' => 'Rechnungsübermittlung',
     'links_still_to_verify' => '. Noch zu prüfende Zuordnungen: ',
     'location_registration' => 'Standortregistrierung',
+    'document_text' => [
+        'payment_reference_suffix' => ' · Zahlung ',
+        'discount_reference_suffix' => ' · Angewandter Rabatt EUR ',
+        'consumption_share_prefix' => 'Verzehranteil: ',
+    ],
     'messages' => [
+        'invoice_tax_regime_required' => 'Konfigurieren Sie die Steuerregelung des Unternehmens vor der Rechnungsstellung.',
+        'invoice_recipient_tax_id_required' => 'Geben Sie die USt-IdNr. oder Steuernummer des Empfängers ein.',
+        'zero_vat_invoice_configuration_required' => 'Rechnungen ohne MwSt. benötigen vor der Übermittlung eine passende Steuerkategorie und Steuerregelung.',
+        'invoice_pec_recipient_code_required' => 'Verwenden Sie für PEC-Zustellung den Empfängercode 0000000.',
         'copy_already_requested_for_another_address' => 'Es besteht bereits eine Anfrage für eine andere Adresse: Prüfen Sie den gespeicherten Empfänger.',
         'an_adjustment_still_needs_verification' => 'Eine Korrektur muss noch geprüft werden.',
         'resource_operation_already_exists' => 'Für diese Ressource besteht bereits ein Vorgang. Prüfen Sie das Ergebnis vor einem erneuten Versuch.',

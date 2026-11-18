@@ -26,31 +26,6 @@ class UiLabels
         return __($labels[$group][strtolower($value ?? '')] ?? ($value ?? ''));
     }
 
-    /** Recognize built-in persisted errors from any supported language. External details remain verbatim. */
-    public static function systemMessage(?string $message): string
-    {
-        if (! $message) {
-            return '';
-        }
-        static $sources;
-        if ($sources === null) {
-            $sources = [];
-            foreach (['en', 'de', 'it'] as $locale) {
-                $path = lang_path($locale.'.json');
-                foreach (is_file($path) ? json_decode(file_get_contents($path), true) : [] as $source => $translation) {
-                    $sources[$translation] = $source;
-                }
-                foreach (['cash_desk.messages', 'orders.messages', 'fiscal.messages'] as $group) {
-                    foreach (__($group, [], $locale) as $key => $translation) {
-                        $sources[$translation] = $group.'.'.$key;
-                    }
-                }
-            }
-        }
-
-        return __($sources[$message] ?? $message);
-    }
-
     public static function billItemName(string $id, string $name): string
     {
         return match ($id) {
