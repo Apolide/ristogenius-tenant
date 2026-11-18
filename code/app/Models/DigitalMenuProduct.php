@@ -46,6 +46,24 @@ class DigitalMenuProduct extends Model
         return $this->name[$language] ?? $this->name['it'] ?? collect($this->name)->first() ?? '';
     }
 
+    public static function canonicalAllergen(string $value): string
+    {
+        return self::allergenLabel($value, 'it');
+    }
+
+    public static function allergenLabel(string $value, string $locale): string
+    {
+        foreach (['it', 'en', 'de'] as $sourceLocale) {
+            $code = array_search($value, __('menu.allergens', [], $sourceLocale), true);
+
+            if ($code !== false) {
+                return __('menu.allergens.'.$code, [], $locale);
+            }
+        }
+
+        return $value;
+    }
+
     public function translatedDescription(?string $language = null): string
     {
         $language ??= app()->getLocale();

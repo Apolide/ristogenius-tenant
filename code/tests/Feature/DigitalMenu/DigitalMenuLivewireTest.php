@@ -253,12 +253,14 @@ class DigitalMenuLivewireTest extends TestCase
         $menu = $this->menu();
         $category = DigitalMenuCategory::create(['digital_menu_id' => $menu->id, 'name' => ['it' => 'Secondi', 'en' => 'Mains'], 'position' => 0]);
         $product = $this->product('Pescato del giorno', 24);
+        $product->update(['allergens' => ['Weichtiere']]);
         $category->products()->attach($product->id, ['position' => 0, 'is_visible' => true]);
 
         $this->get(route('menu.public', ['language' => 'it', 'menu' => $menu]))
             ->assertOk()
             ->assertSee('Menu Mare')
             ->assertSee('Pescato del giorno')
+            ->assertSee('molluschi')
             ->assertSee('id="menu-language"', false)
             ->assertSee('dm-product-card', false)
             ->assertSee('dm-nav', false)
@@ -269,6 +271,7 @@ class DigitalMenuLivewireTest extends TestCase
         $this->get(route('menu.public', ['language' => 'en', 'menu' => $menu]))
             ->assertOk()
             ->assertSee('Order for pickup or delivery')
+            ->assertSee('molluscs')
             ->assertDontSee('Ordina per ritiro o consegna');
 
         $this->get(route('menu.public', ['language' => 'de', 'menu' => $menu]))->assertNotFound();

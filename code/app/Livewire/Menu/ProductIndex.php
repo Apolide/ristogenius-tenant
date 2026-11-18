@@ -91,7 +91,7 @@ class ProductIndex extends Component
         $this->price = (float) $product->price;
         $this->vat = $product->vat;
         $this->departmentId = $product->department_id;
-        $this->allergens = $product->allergens ?? [];
+        $this->allergens = array_map(DigitalMenuProduct::canonicalAllergen(...), $product->allergens ?? []);
         $this->isActive = $product->is_active;
         $this->disallowTakeaway = $product->disallow_takeaway;
         $this->dailyPieces = $product->daily_pieces;
@@ -123,7 +123,7 @@ class ProductIndex extends Component
             }
         }
         $this->showForm = false;
-        session()->flash('success', __('Prodotto salvato.'));
+        session()->flash('success', __('menu.products.product_saved'));
     }
 
     public function delete(string $id): void
@@ -131,7 +131,7 @@ class ProductIndex extends Component
         $product = DigitalMenuProduct::findOrFail($id);
         Storage::disk('public')->delete($product->image_path);
         $product->delete();
-        session()->flash('success', __('Prodotto eliminato.'));
+        session()->flash('success', __('menu.products.product_deleted'));
     }
 
     private function resetForm(): void
@@ -155,6 +155,6 @@ class ProductIndex extends Component
     {
         $query = DigitalMenuProduct::with(['department', 'recommendations'])->withCount('ingredients')->when($this->search, fn ($q) => $q->whereTranslatedNameContains($this->search))->when($this->departmentFilter, fn ($q) => $q->where('department_id', $this->departmentFilter));
 
-        return view('livewire.menu.product-index', ['products' => $query->latest()->paginate(15), 'departments' => Department::orderBy('name')->get(), 'ingredients' => DigitalMenuIngredient::orderBy('name')->get(), 'recommendableProducts' => DigitalMenuProduct::when($this->editingId, fn ($q) => $q->whereKeyNot($this->editingId))->orderBy('name')->get()])->title(__('Prodotti'));
+        return view('livewire.menu.product-index', ['products' => $query->latest()->paginate(15), 'departments' => Department::orderBy('name')->get(), 'ingredients' => DigitalMenuIngredient::orderBy('name')->get(), 'recommendableProducts' => DigitalMenuProduct::when($this->editingId, fn ($q) => $q->whereKeyNot($this->editingId))->orderBy('name')->get()])->title(__('menu.products.products'));
     }
 }

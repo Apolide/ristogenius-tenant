@@ -2,11 +2,6 @@
     $primary = data_get($menu->theme, 'primary', '#0f766e');
     $accent = data_get($menu->theme, 'accent', '#d97706');
     $background = data_get($menu->theme, 'background', '#fffaf0');
-    $labels = [
-        'it' => ['digital' => 'Il nostro menu', 'allergens' => 'Allergeni', 'upsell' => 'Rendilo speciale', 'upsell_text' => 'Scopri una proposta ancora più speciale', 'cross' => 'Perfetto insieme', 'service' => 'Servizio'],
-        'en' => ['digital' => 'Our menu', 'allergens' => 'Allergens', 'upsell' => 'Make it special', 'upsell_text' => 'Discover an even more special option', 'cross' => 'Perfect together', 'service' => 'Service'],
-        'de' => ['digital' => 'Unsere Speisekarte', 'allergens' => 'Allergene', 'upsell' => 'Mach es besonders', 'upsell_text' => 'Entdecke eine noch besondere Empfehlung', 'cross' => 'Passt perfekt dazu', 'service' => 'Service'],
-    ][$language] ?? null;
 @endphp
 
 <div class="digital-menu min-h-screen pb-16" style="--dm-primary: {{ $primary }}; --dm-accent: {{ $accent }}; --dm-bg: {{ $background }}; background: var(--dm-bg); color: #24332f">
@@ -62,7 +57,7 @@
             </div>
 
             <div class="mt-auto max-w-2xl">
-                <p class="mb-3 text-xs font-bold uppercase tracking-[.28em] text-white/75">{{ $labels['digital'] }}</p>
+                <p class="mb-3 text-xs font-bold uppercase tracking-[.28em] text-white/75">{{ __('menu.public.digital', [], $language) }}</p>
                 <h1 class="dm-display text-4xl font-semibold leading-tight text-white sm:text-6xl">{{ $menu->translatedName($language) }}</h1>
                 @if($menu->translatedDescription($language))
                     <p class="mt-4 max-w-xl text-base leading-7 text-white/85 sm:text-lg">{{ $menu->translatedDescription($language) }}</p>
@@ -117,7 +112,7 @@
                                     <strong class="dm-price shrink-0 rounded-full border px-3 py-1.5 text-sm">{{ Number::currency($product->pivot->menu_price ?? $product->price, 'EUR', $language) }}</strong>
                                 </div>
                                 @if($product->translatedDescription($language))<p class="dm-muted mt-3 text-sm leading-6">{{ $product->translatedDescription($language) }}</p>@endif
-                                @if($product->allergens)<p class="mt-3 text-xs text-[#8a5b39]"><strong>{{ $labels['allergens'] }}:</strong> {{ implode(', ', array_map(fn ($allergen) => __($allergen, [], $language), $product->allergens)) }}</p>@endif
+                                @if($product->allergens)<p class="mt-3 text-xs text-[#8a5b39]"><strong>{{ __('menu.public.allergens', [], $language) }}:</strong> {{ implode(', ', array_map(fn ($allergen) => \App\Models\DigitalMenuProduct::allergenLabel($allergen, $language), $product->allergens)) }}</p>@endif
 
                                 @if(($ordering ?? false) && $access)
                                     <button type="button" wire:click="chooseProduct('{{ $category->id }}','{{ $product->id }}')" class="mt-4 rounded-xl px-4 py-3 font-semibold text-white" style="background:var(--dm-primary)">{{ __('public_interface.customize', [], $language) }}</button>
@@ -125,14 +120,14 @@
                                 @php($upsells = $product->recommendations->where('type', 'upsell'))
                                 @if($upsells->isNotEmpty())
                                     <div class="dm-upsell mt-5 rounded-xl border p-4">
-                                        <div class="flex items-start gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-lg shadow-sm">✨</span><div><h4 class="dm-upsell-title text-sm font-bold">{{ $labels['upsell'] }}</h4><p class="mt-0.5 text-xs text-[#796450]">{{ $labels['upsell_text'] }}</p></div></div>
+                                        <div class="flex items-start gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-lg shadow-sm">✨</span><div><h4 class="dm-upsell-title text-sm font-bold">{{ __('menu.public.upsell', [], $language) }}</h4><p class="mt-0.5 text-xs text-[#796450]">{{ __('menu.public.upsell_text', [], $language) }}</p></div></div>
                                         <div class="mt-3 space-y-2">@foreach($upsells as $recommendation)<div class="flex items-center gap-3 rounded-lg bg-white p-2.5 shadow-sm">@if($recommendation->recommendedProduct->image_path)<img src="{{ Storage::url($recommendation->recommendedProduct->image_path) }}" alt="" class="h-10 w-10 rounded-md object-cover" loading="lazy">@endif<span class="min-w-0 flex-1 text-sm font-semibold">{{ $recommendation->recommendedProduct->translatedName($language) }}</span><strong class="text-sm" style="color: var(--dm-accent)">{{ Number::currency($recommendation->recommendedProduct->price, 'EUR', $language) }}</strong></div>@endforeach</div>
                                     </div>
                                 @endif
 
                                 @php($crossSells = $product->recommendations->where('type', 'cross_sell'))
                                 @if($crossSells->isNotEmpty())
-                                    <div class="mt-5"><h4 class="dm-cross-title mb-2 text-xs font-bold uppercase tracking-wider">{{ $labels['cross'] }}</h4><div class="flex gap-2 overflow-x-auto pb-1">@foreach($crossSells as $recommendation)<div class="dm-cross-card flex min-w-[12rem] items-center gap-2 rounded-xl border p-2.5">@if($recommendation->recommendedProduct->image_path)<img src="{{ Storage::url($recommendation->recommendedProduct->image_path) }}" alt="" class="h-10 w-10 rounded-lg object-cover" loading="lazy">@endif<div class="min-w-0"><span class="block truncate text-xs font-semibold">{{ $recommendation->recommendedProduct->translatedName($language) }}</span><strong class="dm-cross-title text-xs">+ {{ Number::currency($recommendation->recommendedProduct->price, 'EUR', $language) }}</strong></div></div>@endforeach</div></div>
+                                    <div class="mt-5"><h4 class="dm-cross-title mb-2 text-xs font-bold uppercase tracking-wider">{{ __('menu.public.cross', [], $language) }}</h4><div class="flex gap-2 overflow-x-auto pb-1">@foreach($crossSells as $recommendation)<div class="dm-cross-card flex min-w-[12rem] items-center gap-2 rounded-xl border p-2.5">@if($recommendation->recommendedProduct->image_path)<img src="{{ Storage::url($recommendation->recommendedProduct->image_path) }}" alt="" class="h-10 w-10 rounded-lg object-cover" loading="lazy">@endif<div class="min-w-0"><span class="block truncate text-xs font-semibold">{{ $recommendation->recommendedProduct->translatedName($language) }}</span><strong class="dm-cross-title text-xs">+ {{ Number::currency($recommendation->recommendedProduct->price, 'EUR', $language) }}</strong></div></div>@endforeach</div></div>
                                 @endif
                             </div>
                         </article>
@@ -142,7 +137,7 @@
         @endforeach
 
         @if(!($ordering ?? false) && $menu->service_charge > 0)
-            <div class="mt-12 flex items-center justify-between rounded-xl border bg-white p-4 text-sm shadow-sm" style="border-color: color-mix(in srgb, var(--dm-primary) 16%, #ddd)"><span class="dm-muted">{{ $labels['service'] }}</span><strong style="color: var(--dm-primary)">{{ Number::currency($menu->service_charge, 'EUR', $language) }}</strong></div>
+            <div class="mt-12 flex items-center justify-between rounded-xl border bg-white p-4 text-sm shadow-sm" style="border-color: color-mix(in srgb, var(--dm-primary) 16%, #ddd)"><span class="dm-muted">{{ __('menu.public.service', [], $language) }}</span><strong style="color: var(--dm-primary)">{{ Number::currency($menu->service_charge, 'EUR', $language) }}</strong></div>
         @endif
     </main>
 
