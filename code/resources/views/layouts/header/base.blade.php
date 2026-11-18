@@ -351,37 +351,30 @@
           <div
             class="header-element md:!px-[0.5rem] px-2 hs-dropdown profile-dropdown !items-center ti-dropdown [--placement:bottom-left]">
 
-            <button id="dropdown-profile" type="button"
+            <button id="dropdown-profile" type="button" aria-label="{{ __('interface.my_profile') }}"
               class="hs-dropdown-toggle ti-dropdown-toggle !gap-2 !p-0 flex-shrink-0 me-0 !rounded-full !shadow-none text-xs align-middle !border-0 !shadow-transparent ">
               <img class="inline-block rounded-full " src="/assets/images/faces/6.jpg" width="37" height="37"
-                alt="Image Description">
+                alt="">
             </button>
             <div
               class="main-header-dropdown !-mt-2 !p-0 hs-dropdown-menu ti-dropdown-menu  bg-white  !border-0 border-defaultborder hidden !m-0"
               aria-labelledby="dropdown-profile">
 
               <ul class="dropdown-menu pt-0 header-profile-dropdown dropdown-menu-end main-profile-menu"
-                aria-labelledby="mainHeaderProfile">
+                aria-labelledby="dropdown-profile">
                 <li>
                   <div class="main-header-profile bg-primary menu-header-content text-white">
                     <div class="my-auto">
                       <h6 class="mb-0 leading-none text-white">{{Auth::user()->name}}</h6><span
-                        class="text-[.6875rem] opacity-[0.7] leading-none">{{Auth::user()->roles[0]->name}}</span>
+                        class="text-[.6875rem] opacity-[0.7] leading-none">{{ auth()->user()->getRoleNames()->map(fn ($role) => __('personnel.roles.'.$role) === 'personnel.roles.'.$role ? $role : __('personnel.roles.'.$role))->implode(', ') }}</span>
                     </div>
                   </div>
                 </li>
-                <li><a class="dropdown-item text-defaulttextcolor flex " href="profile.html"><i
-                      class="bx bx-user-circle text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.profile') }}</a></li>
-                <li><a class="dropdown-item text-defaulttextcolor flex " href="profile.html"><i
-                      class="bx bx-cog text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.edit_profile') }}</a></li>
-                <li><a class="dropdown-item text-defaulttextcolor flex  border-block-end" href="mail.html"><i
-                      class="bx bxs-inbox text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.inbox') }}</a></li>
-                <li><a class="dropdown-item text-defaulttextcolor flex " href="chat.html"><i
-                      class="bx bx-envelope text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.messages') }}</a></li>
-                <li><a class="dropdown-item text-defaulttextcolor flex  border-block-end" href="profile.html"><i
-                      class="bx bx-slider-alt text-[1.125rem] me-2 opacity-[0.7]"></i>{{ __('interface.account_settings') }}</a></li>
+                <li><a class="dropdown-item text-defaulttextcolor flex" href="{{ route('account.profile') }}">
+                    <i class="bx bx-user-circle text-[1.125rem] me-2 opacity-[0.7]" aria-hidden="true"></i>{{ __('interface.my_profile') }}</a></li>
+                <li><a class="dropdown-item text-defaulttextcolor flex border-block-end" href="{{ route('notifications.index') }}">
+                    <i class="bx bxs-inbox text-[1.125rem] me-2 opacity-[0.7]" aria-hidden="true"></i>{{ __('interface.inbox') }}</a></li>
 
-                
                 <li>
                   <form method="POST" action="{{ route('logout') }}">
                       @csrf

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'manage' => 'Διαχείριση',
+    'statistics' => 'Στατιστικά',
     'notifications' => 'Ειδοποιήσεις',
     'mark_all_read' => 'Σήμανση όλων ως αναγνωσμένων',
     'unread' => 'Μη αναγνωσμένη',
@@ -26,4 +28,9 @@ return [
     'name' => 'Όνομα',
     'save' => 'Αποθήκευση',
     'unauthenticated' => 'Απαιτείται σύνδεση',
+    'my_profile' => 'Το προφίλ μου',
+    'profile_saved' => 'Το προφίλ ενημερώθηκε.',
+    'account_disabled' => 'Απενεργοποιημένος',
+    'account_enabled' => 'Ενεργός λογαριασμός',
+    'view_all_notifications' => 'Προβολή όλων',
 ];

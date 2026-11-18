@@ -1,5 +1,7 @@
 <ul class="main-menu" style="margin-left: 0px; margin-right: 0px;">
 
+
+
     <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.bookings') }}</span></li>
     <li class="slide">
         <a href="/manage/bookings" class="side-menu__item">
@@ -86,6 +88,9 @@
             <span class="side-menu__label">{{ __('sidebar.customers') }}</span>
         </a>
     </li>
+
+
+
 {{--
     <li class="slide has-sub {{ request()->routeIs('menu.*') && ! request()->routeIs('menu.public') ? 'open active' : '' }}">
         <a href="javascript:void(0);" class="side-menu__item">
@@ -103,7 +108,7 @@
             data-popper-escaped="">
 
             <li class="slide">
-                <a href="/operations" class="side-menu__item">
+                <a href="/manage/notifications" class="side-menu__item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
                               d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2">
@@ -112,6 +117,8 @@
                     <span class="side-menu__label">Operations</span>
                 </a>
             </li>
+
+
             <li class="slide">
                 <a href="/calendar" class="side-menu__item">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
@@ -223,7 +230,8 @@
             </li>
 
         </ul>
-    </li> --}}
+    </li> 
+--}}
 
 
     <li class="slide has-sub">
@@ -256,6 +264,82 @@
             </li>
 
         </ul>
+    </li>
+
+
+    <li class="slide has-sub {{ request()->routeIs('menu.*') && ! request()->routeIs('menu.public') ? 'open active' : '' }}">
+        <a href="javascript:void(0);" class="side-menu__item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
+                <path d="M2 1h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2m0 1a1 1 0 0 0-1 1v2h14V3a1 1 0 0 0-1-1zm13 4H1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"></path>
+                <path d="M4.5 8a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 1 0v-3A.5.5 0 0 0 4.5 8m3 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 7.5 9m3-2a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.5-.5"></path>
+                <path
+                      d="M11.97 2.72a.75.75 0 0 1 1.06 0l.25.25.35-.07a.75.75 0 0 1 .88.88l-.07.35.25.25a.75.75 0 0 1 0 1.06l-.25.25.07.35a.75.75 0 0 1-.88.88l-.35-.07-.25.25a.75.75 0 0 1-1.06 0l-.25-.25-.35.07a.75.75 0 0 1-.88-.88l.07-.35-.25-.25a.75.75 0 0 1 0-1.06l.25-.25-.07-.35a.75.75 0 0 1 .88-.88l.35.07z">
+                </path>
+            </svg>
+            <span class="side-menu__label">{{ __('interface.manage') }}</span>
+            <i class="fe fe-chevron-right side-menu__angle"></i>
+        </a>
+
+        <ul class="slide-menu child1" data-popper-placement="bottom" style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate3d(239.143px, 444px, 0px);" data-popper-reference-hidden=""
+            data-popper-escaped="">
+
+            <li class="slide">
+                <a href="{{ route('notifications.index') }}" class="side-menu__item {{ request()->routeIs('notifications.*') ? 'active' : '' }}" @if(request()->routeIs('notifications.*')) aria-current="page" @endif>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2">
+                        </path>
+                    </svg>
+                    <span class="side-menu__label">{{ __('interface.notifications') }}</span>
+                </a>
+            </li>
+{{--
+            <li class="slide">
+                <a href="/manage/calendar" class="side-menu__item">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="side-menu__icon" viewBox="0 0 16 16">
+                        <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857z"></path>
+                        <path
+                              d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2">
+                        </path>
+                    </svg>
+                    <span class="side-menu__label">Calendario</span>
+                </a>
+            </li>
+
+            <li class="slide">
+                <a href="/manage/assistant" class="side-menu__item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="fill:none !important;"
+                         stroke-linejoin="round" class="feather feather-cpu side-menu__icon">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                    </svg> <span class="side-menu__label">Assistente AI</span>
+                </a>
+            </li>
+--}}
+
+
+            <li class="slide">
+                <a href="/manage/statistics" class="side-menu__item">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0V0z" fill="none"></path>
+                        <path d="M5 5h4v6H5zm10 8h4v6h-4zM5 17h4v2H5zM15 5h4v2h-4z" opacity=".3"></path>
+                        <path d="M3 13h8V3H3v10zm2-8h4v6H5V5zm8 16h8V11h-8v10zm2-8h4v6h-4v-6zM13 3v6h8V3h-8zm6 4h-4V5h4v2zM3 21h8v-6H3v6zm2-4h4v2H5v-2z"></path>
+                    </svg>
+                    <span class="side-menu__label">{{ __('interface.statistics') }}</span>
+                </a>
+            </li>
+
+        </ul>
+
+
     </li>
 
     <li class="slide__category"><span class="category-name">{{ __('sidebar.categories.marketing') }}</span></li>

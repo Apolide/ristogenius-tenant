@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use App\Livewire\Bookings\BookingCreate;
 // Livewire
@@ -25,6 +26,7 @@ use App\Livewire\Menu\IngredientIndex;
 use App\Livewire\Menu\MenuIndex;
 use App\Livewire\Menu\ProductIndex;
 use App\Livewire\Menu\PublicMenu;
+use App\Livewire\Personnel\AccountProfile;
 use App\Livewire\Personnel\PersonnelCreate;
 use App\Livewire\Personnel\PersonnelEdit;
 use App\Livewire\Personnel\PersonnelIndex;
@@ -137,6 +139,11 @@ Route::domain(env('DOMAIN'))->group(function () {
         });
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/manage/account/profile', AccountProfile::class)->name('account.profile');
+        Route::get('/manage/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/manage/notifications/{notification}', [NotificationController::class, 'show'])
+            ->whereNumber('notification')->name('notifications.show');
+
         Route::get('/manage', BookingIndex::class)
             ->middleware('personnel.permission:'.PersonnelPermissionsService::BOOKINGS)
             ->name('manage');

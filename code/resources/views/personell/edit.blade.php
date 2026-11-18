@@ -1,6 +1,9 @@
 <div class="content">
 <div class="main-content">
     <div class="md:flex block items-center justify-between mb-6 page-header-breadcrumb">
+        @if ($selfProfile)
+            <h5 class="page-title">{{ __('interface.my_profile') }}</h5>
+        @else
         <div class="my-auto">
             <h5 class="page-title text-[1.3125rem] font-medium text-defaulttextcolor mb-0">{{ __('personnel.title') }}</h5>
             <nav><ol class="flex items-center whitespace-nowrap min-w-0">
@@ -9,11 +12,16 @@
             </ol></nav>
         </div>
         <a href="{{ route('personnel.edit', $userId) }}" class="ti-btn ti-btn-warning-full text-white ti-btn-icon"><i class="las text-3xl la-redo-alt"></i></a>
+        @endif
     </div>
+
+    @if (session('success') && $selfProfile)
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
 
     <div class="box">
         <div class="box-header border-none">
-            <div class="box-title pb-0">{{ __('personnel.edit_employee') }}</div>
+            <div class="box-title pb-0">{{ __($selfProfile ? 'interface.account_settings' : 'personnel.edit_employee') }}</div>
         </div>
 
         <div class="box-body">
@@ -27,13 +35,13 @@
 
                     <div class="w-full mb-3">
                         <label for="email" class="block mb-2 text-sm font-medium">{{ __('interface.email') }}</label>
-                        <input required wire:model="email" type="email" id="email" class="form-control">
+                        <input @disabled(! $canEditAccountFields) required wire:model="email" type="email" id="email" class="form-control">
                         @error('email') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="w-full mb-3">
                         <label for="phone" class="block mb-2 text-sm font-medium">{{ __('personnel.phone') }}</label>
-                        <input required wire:model="phone" type="tel" id="phone" class="form-control">
+                        <input @disabled(! $canEditAccountFields) @required(! $selfProfile) wire:model="phone" type="tel" id="phone" class="form-control">
                         @error('phone') <div class="text-danger text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -41,7 +49,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div class="w-full mb-3">
                         <label for="role" class="block mb-2 text-sm font-medium">{{ __('personnel.role') }}</label>
-                        <select required wire:model="role" id="role" class="ti-form-select rounded-sm !py-2 !px-3">
+                        <select @disabled(! $canEditAccountFields) required wire:model="role" id="role" class="ti-form-select rounded-sm !py-2 !px-3">
                             <option value="">{{ __('personnel.select_role') }}</option>
                             @foreach ($role_list as $singleRole)
                                 <option value="{{ $singleRole }}">{{ __("personnel.roles.{$singleRole}") }}</option>
@@ -62,20 +70,38 @@
                 </div>
 
                 <div class="w-full mb-5">
-                    <input wire:model="receive_whatsapp_notifications" type="checkbox" id="receive-whatsapp" class="ti-switch">
+                    <input @disabled(! $canEditAccountFields) wire:model="receive_whatsapp_notifications" type="checkbox" id="receive-whatsapp" class="ti-switch">
                     <label for="receive-whatsapp" class="text-sm text-gray-500 ltr:ml-3 rtl:mr-3 cursor-pointer">{{ __('personnel.whatsapp') }}</label>
                 </div>
 
                 <div class="w-full mb-5">
-                    <input wire:model="receive_telegram_notifications" type="checkbox" id="receive-telegram" class="ti-switch">
+                    <input @disabled(! $canEditAccountFields) wire:model="receive_telegram_notifications" type="checkbox" id="receive-telegram" class="ti-switch">
                     <label for="receive-telegram" class="text-sm text-gray-500 ltr:ml-3 rtl:mr-3 cursor-pointer">{{ __('personnel.telegram') }}</label>
                 </div>
+
+                @if ($selfProfile)
+                    <div class="mb-5">
+                        <p class="mb-2">
+                            {{ __('personnel.index.status') }}:
+                            <strong>{{ __(! $account->enabled ? 'interface.account_disabled' : ($account->invited_at && ! $account->activated_at ? 'personnel.index.invited' : 'personnel.index.active')) }}</strong>
+                        </p>
+                        @if ($canEditAccountFields)
+                            <label class="inline-flex items-center gap-2">
+                                <input wire:model="enabled" type="checkbox" class="ti-switch">
+                                {{ __('interface.account_enabled') }}
+                            </label>
+                            @error('enabled') <div class="text-danger text-xs">{{ $message }}</div> @enderror
+                        @endif
+                    </div>
+                @endif
 
                 <button wire:target="submit" wire:loading.attr="disabled" type="submit" class="ti-btn ti-btn-primary-full ti-btn-wave me-[0.375rem]">
                     <span wire:loading.remove wire:target="submit">{{ __('personnel.save') }}</span>
                     <span wire:loading wire:target="submit">{{ __('personnel.saving') }}</span>
                 </button>
-                <a href="{{ route('personnel.index') }}" class="ti-btn ti-btn-light ti-btn-wave">{{ __('personnel.cancel') }}</a>
+                @unless ($selfProfile)
+                    <a href="{{ route('personnel.index') }}" class="ti-btn ti-btn-light ti-btn-wave">{{ __('personnel.cancel') }}</a>
+                @endunless
             </form>
         </div>
     </div>

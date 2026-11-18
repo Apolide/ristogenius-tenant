@@ -76,6 +76,10 @@ class PersonnelManagementTest extends TestCase
 
     public function test_admin_can_edit_personnel_data_role_and_notification_preferences(): void
     {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->actingAs($admin);
+
         $employee = User::factory()->create([
             'name' => 'Mario Rossi',
             'email' => 'mario@example.test',

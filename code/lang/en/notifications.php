@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'title' => 'Notifications',
+    'search' => 'Search',
+    'search_placeholder' => 'Title, message or reference',
+    'type' => 'Type',
+    'all_types' => 'All types',
+    'period' => 'Period',
+    'periods' => [
+        'all' => 'Entire history',
+        'today' => 'Today',
+        'week' => 'Last 7 days',
+        'month' => 'Last 30 days',
+        'custom' => 'Custom range',
+    ],
+    'from' => 'From',
+    'to' => 'To',
+    'status' => 'Status',
+    'states' => [
+        'all' => 'All',
+        'unread' => 'Unread',
+        'read' => 'Read',
+    ],
+    'apply' => 'Apply filters',
+    'reset' => 'Reset filters',
+    'notification' => 'Notification',
+    'received_at' => 'Received',
+    'read' => 'Read',
+    'empty' => 'No notifications found.',
+    'other_type' => 'Other (:type)',
+    'invalid_filters' => 'Check the filters. The end date must be on or after the start date.',
+    'types' => [
+        'customer_order' => 'New customer order',
+        'table_order' => 'New table order',
+        'staff_order' => 'Order sent by staff',
+        'proposal_accepted' => 'Proposal accepted',
+        'proposal_rejected' => 'Proposal rejected',
+        'general' => 'General',
+    ],
+];

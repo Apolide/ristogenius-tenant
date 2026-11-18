@@ -29,6 +29,18 @@ class Notification extends Model
 
     protected $casts = ['translation_data' => 'array'];
 
+    public function icon(): string
+    {
+        return config('notifications.types')[$this->type]['icon'] ?? config('notifications.types.general.icon');
+    }
+
+    public static function typeLabel(string $type): string
+    {
+        $label = config('notifications.types')[$type]['label'] ?? null;
+
+        return $label ? __('notifications.types.'.$label) : __('notifications.other_type', ['type' => $type]);
+    }
+
     public function translatedTitle(): string
     {
         $data = $this->translation_data ?: $this->legacyTranslationData();

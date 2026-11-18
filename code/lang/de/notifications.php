@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'title' => 'Benachrichtigungen',
+    'search' => 'Suchen',
+    'search_placeholder' => 'Titel, Nachricht oder Referenz',
+    'type' => 'Typ',
+    'all_types' => 'Alle Typen',
+    'period' => 'Zeitraum',
+    'periods' => [
+        'all' => 'Gesamter Verlauf',
+        'today' => 'Heute',
+        'week' => 'Letzte 7 Tage',
+        'month' => 'Letzte 30 Tage',
+        'custom' => 'Benutzerdefinierter Zeitraum',
+    ],
+    'from' => 'Von',
+    'to' => 'Bis',
+    'status' => 'Status',
+    'states' => [
+        'all' => 'Alle',
+        'unread' => 'Ungelesen',
+        'read' => 'Gelesen',
+    ],
+    'apply' => 'Filter anwenden',
+    'reset' => 'Filter zurücksetzen',
+    'notification' => 'Benachrichtigung',
+    'received_at' => 'Eingegangen am',
+    'read' => 'Gelesen',
+    'empty' => 'Keine Benachrichtigungen gefunden.',
+    'other_type' => 'Sonstige (:type)',
+    'invalid_filters' => 'Prüfen Sie die Filter. Das Enddatum darf nicht vor dem Startdatum liegen.',
+    'types' => [
+        'customer_order' => 'Neue Kundenbestellung',
+        'table_order' => 'Neue Tischbestellung',
+        'staff_order' => 'Vom Personal gesendete Bestellung',
+        'proposal_accepted' => 'Vorschlag angenommen',
+        'proposal_rejected' => 'Vorschlag abgelehnt',
+        'general' => 'Allgemein',
+    ],
+];
